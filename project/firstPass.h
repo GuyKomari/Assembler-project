@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include "globalVariables.h"
+#include "list.h"
+
 /*
 
 */
@@ -9,13 +12,14 @@
 scanning line and sending it to the proper function in the "parser" module.
 */
 
-int readLine(File * fp);
+void firstpass(char* filename);
 
-int isFirstVarLabel(char* line);
+/*Responsible: GIL*/
+bool readLine(FILE*, char*);
 
 /*.struct / .data / .string*/
-int isDataSymbol(char* token);
+bool isDataSymbol(char*);
 
-void insertToSymbolTable(char* token);
+void insertToSymbolTable(char*);
 
-int isSymbolExist(char* token);
+bool isSymbolExist(char*);

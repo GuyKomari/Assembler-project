@@ -1,11 +1,12 @@
-#include <main.h>
+#include "main.h"
+#include "assembler.h"
 
 int main(int argc, char** argv)
 {
-	File * inputFile;
-	while(*argv)
+	int i;
+	for (i = 1; i < argc; i++)
 	{
-		runAssembler(*argv[i]++);
+		runAssembler(argv[i]);
 	}
 	return 0;
 }
