@@ -1,8 +1,9 @@
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include "errors.h"
 
-void printError(error err);
-
-int hasError()
-
-int errorTypes()
-
- 
+void printError(char* error)
+{
+	fprintf(stderr, "%s%s\n", "[Error] -> ", error);
+}

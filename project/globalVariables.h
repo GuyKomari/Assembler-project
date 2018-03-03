@@ -18,7 +18,7 @@ Here are all the global variables
 
 #define OPCODE_SIZE 4
 
-#define MAX_SENTENCE_LENGTH 80
+#define MAX_LINE_LENGTH 80
 
 #define NUM_OF_REGISTERS 8
 
@@ -43,8 +43,24 @@ Here are all the global variables
 
 typedef enum {false, true} bool;
 
-typedef enum {mov,cmp,add,sub,not,clr,lea,
-			  inc,dec,jmp,bne,red,prn,jsr,rts,stop }opcodeValue;
+typedef enum {
+	mov,
+	cmp,
+	add,
+	sub,
+	not,
+	clr,
+	lea,
+	inc,
+	dec,
+	jmp,
+	bne,
+	red,
+	prn,
+	jsr,
+	rts,
+	stop
+} opcodeValue;
 
 
 typedef enum {
@@ -57,7 +73,7 @@ typedef enum {
 	emptySentence,
 	comment,
 	declaration,
-	comand
+	command
 }sentenceType;
 
 typedef enum{
