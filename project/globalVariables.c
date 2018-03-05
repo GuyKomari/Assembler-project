@@ -1,20 +1,12 @@
 #include "globalVariables.h"
 
-int IC = IC_START;
+const char* WIERD_32_BASE [BASE_LENGTH] = {
+"!","@","#","$","%","^","&","*",
+"<",">","a","b","c","d","e","f",
+"g","h","i","j","k","l","m","n",
+"o","p","q","r","s","t","u","v"	};
 
-int DC = DC_START;
-
-int PSU = 0; 
-
-bol errorFlag = FALSE;
-
-const char WIERD_32_BASE [BASE_LENGTH] = {
-'!','@','#','$','%','^','&','*',
-'<','>','a','b','c','d','e','f',
-'g','h','i','j','k','l','m','n',
-'o','p','q','r','s','t','u','v'	};
-
-const opcodeStructure opcodes = {
+const opcodeStructure opcodes[NUM_OF_OPCODES] = {
 	{	0	,	"mov"	,	"0000"	,	FIRST_GROUP		}			
 	{	1	,	"cmp"	,	"0001"	,	FIRST_GROUP		}	
 	{	2	,	"add"	,	"0010"	,	FIRST_GROUP		}	
