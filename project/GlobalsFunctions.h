@@ -1,33 +1,41 @@
-/*is token a register*/
-int isRegister(char *token);
+/*is token a valid register*/
+bool isRegister(char *token);
 
 /*is token a valid opcode*/
-int isOpcode(char *token);
-
+bool isOpcode(char *token);
 
 /*
-Description: is token a valid label
+Description: is token a valid label 
+Get a line to check if has a label defenition,
+if true - return true and insert the label to the destination string
 Responsible: GIL
 */
-bool isLabel(char*);
+bool isLabel(char*,char*);
 
 /*
-Description: is label already defined
+Description: gets a valid label and checks if this label already defined
 Responsible: GUY
 */
 int isLabelDefined(char* token);
 
 /*
 Description: is token a struct
+Get a line to check if has a data defenition - .string | .data | .struct ,
+if true - return true and insert the data to the second string
 Responsible: GIL
 */
-bool isDataCommand(char*);
+bool isDataCommand(char*,char*);
 
 /*
 Description:
 Responsible: GUY
 */
 bool isEntry(char*);
+
+
+
+bool isExtern(char*);
+
 
 /*
 Description: is token empty sentence
@@ -62,32 +70,6 @@ TODO:
 Instead of returning string.
 */
 
-/*
-Description: trim whitespace from str
-Responsible: GUY
-*/
-char *trimStr(char *str);
-
-/*trim whitespace on right end of str*/
-char *trimRightStr(char *str);
-
-/*trim whitespaces on left end of str*/
-char *trimLeftStr(char *str);
-
-/*returns the sentence in sentence i*/
-char *getSentence(File * file, int i);
-
-/*
-Description: convert decimal code to binary code
-Responsible: GIL
-*/
-bool decimalToBinary(char *code, char* dest);
-
-/*
-Description: convert binary code to "wierd 32 base"
-Responsible: GUY
-*/
-char *binaryToWierd(char *code)
 
 /*
 TODO: to see if it's necessary
@@ -99,11 +81,45 @@ int isSecondGroup(opcodeStructure opcode);
 
 int isThirdGroup(opcode_structure opcode);
 
-
-
 /*char* getLabelNameFromLine(char*);*/
 
-
-
 bool isFileExists(char*);
+
+
+
+
+
+
+/*
+TODO: change the string functions (functions that handles strings) to (char* target, char* dest) type
+Description: trim whitespace from str
+Responsible: GUY
+*/
+char *trimStr(char *str);
+
+/*trim whitespace on right end of str*/
+char *trimRightStr(char *str);
+
+/*trim whitespaces on left end of str*/
+char *trimLeftStr(char *str);
+
+
+/*
+Description: convert decimal code to binary code
+Responsible: GUY
+*/
+bool decimalToBinary(int n, int binaryNum[], int arrSize)
+
+/*
+Description: convert binary code to "wierd 32 base"
+Responsible: GUY
+*/
+bool binaryToWierd (int binary[], char* res)
+
+/*
+Description: convert a number in decimal base to "wierd 32 base"
+Responsible: GUY
+*/
+bool decimalToBinary(int, int binaryNum[], int arrSize)
+
 
