@@ -101,9 +101,53 @@ update the
 */
 bool ParseData(dataPtr dataListHead, dataPtr dataListTail, char *data)
 {
-	int ....
-	while(data)/*example1 - STR: .string "abcdef"
-				 example2 - LENGTH: .data 6,-9,15*/
+	int i, length;
+	char *token;
+	char stringBuffer[MAX_LINE_LENGTH + 1] = {0};
+	char *stringSymbol = ".string", *dataSymbol = ".data", *structSymbol = ".struct";
+	char labelName[MAX_LINE_LENGTH + 1] = {0}, symbolType[MAX_LINE_LENGTH + 1] = {0};
+	if (getLabel(data, labelName) == FALSE)
+		return FALSE;
+	if (getSymbol(data, symbolType) == FALSE)
+		return FALSE;
+	length = strlen(data);
+	if (strncmp(symbolType, stringSymbol, strlen(stringSymbol)) == 0)
+	{
+		token = strtok(data, "\"");
+		while (token != NULL)
+		{
+			if (i == 1)
+			{
+				strncpy(stringBuffer, token, strlen(token));
+			}
+			else if (i > 2)
+				return FALSE;
+			i++;
+		}
+		if (i == 2)
+		{
+			DC = addStringToData(dataListHead, dataListTail, stringBuffer, DC);
+			return TRUE;
+		}
+		else
+			return FALSE;
+	}
+	else if (strncmp(symbolType, dataSymbol, strlen(dataSymbol)) == 0)
+	{
+
+	}
+	else if (strncmp(symbolType, structSymbol, strlen(structSymbol)) == 0)
+	{
+		
+	}
+	else
+		return FALSE;
+
+
+
+
+	/*while(data) --example1 - STR: .string "abcdef"
+				 example2 - LENGTH: .data 6,-9,15
 	{
 		/*
 		looking for errors ->
@@ -111,8 +155,8 @@ bool ParseData(dataPtr dataListHead, dataPtr dataListTail, char *data)
 		insert to data list 
 		(addToDataList(dataPtr *head ,dataPtr *tail ,int dc, int dType, int ascii))
 		dc - DC , dType - enum {positiveNumber, negativeNumber, character, eof}
-		*/
-	}
+		
+	}*/
 }
 /*phrase 9*/
 bool externLabels(char *line)
@@ -120,7 +164,7 @@ bool externLabels(char *line)
 	/*
 	for every extern label:
 	insert to symbolsList
-	using te function addToSymbolsList
+	using the function addToSymbolsList
 	*/
 }
 

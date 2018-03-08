@@ -86,8 +86,22 @@ int isThirdGroup(opcode_structure opcode);
 bool isFileExists(char*);
 
 
+/*
+Description: get a line of data and return the label name if exists, if not, return NULL.
+Responsible: GIL
+*/
+bool getLabel(char* data, char* dest);
 
 
+/*
+Description: get a line of data and return the data Symbol type if exists (.struct, .string
+or .data), if not, return NULL.
+Responsible: GIL
+*/
+bool getSymbol(char* data, char* dest);
+
+
+int addStringToData(dataPtr dataListHead, dataPtr dataListTail, char *str, long dc);
 
 
 /*
