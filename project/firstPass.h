@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "GlobalFunctions.h"
 #include "globalVariables.h"
 #include "symbolList.h"
 #include "dataList.h"

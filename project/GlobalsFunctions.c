@@ -167,6 +167,94 @@ bool isFileExists(char* fileName)
 	return TRUE;
 }
 
+
+bool getLabel(char* data, char* dest)
+{
+	char* trimmedData;
+	int i, length;
+	trimmedData = trimStr(data);
+	length = strlen(trimmedData);
+	for (i = 0; i < length; i++)
+	{
+		if (!isalpha(trimmedData[i]))
+			return FALSE;
+		else if (trimmedData[i] == ":")
+		{
+			if (i != 0)
+			{
+				strncpy(dest, data, i);
+				return TRUE;
+			}
+			else
+				return FALSE;
+		}
+	}
+	return FALSE;
+}
+
+bool getSymbol(char* data, char* dest)
+{
+	char *symbols[3] = {".string", ".data", ".struct"};
+	bool afterLabel = FALSE, detectedSymbol = FALSE;
+	char* trimmedData;
+	int i, j, length, correctSymbol = -1;
+	trimmedData = trimStr(data);
+	length = strlen(trimmedData);
+	for (i = 0; i < length; i++)
+	{
+		if (afterLabel)
+		{
+			if (!isspace(trimmedData[i]))
+			{
+				for (j = 0; j < 3; j++)
+				{
+					if (strncmp(data + i, symbols[j], strlen(symbols[j])) == 0)
+					{
+						if (detectedSymbol)
+							return FALSE;
+						else
+						{
+							detectedSymbol = TRUE;
+							correctSymbol = j;
+							i += strlen(symbols[j]) - 1;
+							continue;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (!isalpha(trimmedData[i]))
+				return FALSE;
+			else if (trimmedData[i] == ":")
+			{
+				if (i != 0)
+					afterLabel = TRUE;
+				else
+					return FALSE;
+			}
+			else
+				return FALSE;
+		}
+	}
+
+	if (correctSymbol != -1)
+	{
+		strncpy(dest, symbols[correctSymbol], strlen(symbols[correctSymbol]));
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+
+int addStringToData(dataPtr dataListHead, dataPtr dataListTail, char *str, long dc)
+{
+
+}
+
+
 /*
 TODO: add errors checking
 Description: convert 10 word length represents in binary code to "wierd 32 base"
