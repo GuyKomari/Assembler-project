@@ -7,8 +7,6 @@ TODO:
 structures and variables for the second pass
 */
 
-#define MAX_LABEL_SIZE 31
-
 #define REGISTER_SIZE 10
 
 #define MEMORY_SIZE 256
@@ -25,7 +23,7 @@ structures and variables for the second pass
 
 #define OPCODE_SIZE 4
 
-#define MAX_LINE_LENGTH 81 /*80 + 1 for the EOF charater*/
+#define MAX_LINE_LENGTH 80
 
 #define NUM_OF_REGISTERS 8
 

@@ -1,5 +1,10 @@
 #include "globalVariables.h"
 
+/*
+TODO:
+1. Move everything to the header file??
+*/
+
 const char* WIERD_32_BASE [BASE_LENGTH] = {
 "!","@","#","$","%","^","&","*",
 "<",">","a","b","c","d","e","f",

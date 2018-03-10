@@ -5,10 +5,5 @@
 
 void printError(char* error)
 {
-	fprintf(stderr, "%s %s\n", "[Error] -> ", error);
-}
-
-void printWarning(char* warn)
-{
-	fprintf(stderr, "%s %s\n", "[Warning] -> ", warn);
+	fprintf(stderr, "%s%s\n", "[Error] -> ", error);
 }

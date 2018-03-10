@@ -1,23 +1,25 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "GlobalsFunctions.h"
 #include "globalVariables.h"
-#include "symbolList.h"
+#include "symbolsList.h"
 #include "dataList.h"
 #include "errors.h"
+
 
 /*
 scanning line and sending it to the proper function in the "parser" module.
 */
 
-void firstpass(char* filename);
+bool firstpass(char*);
 
-/*Responsible: GIL*/
 bool readLine(FILE*, char*);
 
-bool ParseData(dataPtr, dataPtr ,char *,int);
+bool ParseData(dataPtr*, dataPtr* ,char *);
 
-bool externLabel(char *line);
+bool externLabels(char *line);
 
-bool parseCommand(char *line,int);
+bool parseCommand(char *line);
 
 

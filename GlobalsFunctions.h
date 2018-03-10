@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include "dataList.h"
+#include "codeList.h"
+
 /*is token a valid register*/
 bool isRegister(char *token);
 
@@ -16,7 +20,7 @@ bool isLabel(char*,char*);
 Description: gets a valid label and checks if this label already defined
 Responsible: GUY
 */
-int isLabelDefined(symbolPtr, char* ,int);
+int isLabelDefined(char* token);
 
 /*
 Description: is token a struct
@@ -27,16 +31,14 @@ Responsible: GIL
 bool isDataCommand(char*,char*);
 
 /*
-char* - line to parse;
-int - line counter;
 Description:
 Responsible: GUY
 */
-bool isEntry(char*,int);
+bool isEntry(char*);
 
 
 
-bool isExtern(char*,int);
+bool isExtern(char*);
 
 
 /*
@@ -64,7 +66,7 @@ int isDeclaration(const char* token);
 Description: is token a keyword
 Responsible: GIL
 */
-bool isKeyword(char* token);
+int isKeyword(const char* token);
 
 /*
 TODO:
@@ -88,8 +90,27 @@ int isThirdGroup(opcode_structure opcode);
 bool isFileExists(char*);
 
 
+/*
+Description: get a line of data and return the label name if exists, if not, return NULL.
+Responsible: GIL
+*/
+bool getLabel(char* data, char* dest);
+
+/*
+Adds a number to data List
+*/
+bool addNumberToDataList(dataPtr, dataPtr, int, int);
 
 
+/*
+Description: get a line of data and return the data Symbol type if exists (.struct, .string
+or .data), if not, return NULL.
+Responsible: GIL
+*/
+bool getSymbol(char* data, char* dest);
+
+
+int addStringToData(dataPtr dataListHead, dataPtr dataListTail, char *str, long dc);
 
 
 /*
@@ -110,18 +131,18 @@ char *trimLeftStr(char *str);
 Description: convert decimal code to binary code
 Responsible: GUY
 */
-bool decimalToBinary(int n, int binaryNum[], int arrSize)
+bool decimalToBinary(int n, int* binaryNum, int arrSize);
 
 /*
 Description: convert binary code to "wierd 32 base"
 Responsible: GUY
 */
-bool binaryToWierd (int binary[], char* res)
+bool binaryToWierd(int* binary, char* res);
 
 /*
 Description: convert a number in decimal base to "wierd 32 base"
 Responsible: GUY
 */
-bool decimalToBinary(int, int binaryNum[], int arrSize)
+bool decimalToBinary(int, int* binaryNum, int arrSize);
 
 

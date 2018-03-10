@@ -3,7 +3,7 @@
 bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int num, bool isEx , bool isC , bool isD, bool isEn)
 {
 	symbolPtr temp;
-	bool isValidLabel = isLabelDefined(head, symbol);
+	bool isValidLabel = isLabel(symbol);
 	if(!isValidLabel)
 	{
 		fprintf(stderr,"the label declaration in line %d is invalid", num);
@@ -22,7 +22,7 @@ bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int num, b
 	temp->.isData = isD;
 	temp->.isEntry = isEn;
 	temp->next = NULL;
-	addNodeToSymbolList(temp , head , tail);
+	addToList(temp , head , tail);
 }
 
 
