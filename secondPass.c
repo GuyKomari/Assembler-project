@@ -1,4 +1,4 @@
-#include "globalFunctions.h"
+#include "GlobalsFunctions.h"
 
 
 bool secondPass(char* fileName)
@@ -7,15 +7,15 @@ bool secondPass(char* fileName)
 	FILE* sourceFileHandle;
 	int IC; 
 	char line[MAX_LINE_LENGTH + 1] = {0};
-	bool endFile = FALSE;
+	bool endOfFile = FALSE;
 	IC = 0;
 
 
-	sourceFileHandle = fopen(filename, "r");
+	sourceFileHandle = fopen(fileName, "r");
 
 	if (sourceFileHandle == NULL)
 	{
-		printError("Couldn't open file", filename);
+		printError("Couldn't open file", fileName);
 		return;
 	}
 

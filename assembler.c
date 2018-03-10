@@ -1,5 +1,5 @@
 #include "assembler.h"
-#include "GlobalFunctions.h"
+#include "GlobalsFunctions.h"
 #include "errors.h"
 
 /*

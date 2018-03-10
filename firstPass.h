@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "GlobalsFunctions.h"
-#include "globalVariables.h"
 #include "symbolsList.h"
-#include "dataList.h"
 #include "errors.h"
 
 

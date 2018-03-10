@@ -1,5 +1,8 @@
 #include <stdio.h>
+#ifndef global
 #include "globalVariables.h"
+#endif
+
 
 typedef enum {
 	positiveNumber,

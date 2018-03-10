@@ -1,6 +1,9 @@
+#ifndef GLOBAL_FUNCTIONS_H
+#define GLOBAL_FUNCTIONS_H
 #include <stdio.h>
 #include "dataList.h"
-#include "codeList.h"
+#include "symbolsList.h"
+#include "globalVariables.h"
 
 /*is token a valid register*/
 bool isRegister(char *token);
@@ -83,18 +86,14 @@ int isFirstGroup(opcodeStructure opcode);
 
 int isSecondGroup(opcodeStructure opcode);
 
-int isThirdGroup(opcode_structure opcode);
+int isThirdGroup(opcodeStructure opcode);
 
 /*char* getLabelNameFromLine(char*);*/
 
 bool isFileExists(char*);
 
 
-/*
-Description: get a line of data and return the label name if exists, if not, return NULL.
-Responsible: GIL
-*/
-bool getLabel(char* data, char* dest);
+
 
 /*
 Adds a number to data List
@@ -128,6 +127,14 @@ char *trimLeftStr(char *str);
 
 
 /*
+Description: gets a parsed command (i.e "mov r1, r3") without any spaces or unnecessary characters.
+returns the number that IC should be incremented with.
+returns 0 when failed.
+Responsible: GIL
+*/
+int getCommandSize(char*);
+
+/*
 Description: convert decimal code to binary code
 Responsible: GUY
 */
@@ -146,3 +153,4 @@ Responsible: GUY
 bool decimalToBinary(int, int* binaryNum, int arrSize);
 
 
+#endif

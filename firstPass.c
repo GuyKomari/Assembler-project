@@ -61,7 +61,7 @@ bool firstpass(char* filename)
 			{
 				if (is_extern)
 				{
-					errorFlag&= externLabels(line);/*TODO: phrase 9 - .extern LABEL1 LABEL2...*/
+					errorFlag&= externLabels(line);/*TODO: phrase 9 - .extern LABEL1...*/
 				}
 			}
 			else /* case - command declaration */
@@ -83,7 +83,7 @@ bool firstpass(char* filename)
 	{
 		return FALSE;
 	}
-	updateDataSymbols(IC);
+	updateDataSymbols(symbolListHead, IC);
 }
 
 
@@ -103,10 +103,10 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 {
 	int i, dataLength, strLength, numRequiredBytes;
 	char *token, *temp;
-	char stringBuffer[MAX_LINE_LENGTH + 1] = {0};
+	char stringBuffer[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 }, symbolType[MAX_LINE_LENGTH + 1] = { 0 };
 	char *stringSymbol = ".string", *dataSymbol = ".data", *structSymbol = ".struct";
-	
+
 	if (isLabel(data, labelName) == FALSE)
 		return FALSE;
 	if (getSymbol(data, symbolType) == FALSE)
@@ -151,9 +151,9 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 			{
 				printError("Invalid number in .data label");
 			}
-			token = strtok(NULL, data);
+			token = strtok(NULL, ",");
 		}
-		
+
 	}
 	else if (strncmp(symbolType, structSymbol, strlen(structSymbol)) == 0)
 	{
@@ -188,25 +188,49 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 					printError("Unrecognized Type in struct definition");
 				}
 			}
-			token = strtok(NULL, data);
+			token = strtok(NULL, ",");
 		}
 	}
 	else
 		return FALSE;
-	return 
+	return;
 }
+
+
 /*phrase 9*/
 bool externLabels(char *line)
 {
-	/*
-	for every extern label:
-	insert to symbolsList
-	using the function addToSymbolsList
-	*/
+	if (isExtern(line))
+	{
+		char* temp;
+		int extLength = 7;		/*".extern" Length is 7*/
+		temp = line + extLength;
+		temp = trimStr(temp);
+		return addToSymbolsList(&symbolListHead, &symbolListTail, temp, 0, TRUE, FALSE, FALSE, FALSE);
+	}
+	else
+		return FALSE;
 }
 
 bool parseCommand(char *line)/*with or without label*/
 {
+	int i, sizeOfCommand = 0;
+	char *temp, *token;
+	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
+	opcodeStructure *opcode;
+	temp = line;
+	if (isLabel(line, labelName) == TRUE)
+	{
+		temp += strlen(labelName) + 1;
+		addToSymbolsList(&symbolListHead, &symbolListTail, labelName, IC, FALSE, TRUE, FALSE, FALSE);
+	}
+
+	temp = trimStr(temp);
+	sizeOfCommand = getCommandSize(temp);
+	IC += sizeOfCommand;
+
+
+
 	/*
 	looking for errors
 	and update IC

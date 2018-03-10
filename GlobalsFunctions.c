@@ -1,18 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "GlobalsFunctions.h"
-#include "globalVariables.h"
-#include "dataList.h"
-#include "symbolsList.h"
+#include "errors.h"
 
 
 bool isRegister(char *token)
 {
 	int i = 0;
-	extern char* registers;
+	extern char* Registers;
 	for(i = 0; i > NUM_OF_REGISTERS ; i++)
 	{
-		if(!(strcmp(token,registers[i])))
+		if(!(strcmp(token, Registers[i])))
 			return TRUE;
 	}
 	return FALSE;
@@ -20,20 +18,55 @@ bool isRegister(char *token)
 
 bool isOpcode(char *token)
 {
-	extern opcodeStructure opcodes;
 	int i = 0;
 	for(i = 0 ; i < NUM_OF_OPCODES ; i++)
 	{
-		if(!(strcmp(token,opcodes[i].opcodeName)))
+		if(!(strcmp(token, opcodes[i].opcodeName)))
 			return TRUE;
 	}
 	return FALSE;
 
 }
 
-bool isLabel(char* token)
+bool isLabel(char* src, char* dest)
 {
-
+	char * temp, start;
+	int len;
+	temp = trimStr(src);
+	start = temp;
+	len = 0;
+	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
+	{
+		printError(LABEL_NOT_START_WITH_ALPHA);
+		return FALSE;
+	}
+	while (!isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
+	{
+		if (!isalpha(*temp) && !isdigit(*temp))
+		{
+			printError(LABEL_CONTAINS_NON_ALPHA_OR_DIGIT);
+			return FALSE;
+		}
+		temp++;
+		len++;
+	}
+	if (strncmp((char*)(temp++), ":", 1) != 0)
+	{
+		printf(MISSSING_COLON_ERROR);
+		return FALSE;
+	}
+	if (!isspace(*temp))
+	{
+		if (ispunct(*temp) || isdigit(*temp) || isalpha(*temp))
+		{
+			printError("additional character after declaration of a label");
+			return FALSE;
+		}
+		printError("missing a space");
+		return FALSE;
+	}
+	strncpy(dest, start, len);
+	return TRUE;
 }
 /*
 headOfSymbolsList - head of the symbols list;
@@ -92,6 +125,7 @@ check if the label is not a keyword ?
 #define EXTERN_LENGTH 7
 bool isExtern(char* line)
 {
+	int i;
 	char *temp = trimStr(line);
 	if(strncmp(temp , ".extern", EXTERN_LENGTH))
 		return FALSE;
@@ -105,6 +139,15 @@ bool isExtern(char* line)
 
 	if(!(isalpha(*temp)))
 		return FALSE;
+
+	for (i = 0; i < NUM_OF_KEYWORDS; i++)
+	{
+		if (strcmp(temp, Keywords[i]) == 0)
+		{
+			printError("A variable name has the same name as a keyword");
+			return FALSE;
+		}
+	}
 
 	while(*temp)
 	{
@@ -168,30 +211,6 @@ bool isFileExists(char* fileName)
 	return TRUE;
 }
 
-
-bool getLabel(char* data, char* dest)
-{
-	char* trimmedData;
-	int i, length;
-	trimmedData = trimStr(data);
-	length = strlen(trimmedData);
-	for (i = 0; i < length; i++)
-	{
-		if (!isalpha(trimmedData[i]))
-			return FALSE;
-		else if (trimmedData[i] == ":")
-		{
-			if (i != 0)
-			{
-				strncpy(dest, data, i);
-				return TRUE;
-			}
-			else
-				return FALSE;
-		}
-	}
-	return FALSE;
-}
 
 bool getSymbol(char* data, char* dest)
 {
@@ -260,17 +279,111 @@ bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 	}
 }
 
-int addStringToData(dataPtr dataListHead, dataPtr dataListTail, char *str, long dc)
-{
 
+int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, long dc)
+{
+	return 1;
 }
+
+
+
+
+int getCommandSize(char* command)
+{
+	int i, j;
+	AddressingMode srcOperandAddressing, destOperandAddressing;
+	opcodeStructure *opcode;
+	char* token;
+	token = strtok(command, " \t,");
+
+	for (i = 0; i < NUM_OF_OPCODES; i++)
+	{
+		if (strcmp(token, opcodes->opcodeName) == 0)
+		{
+			opcode = &(opcodes[i]);
+			sizeOfCommand++;
+			switch (opcode->group)
+			{
+				/* 2 Operands Opcode */
+			case FIRST_GROUP:
+			{
+				token = strtok(NULL, " \t,");
+				if (token == NULL)
+				{
+					printError("Too few operands in the command");
+					return FALSE;
+				}
+
+				if (isKeyword(token))
+				{
+					printError("An operand name cannot be the same as a keyword name");
+					return FALSE;
+				}
+
+				if (token[0] == '#') /*srcOperandAddressing = 0 or 2*/
+				{
+					if (strlen(token) <= 1 || (atoi(token[1]) == 0 && strcmp(token + 1, "0") != 0))
+					{
+						printError("A number is expected in the first operand");
+						return FALSE;
+					}
+					sizeOfCommand++;
+				}
+
+				else
+				{
+					for (j = 0; j < NUM_OF_REGISTERS)
+					{
+						if (strcmp(token, Registers[j]) == 0)
+						{
+							srcOperandAddressing = DIRECT_REGISTER;
+
+
+							break;
+						}
+					}
+				}
+
+			}
+			break;
+
+			/* 1 Operand Opcode*/
+			case SECOND_GROUP:
+			{
+				token = strtok(NULL, " ,");
+				if (token == NULL)
+				{
+					printError("Too few operands in the command");
+					return FALSE;
+				}
+				if (isKeyword(token))
+				{
+					printError("An operand name cannot be the same as a keyword name");
+					return FALSE;
+				}
+
+			}
+			break;
+
+			/* No Operands Opcode */
+			case THIRD_GROUP:
+			{
+
+			}
+			break;
+
+			default:
+				return FALSE;
+			}
+}
+
 
 
 /*
 TODO: add errors checking
 Description: convert 10 word length represents in binary code to "wierd 32 base"
 */
-bool binaryToWierd (int binary[], char* res)
+bool binaryToWierd (int* binary, char* res)
 {
 	bool hasError;
 	int num1, num2 ,mult, i;
@@ -306,12 +419,14 @@ bool decimalToWierd(int num, char* res)
 	bool error;
 	char *p1, *p2;
 	int div ;
-	if(!num){/*case - num = 0*/
-		strcpy(res ,WIERD_32_BASE[0]);
-	}
-	if(num<0)/*case - num < 0*/
+	if(!num) /*case - num = 0*/
 	{
-		num = MAX10BITS - (num*(-1));
+		strcpy(res, WIERD_32_BASE[0]);
+	}
+	if(num<0) /*case - num < 0*/
+	{
+		num *= -1;
+		num = MAX10BITS - num;
 	}
 	while(num)
 	{
@@ -325,7 +440,7 @@ bool decimalToWierd(int num, char* res)
         *p2 ^= *p1;
         *p1 ^= *p2;
     }
-    return hasError
+	return TRUE;
 }
 
 /*TODO: add errors checking*/
