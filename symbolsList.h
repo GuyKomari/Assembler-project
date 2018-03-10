@@ -1,10 +1,13 @@
 #include <stdio.h>
+#ifndef globalVariables
+#include "globalVariables.h"
+#endif
 
-typedef struct symbolsTableNode * symbolPtr;
+typedef struct symbolsTableNode* symbolPtr;
 
 typedef struct symbolsTableNode {
 	char* name;
-	int address;
+	uint address;
 	bool isExternal;
 	bool isCommand;
 	bool isData;
@@ -14,12 +17,11 @@ typedef struct symbolsTableNode {
 
 
 /*addToSymbolsList (label name, address, isExternal, isCommand, isData, isEntry)*/
-bool addToSymbolsList(symbolPtr * ,symbolPtr *, char*, int, bool, bool, bool, bool);
+bool addToSymbolsList(symbolPtr* ,symbolPtr*, char*, int, bool, bool, bool, bool);
 
-void addNodeToSymbolList(ptr, ptr *, ptr *);
+void addNodeToSymbolList(symbolPtr, symbolPtr*, symbolPtr*);
 
-void freeList(ptr *head)
+void freeList(symbolPtr *head);
 
 /*phase 17 in the first pass*/
-void updateDataSymbols(int);
-
+void updateDataSymbols(symbolPtr*, int);

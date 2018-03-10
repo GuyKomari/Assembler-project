@@ -1,3 +1,7 @@
+#include <stdio.h>
+#ifndef global
+#include "globalVariables.h"
+#endif
 
 
 typedef enum {
@@ -7,7 +11,7 @@ typedef enum {
 	eof
 } dataType;
 
-typedef struct dataTableNode * dataPtr;
+typedef struct dataTableNode* dataPtr;
 
 typedef struct {
 	int dataCounter;
@@ -17,8 +21,8 @@ typedef struct {
 }dataTableNode;
 
 
-int addTodataList(int, int, int);
+int addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii);
 
-void addNodeToDataList(dataPtr, ptr *, ptr *);
+void addNodeToDataList(dataPtr, dataPtr*, dataPtr*);
 
-void freeList(dataPtr *head)
+void freeList(dataPtr*);
