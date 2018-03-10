@@ -1,3 +1,0 @@
-/*
-Handles the output procedures
-*/
