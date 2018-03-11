@@ -7,7 +7,6 @@
 bool isRegister(char *token)
 {
 	int i = 0;
-	extern char* Registers;
 	for(i = 0; i > NUM_OF_REGISTERS ; i++)
 	{
 		if(!(strcmp(token, Registers[i])))
@@ -37,14 +36,14 @@ bool isLabel(char* src, char* dest)
 	len = 0;
 	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
 	{
-		printError(LABEL_NOT_START_WITH_ALPHA);
+		printError("The label does not begins with an alpha letter");
 		return FALSE;
 	}
 	while (!isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
 	{
 		if (!isalpha(*temp) && !isdigit(*temp))
 		{
-			printError(LABEL_CONTAINS_NON_ALPHA_OR_DIGIT);
+			printError("The label contains non-alpha or non-digit characters");
 			return FALSE;
 		}
 		temp++;
@@ -52,7 +51,7 @@ bool isLabel(char* src, char* dest)
 	}
 	if (strncmp((char*)(temp++), ":", 1) != 0)
 	{
-		printf(MISSSING_COLON_ERROR);
+		printf("A colon is missing");
 		return FALSE;
 	}
 	if (!isspace(*temp))
@@ -65,7 +64,8 @@ bool isLabel(char* src, char* dest)
 		printError("missing a space");
 		return FALSE;
 	}
-	strncpy(dest, start, len);
+	if (dest != NULL)
+		strncpy(dest, start, len);
 	return TRUE;
 }
 /*
@@ -214,17 +214,15 @@ bool isFileExists(char* fileName)
 
 bool getSymbol(char* data, char* dest)
 {
-	char *symbols[3] = {".string", ".data", ".struct"};
+	char *symbols[3] = { ".string", ".data", ".struct" };
 	bool afterLabel = FALSE, detectedSymbol = FALSE;
-	char* trimmedData;
 	int i, j, length, correctSymbol = -1;
-	trimmedData = trimStr(data);
-	length = strlen(trimmedData);
+	length = strlen(data);
 	for (i = 0; i < length; i++)
 	{
 		if (afterLabel)
 		{
-			if (!isspace(trimmedData[i]))
+			if (!isspace(data[i]))
 			{
 				for (j = 0; j < 3; j++)
 				{
@@ -245,23 +243,25 @@ bool getSymbol(char* data, char* dest)
 		}
 		else
 		{
-			if (!isalpha(trimmedData[i]))
-				return FALSE;
-			else if (trimmedData[i] == ":")
+			if (data[i] == ':')
 			{
 				if (i != 0)
 					afterLabel = TRUE;
 				else
 					return FALSE;
 			}
-			else
+			else if (!isalpha(data[i]))
 				return FALSE;
+
+			else
+				continue;
 		}
 	}
 
 	if (correctSymbol != -1)
 	{
-		strncpy(dest, symbols[correctSymbol], strlen(symbols[correctSymbol]));
+		if (dest != NULL)
+			strncpy(dest, symbols[correctSymbol], strlen(symbols[correctSymbol]));
 		return TRUE;
 	}
 	return FALSE;
@@ -271,18 +271,42 @@ bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 {
 	if (num >= 0)
 	{
-		addToDataList(dataListHead, dataListTail, dc, positiveNumber, num);
+		addToDataList(head, tail, dc, positiveNumber, num);
 	}
 	else
 	{
-		addToDataList(dataListHead, dataListTail, dc, negativeNumber, num);
+		addToDataList(head, tail, dc, negativeNumber, num);
 	}
 }
 
 
 int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, long dc)
 {
-	return 1;
+	int i, length;
+	length = strlen(str);
+	for (i = 0; i < length; i++)
+	{
+		addToDataList(dataListHead, dataListTail, dc, character, (int)(str[i]));
+		dc++;
+	}
+	addToDataList(dataListHead, dataListTail, dc, character, '\0');
+	dc++;
+	return dc;
+}
+
+
+AddressingMode getOperandAddressing(char* token)
+{
+	if (isNumOperand(token))
+		return IMMEDIATE;
+	else if (isValidLabel(token))
+		return DIRECT_MEMORY;
+	else if (isStructOperand(token))
+		return STRUCT_ACCESS;
+	else if (isRegister(token))
+		return DIRECT_REGISTER;
+	else
+		return -1;
 }
 
 
@@ -290,24 +314,24 @@ int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, lon
 
 int getCommandSize(char* command)
 {
-	int i, j;
+	int i, j, sizeOfCommand = 0;
 	AddressingMode srcOperandAddressing, destOperandAddressing;
 	opcodeStructure *opcode;
-	char* token;
-	token = strtok(command, " \t,");
+	char* token, *delim = " \t,";
 
+	token = strtok(command, delim);
 	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
 		if (strcmp(token, opcodes->opcodeName) == 0)
 		{
 			opcode = &(opcodes[i]);
-			sizeOfCommand++;
+
 			switch (opcode->group)
 			{
 				/* 2 Operands Opcode */
 			case FIRST_GROUP:
 			{
-				token = strtok(NULL, " \t,");
+				token = strtok(NULL, delim);
 				if (token == NULL)
 				{
 					printError("Too few operands in the command");
@@ -320,37 +344,79 @@ int getCommandSize(char* command)
 					return FALSE;
 				}
 
-				if (token[0] == '#') /*srcOperandAddressing = 0 or 2*/
+				if ((srcOperandAddressing = getOperandAddressing(token)) == -1)
 				{
-					if (strlen(token) <= 1 || (atoi(token[1]) == 0 && strcmp(token + 1, "0") != 0))
+					printError("Source operand is invalid");
+					return 0;
+				}
+
+				token = strtok(NULL, delim);
+				if (token == NULL)
+				{
+					printError("Too few operands in the command");
+					return FALSE;
+				}
+
+				if (isKeyword(token))
+				{
+					printError("An operand name cannot be the same as a keyword name");
+					return FALSE;
+				}
+
+				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
+				{
+					printError("Destination operand is invalid");
+					return 0;
+				}
+
+				if (strcmp(opcode->opcodeName, "lea") == 0 && (srcOperandAddressing == IMMEDIATE || srcOperandAddressing == DIRECT_REGISTER))
+				{
+					printError("\"lea\" opcode cannot have an immediate or immediate register addressing mode");
+					return 0;
+				}
+
+				if (destOperandAddressing == IMMEDIATE)
+				{
+					if (strcmp(opcode->opcodeName, "cmp") != 0)
 					{
-						printError("A number is expected in the first operand");
-						return FALSE;
+						printError("Only \"cmp\" opcode can use immediate addressing mode in the destination operand");
+						return 0;
 					}
+				}
+
+				token = strtok(NULL, delim);
+				if (token != NULL)
+				{
+					printError("Too much words in the command");
+					return 0;
+				}
+
+				sizeOfCommand++; /*opcode instruction size*/
+
+				/* For example: "sub r1,r4" */
+				if (srcOperandAddressing == DIRECT_REGISTER && destOperandAddressing == DIRECT_REGISTER)
 					sizeOfCommand++;
-				}
 
+				/* For example: "mov S1.1,S2.2" - requires the address of S1 + the number at the first field in S1 + the address of S2 + the number at the second field in S2 (4 instructions in total)*/
+				else if (srcOperandAddressing == STRUCT_ACCESS && destOperandAddressing == STRUCT_ACCESS)
+					sizeOfCommand += 4;
+
+				/* For example: "cmp S1.1,#2" - requires the address of S1 + the number at the first field in S1 + the number 2 (3 instructions in total) */
+				else if (srcOperandAddressing == STRUCT_ACCESS || destOperandAddressing == STRUCT_ACCESS)
+					sizeOfCommand += 3;
+
+				/* All the other cases, for example: "lea STR,r1" - requires the address of STR + the code of the register r1 (2 instructions total) */
 				else
-				{
-					for (j = 0; j < NUM_OF_REGISTERS)
-					{
-						if (strcmp(token, Registers[j]) == 0)
-						{
-							srcOperandAddressing = DIRECT_REGISTER;
+					sizeOfCommand += 2;
 
-
-							break;
-						}
-					}
-				}
-
+				return sizeOfCommand;
 			}
 			break;
 
 			/* 1 Operand Opcode*/
 			case SECOND_GROUP:
 			{
-				token = strtok(NULL, " ,");
+				token = strtok(NULL, delim);
 				if (token == NULL)
 				{
 					printError("Too few operands in the command");
@@ -362,19 +428,59 @@ int getCommandSize(char* command)
 					return FALSE;
 				}
 
+				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
+				{
+					printError("Destination operand is invalid");
+					return 0;
+				}
+
+				if (destOperandAddressing == IMMEDIATE)
+				{
+					if (strcmp(opcode->opcodeName, "prn") != 0)
+					{
+						printError("Only \"prn\" opcode can use immediate addressing mode in the destination operand");
+						return 0;
+					}
+				}
+
+				token = strtok(NULL, delim);
+				if (token != NULL)
+				{
+					printError("Too much words in the command");
+					return 0;
+				}
+
+				sizeOfCommand++;
+				if (destOperandAddressing == STRUCT_ACCESS)
+					sizeOfCommand += 2;
+				else
+					sizeOfCommand++;
+
+				return sizeOfCommand;
 			}
 			break;
 
 			/* No Operands Opcode */
 			case THIRD_GROUP:
 			{
-
+				token = strtok(NULL, delim);
+				if (token != NULL)
+				{
+					printError("Too much words in the command");
+					return 0;
+				}
+				sizeOfCommand = 1;
+				return sizeOfCommand;
 			}
 			break;
 
 			default:
-				return FALSE;
+				return 0;
 			}
+			return 0;
+		}
+	}
+	return 0;
 }
 
 
@@ -415,6 +521,7 @@ TODO: add errors checking
 Description: convert a number in decimal base to "wierd 32 base"
 */
 bool decimalToWierd(int num, char* res)
+
 {
 	bool error;
 	char *p1, *p2;
@@ -457,5 +564,5 @@ bool decimalToBinary(int n, int binaryNum[], int arrSize)
         binaryNum[i] = n % 2;
         n = n / 2;
     }
-    return hasError
+	return hasError;
 }

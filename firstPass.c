@@ -41,7 +41,7 @@ bool firstpass(char* filename)
 		{
 			symbolFlag = TRUE;/* "turn on" the symbol flag */
 		}
-		is_data_command = isDataCommand(line,data);/* if contains a data command such as : .string/.data/.struct */
+		is_data_command = getSymbol(line,data);/* if contains a data command such as : .string/.data/.struct */
 		if (is_data_command)/*case - there is a data definition*/
 		{
 			if (symbolFlag)/*case - the data definition are inside a label-> LABEL: .string "abcd" */
@@ -228,11 +228,4 @@ bool parseCommand(char *line)/*with or without label*/
 	temp = trimStr(temp);
 	sizeOfCommand = getCommandSize(temp);
 	IC += sizeOfCommand;
-
-
-
-	/*
-	looking for errors
-	and update IC
-	*/
 }

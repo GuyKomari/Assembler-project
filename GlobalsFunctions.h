@@ -5,11 +5,23 @@
 #include "symbolsList.h"
 #include "globalVariables.h"
 
+
 /*is token a valid register*/
 bool isRegister(char *token);
 
 /*is token a valid opcode*/
 bool isOpcode(char *token);
+
+/*TODO: implement these 3 functions that gets a single word and tells if it's a label or numOperand
+Responsible: GIL
+*/
+bool isValidLabel(char*);
+
+bool isNumOperand(char*);
+
+bool isStructOperand(char*);
+
+AddressingMode getOperandAddressing(char*);
 
 /*
 Description: is token a valid label 
@@ -25,13 +37,6 @@ Responsible: GUY
 */
 int isLabelDefined(char* token);
 
-/*
-Description: is token a struct
-Get a line to check if has a data defenition - .string | .data | .struct ,
-if true - return true and insert the data to the second string
-Responsible: GIL
-*/
-bool isDataCommand(char*,char*);
 
 /*
 Description:
@@ -109,8 +114,7 @@ Responsible: GIL
 bool getSymbol(char* data, char* dest);
 
 
-int addStringToData(dataPtr dataListHead, dataPtr dataListTail, char *str, long dc);
-
+int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, long dc);
 
 /*
 TODO: change the string functions (functions that handles strings) to (char* target, char* dest) type

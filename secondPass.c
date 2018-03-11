@@ -21,11 +21,11 @@ bool secondPass(char* fileName)
 
 	while (!(endFile = readLine(sourceFileHandle, line)))
 	{
-		is_label = isLabel(line);
-		is_data_command = isDataCommand(line);
+		is_label = isLabel(line, NULL);
+		is_data_command = getSymbol(line, NULL);
 		is_extern = isExtern(line);
 		is_entry = isEntry(line);
-		if (is_entry && !(isExtern || isDataCommand))
+		if (is_entry && !(isExtern || getSymbol))
 		{
 			
 		}

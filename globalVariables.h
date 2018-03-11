@@ -13,7 +13,7 @@ structures and variables for the second pass
 
 #define REGISTER_SIZE 10
 
-#define ERACODE_SIZE	1
+#define ERACODE_SIZE	2
 
 #define MEMORY_SIZE 256
 
@@ -100,27 +100,34 @@ typedef enum {
 	stop
 } opcodeValue;
 
-
-typedef enum {
-	Absulote,
-	External,
-	Relocatable
-} encodingType;
-
 typedef enum {
 	emptySentence,
 	comment,
 	declaration,
 	command
 }sentenceType;
-
-typedef enum{
-	immediate,
-	direct,
-	accessToStruct,
-	directReg
-} addressingMode;
 */
+
+typedef enum {
+	Absolute,
+	External,
+	Relocatable
+} encodingType;
+
+typedef struct ERAStructure
+{
+	uint num;
+	encodingType ERAName;
+	char* binaryVal;
+}ERAStructure;
+
+
+const ERAStructure ERATypes[] = {
+	{ 0	,	Absolute	,	"00" },
+	{ 1	,	External	,	"01" },
+	{ 2	,	Relocatable	,	"10" }
+};
+
 
 typedef struct opcode_structure
 {
@@ -157,6 +164,8 @@ const opcodeStructure opcodes[NUM_OF_OPCODES] = {
 	{ 14	,	"rts"	, { 1,1,1,0 }	,	THIRD_GROUP },
 	{ 15	,	"stop"	, { 1,1,1,1 }	,	THIRD_GROUP }
 };
+
+
 /*
 typedef struct sentence{
 	int id;
@@ -177,15 +186,6 @@ typedef struct cmdTable{
 	char* binaryCode;
 } cmdTable;
 */
-
-typedef struct ERAStructure
-{
-	uint num;
-	char* ERAName;
-	char* binaryVal;
-}ERAStructure;
-
-
 
 
 #endif
