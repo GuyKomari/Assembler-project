@@ -8,12 +8,12 @@ Here are all the global variables
 
 /*
 TODO:
-structures and variables for the second pass
+Move all the arrays into a .c file and declare them as extern, in order to solve linker problems
 */
 
 #define REGISTER_SIZE 10
 
-#define ERACODE_SIZE	1
+#define ERACODE_SIZE	2
 
 #define MEMORY_SIZE 256
 
@@ -70,58 +70,6 @@ typedef enum {FALSE, TRUE} bool;
 
 typedef enum {IMMEDIATE, DIRECT_MEMORY, STRUCT_ACCESS, DIRECT_REGISTER} AddressingMode;
 
-const char* WIERD_32_BASE[BASE_LENGTH] = {
-	"!","@","#","$","%","^","&","*",
-	"<",">","a","b","c","d","e","f",
-	"g","h","i","j","k","l","m","n",
-	"o","p","q","r","s","t","u","v" };
-
-const char* Keywords[] = { "mov","cmp","add","sub","not","clr","inc", "lea","dec","jmp","bne","red","prn","jsr","rts","stop",
-".data", ".string", ".extern", ".entry", ".struct" };
-
-const char* Registers[NUM_OF_REGISTERS] = { "r0","r1","r2","r3","r4","r5","r6","r7" };
-/*
-typedef enum {
-	mov,
-	cmp,
-	add,
-	sub,
-	not,
-	clr,
-	lea,
-	inc,
-	dec,
-	jmp,
-	bne,
-	red,
-	prn,
-	jsr,
-	rts,
-	stop
-} opcodeValue;
-
-
-typedef enum {
-	Absulote,
-	External,
-	Relocatable
-} encodingType;
-
-typedef enum {
-	emptySentence,
-	comment,
-	declaration,
-	command
-}sentenceType;
-
-typedef enum{
-	immediate,
-	direct,
-	accessToStruct,
-	directReg
-} addressingMode;
-*/
-
 typedef struct opcode_structure
 {
 	int DecimalCode;
@@ -139,7 +87,47 @@ typedef struct word
 } word;
 
 
-const opcodeStructure opcodes[NUM_OF_OPCODES] = {
+typedef enum {
+	Absolute,
+	External,
+	Relocatable
+} encodingType;
+
+typedef struct ERAStructure
+{
+	uint num;
+	encodingType ERAName;
+	char* binaryVal;
+}ERAStructure;
+
+
+
+ERAStructure ERATypes[] = {
+	{ 0	,	Absolute	,	"00" },
+	{ 1	,	External	,	"01" },
+	{ 2	,	Relocatable	,	"10" }
+};
+
+char* WIERD_32_BASE[BASE_LENGTH] = {
+	"!","@","#","$","%","^","&","*",
+	"<",">","a","b","c","d","e","f",
+	"g","h","i","j","k","l","m","n",
+	"o","p","q","r","s","t","u","v" };
+
+
+
+
+
+char* Keywords[] = { "mov","cmp","add","sub","not","clr","inc", "lea","dec","jmp","bne","red","prn","jsr","rts","stop",
+".data", ".string", ".extern", ".entry", ".struct" };
+
+
+
+char* Registers[NUM_OF_REGISTERS] = { "r0","r1","r2","r3","r4","r5","r6","r7" };
+
+
+
+opcodeStructure opcodes[NUM_OF_OPCODES] = {
 	{ 0	,	"mov"	, { 0,0,0,0 }	,	FIRST_GROUP },
 	{ 1	,	"cmp"	, { 0,0,0,1 }	,	FIRST_GROUP },
 	{ 2	,	"add"	, { 0,0,1,0 }	,	FIRST_GROUP },
@@ -157,34 +145,6 @@ const opcodeStructure opcodes[NUM_OF_OPCODES] = {
 	{ 14	,	"rts"	, { 1,1,1,0 }	,	THIRD_GROUP },
 	{ 15	,	"stop"	, { 1,1,1,1 }	,	THIRD_GROUP }
 };
-/*
-typedef struct sentence{
-	int id;
-	char* sentenceStr;
-	int rowsNeeded;  
-	word wordByte;
-	bol hasError;
-	char* errorDescription;
-}sentence;
-
-
-typedef struct cmdTable{
-	char* labelName;
-	int decimalAddress;
-	char* base32Address;
-	char* operation;
-	char* opperand;
-	char* binaryCode;
-} cmdTable;
-*/
-
-typedef struct ERAStructure
-{
-	uint num;
-	char* ERAName;
-	char* binaryVal;
-}ERAStructure;
-
 
 
 

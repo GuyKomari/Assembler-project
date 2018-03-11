@@ -4,12 +4,25 @@
 #include "dataList.h"
 #include "symbolsList.h"
 #include "globalVariables.h"
+#include "errors.h"
+
 
 /*is token a valid register*/
-bool isRegister(char *token);
+bool isRegister(char*);
 
 /*is token a valid opcode*/
-bool isOpcode(char *token);
+bool isOpcode(char*);
+
+/*TODO: implement these 3 functions that gets a single word and tells if it's a label or numOperand
+Responsible: GIL
+*/
+bool isValidLabel(char*);
+
+bool isNumOperand(char*);
+
+bool isStructOperand(char*);
+
+AddressingMode getOperandAddressing(char*);
 
 /*
 Description: is token a valid label 
@@ -23,15 +36,8 @@ bool isLabel(char*,char*);
 Description: gets a valid label and checks if this label already defined
 Responsible: GUY
 */
-int isLabelDefined(char* token);
+bool isLabelDefined(symbolPtr, char*);
 
-/*
-Description: is token a struct
-Get a line to check if has a data defenition - .string | .data | .struct ,
-if true - return true and insert the data to the second string
-Responsible: GIL
-*/
-bool isDataCommand(char*,char*);
 
 /*
 Description:
@@ -48,7 +54,7 @@ bool isExtern(char*);
 Description: is token empty sentence
 Responsible: GUY
 */
-int isEmptySentence(const char* token);
+bool isEmptySentence(char*);
 
 
 
@@ -56,49 +62,32 @@ int isEmptySentence(const char* token);
 Description: is token comment sentence
 Responsible: GUY
 */
-int isComment(const char* token);
+bool isComment(char*);
 
 /*
 is token a declaration - .data or .string or .extern or .entry or .struct
 if true return the type declaration otherwise -1 
 */
-int isDeclaration(const char* token);
+bool isDeclaration(char*);
 
 
 /*
 Description: is token a keyword
 Responsible: GIL
 */
-int isKeyword(const char* token);
-
-/*
-TODO:
-1. change the string functions (functions that handles strings) to (char* target, char* dest) type.
-Instead of returning string.
-*/
+bool isKeyword(char*);
 
 
-/*
-TODO: to see if it's necessary
-Responsible: GIL
-*/
-int isFirstGroup(opcodeStructure opcode);
-
-int isSecondGroup(opcodeStructure opcode);
-
-int isThirdGroup(opcodeStructure opcode);
 
 /*char* getLabelNameFromLine(char*);*/
 
 bool isFileExists(char*);
 
 
-
-
 /*
 Adds a number to data List
 */
-bool addNumberToDataList(dataPtr, dataPtr, int, int);
+bool addNumberToDataList(dataPtr*, dataPtr*, int, int);
 
 
 /*
@@ -106,24 +95,23 @@ Description: get a line of data and return the data Symbol type if exists (.stru
 or .data), if not, return NULL.
 Responsible: GIL
 */
-bool getSymbol(char* data, char* dest);
+bool getSymbol(char*, char*);
 
 
-int addStringToData(dataPtr dataListHead, dataPtr dataListTail, char *str, long dc);
-
+int addStringToData(dataPtr*, dataPtr*, char*, long);
 
 /*
 TODO: change the string functions (functions that handles strings) to (char* target, char* dest) type
 Description: trim whitespace from str
 Responsible: GUY
 */
-char *trimStr(char *str);
+char *trimStr(char*);
 
 /*trim whitespace on right end of str*/
-char *trimRightStr(char *str);
+char *trimRightStr(char*);
 
 /*trim whitespaces on left end of str*/
-char *trimLeftStr(char *str);
+char *trimLeftStr(char*);
 
 
 /*
@@ -152,5 +140,7 @@ Responsible: GUY
 */
 bool decimalToBinary(int, int* binaryNum, int arrSize);
 
+
+bool decimalToWierd(int num, char* res);
 
 #endif

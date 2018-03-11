@@ -1,6 +1,5 @@
 #include "assembler.h"
-#include "GlobalsFunctions.h"
-#include "errors.h"
+
 
 /*
 TODO:
@@ -10,10 +9,9 @@ TODO:
 
 void runAssembler(char* fileName)
 {
-	FILE* fp;
 	if (isFileExists(fileName) == FALSE)
 	{
-		printError("File is not exist", fileName);
+		printError("File is not exist");
 		return;
 	}
 	firstpass(fileName);

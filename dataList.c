@@ -6,7 +6,7 @@ int addToDataList(dataPtr *head ,dataPtr *tail ,int dc, int dType, int ascii)
 	temp = (dataPtr)(malloc(sizeof(dataTableNode)));
 	if(!temp)
 	{
-		fprintf(stderr , "cannot allocate memory in line - %d for the data - %s \n" ,num , ch);
+		printError("cannot allocate memory for the data");
 		return FALSE;
 	}
 	((dataTableNode*)temp)->dataCounter = dc;
@@ -36,13 +36,15 @@ void addNodeToDataList(dataPtr temp, dataPtr *head, dataPtr *tail)
 }
 
 
-void freeList(dataPtr *head)
+void freeDataList(dataPtr *head)
 {
-	dataPtr temp;
+
+	dataPtr* temp;
 	while(*head)
 	{
-		temp=*head;
-		*head=(*head)->next;
+		temp = *head;
+
+		*head = (*head)->next;
 		free(temp);
 	}
 }

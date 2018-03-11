@@ -1,7 +1,9 @@
+#ifndef SYMBOLS_LIST_H
+#define	SYMBOLS_LIST_H
 #include <stdio.h>
-#ifndef globalVariables
+#include <stdlib.h>
 #include "globalVariables.h"
-#endif
+
 
 typedef struct symbolsTableNode* symbolPtr;
 
@@ -21,7 +23,10 @@ bool addToSymbolsList(symbolPtr* ,symbolPtr*, char*, int, bool, bool, bool, bool
 
 void addNodeToSymbolList(symbolPtr, symbolPtr*, symbolPtr*);
 
-void freeList(symbolPtr *head);
+void freeSymbolsList(symbolPtr *head);
 
 /*phase 17 in the first pass*/
 void updateDataSymbols(symbolPtr*, int);
+
+
+#endif
