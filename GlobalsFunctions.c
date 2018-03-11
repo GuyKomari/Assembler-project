@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "GlobalsFunctions.h"
-#include "errors.h"
+
 
 
 bool isRegister(char *token)
@@ -29,7 +29,7 @@ bool isOpcode(char *token)
 
 bool isLabel(char* src, char* dest)
 {
-	char * temp, start;
+	char *temp, *start;
 	int len;
 	temp = trimStr(src);
 	start = temp;
@@ -73,14 +73,14 @@ headOfSymbolsList - head of the symbols list;
 token - is a valid label
 lineCounter - the code line
 */
-bool isLabelDefined(symbolPtr headOfSymbolsList, char* token, int lineCounter)
+bool isLabelDefined(symbolPtr headOfSymbolsList, char* token)
 {
 	while(headOfSymbolsList)
 	{
 		if(!(strcmp(token,(headOfSymbolsList->name))))
 		{
-			fprintf(stderr, "Label %s, line %d,  already defined",token,lineCounter);
-			return TRUE;	
+			printError("Label is already defined");
+			return TRUE;
 		}
 		headOfSymbolsList = headOfSymbolsList->next;
 	}
@@ -502,7 +502,7 @@ bool binaryToWierd (int* binary, char* res)
 		mult=mult/2;
 	}
 	printf("num1 = %d\n", num1);
-	decimalToWierd(num1,res);
+	decimalToWierd(num1, res);
 	printf("\n%s\n",res );
 	mult = MULT;
 	for(i = WORD_SIZE/2; i < WORD_SIZE ; i++)

@@ -30,7 +30,7 @@ bool firstpass(char* filename)
 
 	if (sourceFileHandle == NULL)
 	{
-		printError(OPEN_FILE_ERROR, filename);
+		printError(OPEN_FILE_ERROR);
 		return FALSE;
 	}
 	while (!(endFile = readLine(sourceFileHandle, line)))/*parse every line in the file*/

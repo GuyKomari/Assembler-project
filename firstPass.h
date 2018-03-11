@@ -1,3 +1,5 @@
+#ifndef FIRST_PASS_H
+#define FIRST_PASS_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,3 +23,4 @@ bool externLabels(char *line);
 bool parseCommand(char *line);
 
 
+#endif

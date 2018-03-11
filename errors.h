@@ -1,3 +1,5 @@
+#ifndef ERRORS_H
+#define ERRORS_H
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -24,3 +26,5 @@ TODO:
 
 
 void printError(char*);
+
+#endif

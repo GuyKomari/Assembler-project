@@ -3,7 +3,8 @@
 bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int addr, bool isEx , bool isC , bool isD, bool isEn)
 {
 	symbolPtr temp;
-	(symbolsTableNode*)temp = (symbolsTableNode*)(malloc(sizeof(symbolsTableNode)));
+	temp = (symbolPtr)((symbolsTableNode*)(malloc(sizeof(symbolsTableNode))));
+	
 	if(!temp)
 	{
 		fprintf(stderr , "cannot allocate memory in line %d for label %s \n",addr ,symbol);
@@ -49,7 +50,7 @@ void updateDataSymbols(symbolPtr *head, int ic)
 	}
 }
 
-void freeList(symbolPtr *head)
+void freeSymbolsList(symbolPtr *head)
 {
 	symbolPtr temp;
 	while(*head)

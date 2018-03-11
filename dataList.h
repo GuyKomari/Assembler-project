@@ -25,6 +25,6 @@ int addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii);
 
 void addNodeToDataList(dataPtr, dataPtr*, dataPtr*);
 
-void freeList(dataPtr*);
+void freeDataList(dataPtr*);
 
 #endif

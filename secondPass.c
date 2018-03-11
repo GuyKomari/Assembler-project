@@ -27,8 +27,9 @@ bool secondPass(char* fileName)
 		is_entry = isEntry(line);
 		if (is_entry && !(isExtern || getSymbol))
 		{
-			
+			return TRUE;
 		}
 	}
+	return TRUE;
 
 }
