@@ -16,11 +16,12 @@ bool isOpcode(char*);
 /*TODO: implement these 3 functions that gets a single word and tells if it's a label or numOperand
 Responsible: GIL
 */
+
 bool isValidLabel(char*);
 
 bool isNumOperand(char*);
 
-bool isStructOperand(char*);
+bool isStructWithDotOperand(char*);
 
 AddressingMode getOperandAddressing(char*);
 
