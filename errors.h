@@ -11,6 +11,8 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 */
 #define OPEN_FILE_ERROR "could not open the file %s"
 
+#define ERROR_CREATE_FILE	"Could not create file"
+
 #define MISSING_INPUT_FILE "missing input files %s"
 
 #define ERRORS_IN_FIRST_PASS "errrors found on the first pass, output files will not be created for the input file - %s"
@@ -37,6 +39,9 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 
 #define OPEN_INPUT_FILE_ERROR "the input file - %s does not exist"
 
+#define LABEL_DECLARED_BUT_NOT_DEFINED	"An undefined label has been declared"
+
+#define ERROR_CONVERT_LABEL_ADDRESS_TO_WEIRD	"Cannot convert label address to weird base"
 
 
 /*functions to find errors*/

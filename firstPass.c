@@ -89,9 +89,11 @@ bool firstpass(char* filename)
 
 bool readLine(FILE* fp, char* line)
 {
+	if (line == NULL)
+		return FALSE;
 	if(feof(fp))
 		return FALSE;
-	fgets(line, MAX_LINE_LENGTH + 1, fp);
+	fgets(line, MAX_LINE_LENGTH, fp);
 	return TRUE;
 }
 

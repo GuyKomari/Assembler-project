@@ -158,6 +158,59 @@ bool isExtern(char* line)
 	return TRUE;
 }
 
+
+bool isValidLabel(char* token)
+{
+	int i = 0, length;
+	char* trimmed;
+	trimmed = trimStr(token);
+	length = strlen(trimmed);
+	if (length == 0 || length > 30)
+		return FALSE;
+	if (!isalpha(trimmed[i++]))
+		return FALSE;
+	for (; i < length; i++)
+	{
+		if (!(isalpha(trimmed[i]) || isdigit(trimmed[i])))
+			return FALSE;
+	}
+	return TRUE;
+}
+
+bool isNumOperand(char* token)
+{
+	int length, i = 0;
+	char* trimmed;
+	trimmed = trimStr(token);
+	length = strlen(trimmed);
+	if (trimmed[i++] != '#')
+		return FALSE;
+	if (atoi(trimmed + i) == 0)
+	{
+		if (trimmed[i] == '+' || trimmed[i] == '-')
+			i++;
+		if (strcmp(trimmed + 1, "0") != 0)
+			return FALSE;
+	}
+	return TRUE;
+}
+
+bool isStructWithDotOperand(char* operand)
+{
+	int i, length;
+	char* dot = ".";
+	char *trimmed, *token;
+	trimmed = strlen(operand);
+	token = strtok(operand, dot);
+	if (!isValidLabel(token))
+		return FALSE;
+	token = strtok(NULL, dot);
+	if (atoi(token) <= 0)
+		return FALSE;
+	return TRUE;
+}
+
+
 bool isEmptySentence(char* token)
 {
 	while (*token != '\0') 
@@ -301,7 +354,7 @@ AddressingMode getOperandAddressing(char* token)
 		return IMMEDIATE;
 	else if (isValidLabel(token))
 		return DIRECT_MEMORY;
-	else if (isStructOperand(token))
+	else if (isStructWithDotOperand(token))
 		return STRUCT_ACCESS;
 	else if (isRegister(token))
 		return DIRECT_REGISTER;

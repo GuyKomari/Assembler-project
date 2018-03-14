@@ -46,7 +46,4 @@ void encodingCommand(char* , char*);
 
 
 
-
-
-
 #endif
