@@ -1,5 +1,6 @@
 #ifndef ERRORS_H
 #define ERRORS_H
+#include "globalVariables.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -43,19 +44,18 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 
 #define ERROR_CONVERT_LABEL_ADDRESS_TO_WEIRD	"Cannot convert label address to weird base"
 
-
-/*functions to find errors*/
-
-
-/*positive and negative integer */
-
-
-/*
+/*/
 TODO:
 1. add references for <errno.h> standard library macros when generating error logs.
 */
 
 
 void printError(char*);
+
+void printFileError(char* , char* );
+
+void printWarning(char* );
+
+
 
 #endif
