@@ -110,7 +110,7 @@ bool isEntry(char* line)
 	{
 		if(isspace(*temp))
 			return FALSE;
-		(*temp)++;
+		temp++;
 	}
 	return TRUE;
 }
@@ -151,7 +151,7 @@ bool isExtern(char* line)
 	{
 		if(isspace(*temp))
 			return FALSE;
-		(*temp)++;
+		temp++;
 	}
 	return TRUE;
 }
@@ -222,7 +222,11 @@ char *trimLeftStr(char *str)
 
 char *trimRightStr(char *str)
 {
-    char* back = str + strlen(str);
+	int length = strlen(str);
+	if (length == 0)
+		return str;
+    char* back = str + length;
+	
     while(isspace(*--back));
     *(back+1) = '\0';
     return str;
@@ -336,12 +340,12 @@ AddressingMode getOperandAddressing(char* token)
 {
 	if (isNumOperand(token))
 		return IMMEDIATE;
-	else if (isValidLabel(token))
-		return DIRECT_MEMORY;
-	else if (isStructWithDotOperand(token))
-		return STRUCT_ACCESS;
 	else if (isRegister(token))
 		return DIRECT_REGISTER;
+	else if (isStructWithDotOperand(token))
+		return STRUCT_ACCESS;
+	else if (isValidLabel(token))
+		return DIRECT_MEMORY;
 	else
 		return -1;
 }
@@ -359,7 +363,9 @@ int getCommandSize(char* command)
 	token = strtok(command, delim);
 	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
-		if (strcmp(token, opcodes->opcodeName) == 0)
+		if (token == NULL)
+			continue;
+		if (strcmp(token, opcodes[i].opcodeName) == 0)
 		{
 			opcode = &(opcodes[i]);
 
@@ -678,6 +684,5 @@ bool readLine(FILE* fp, char* line)
 		return FALSE;
 	if(feof(fp))
 		return FALSE;
-	fgets(line, MAX_LINE_LENGTH, fp);
-	return TRUE;
+	return (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
 }

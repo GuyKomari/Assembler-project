@@ -28,7 +28,7 @@ bool firstpass(char* filename)
 		printError(OPEN_FILE_ERROR);
 		return FALSE;
 	}
-	while (!(endFile = readLine(sourceFileHandle, line)))/*parse every line in the file*/
+	while (endFile = readLine(sourceFileHandle, line))/*parse every line in the file*/
 	{
 		is_label = isLabel(line,labelName);/*checks if there is a label definition -> LABEL: (more data).
  											if true, then stores the label in labelName*/

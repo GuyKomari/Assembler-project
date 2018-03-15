@@ -17,25 +17,25 @@ bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int addr, 
 	temp->isData = isD;
 	temp->isEntry = isEn;
 	temp->next = NULL;
-	addNodeToSymbolList(temp , head , tail);
+	addNodeToSymbolList(&temp , head , tail);
 	return TRUE;
 }
 
 
-void addNodeToSymbolList(symbolPtr temp, symbolPtr *head, symbolPtr *tail)
+void addNodeToSymbolList(symbolPtr *temp, symbolPtr *head, symbolPtr *tail)
 {
 	if(*head == NULL)/*case- empty list*/
 	{
-		*head = temp;
-		*tail = temp;
-		temp->next = NULL;
+		*head = *temp;
+		*tail = *temp;
+		(*temp)->next = NULL;
 		return;
 	}
 	else
 	{
-		(*tail)->next=temp;
-		*tail=temp;
-		temp->next = NULL;
+		(*tail)->next = *temp;
+		*tail = *temp;
+		(*temp)->next = NULL;
 		return;
 	}
 }
