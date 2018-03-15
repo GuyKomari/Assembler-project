@@ -7,13 +7,12 @@ FILE *sourceFileHandle;/*input file handle*/
 FILE *objFile, *entFile, *extFile; /*output files handles*/
 
 
-//extern lineCounter;/*line counter*/
-//extern IC , DC ;/*needed?*/
+/*extern lineCounter;line counter*/
+/*extern IC , DC ;needed?*/
 
 extern symbolPtr symbolListHead, symbolListTail;
 extern dataPtr dataListHead, dataListTail;
 
-lineCounter = 0;
 /*
 does the second pass, return true if succeeded
 */
@@ -21,11 +20,11 @@ bool secondPass(char* fileName)
 {
 	bool is_label, is_data_command, endFile, is_entry, extFlag, entFlag;
 
-	char *objFileName[MAX_FILE_NAME] = {0}; /*object file name*/
-	char *entFileName[MAX_FILE_NAME] = {0};	/*entry file name*/
-	char *extFileName[MAX_FILE_NAME] = {0}; /*entry file name*/
-
+	char objFileName[MAX_FILE_NAME] = {0}; /*object file name*/
+	char entFileName[MAX_FILE_NAME] = {0};	/*entry file name*/
 	char line[MAX_LINE_LENGTH] = {0};
+
+	lineCounter = 0;
 	is_label = is_data_command = endFile = is_entry = extFlag = entFlag = FALSE;
 
 	sourceFileHandle = fopen(fileName, "r");
@@ -42,6 +41,7 @@ bool secondPass(char* fileName)
 		printFileError(OPEN_FILE_ERROR, objFileName);
 		return FALSE;
 	}
+	printf("%s\n", "here");
 	/*parse the input assembler file*/
 	while (!(endFile = readLine(sourceFileHandle, line)))
 	{
@@ -82,8 +82,8 @@ bool secondPass(char* fileName)
 		}
 	}
 	printDataWeird(objFileName);/*print the data in weird base after finished to print the code*/
-	freeSymbolsList(symbolListHead);
-	freeDataList(dataListHead);
+	freeSymbolsList(&symbolListHead);
+	freeDataList(&dataListHead);
 	return TRUE;
 }
 void printDataWeird(char *objFileName)
@@ -114,7 +114,6 @@ void printDataWeird(char *objFileName)
 
 void printToEntryFile(char* entFileName, char* line)
 {
-	int i;
 	char *temp = trimStr(line);/*clear whitespaces*/
 	symbolPtr searchLabel = symbolListHead;/*search is an hendle to the head of the symbols list*/
 	char weirdLabelAddress[MAX_32_WEIRD_LENGTH] = { 0 };
@@ -126,12 +125,11 @@ void printToEntryFile(char* entFileName, char* line)
 		return;
 	}
 	temp = (char *)(temp + ENTRY_LENGTH);/*move the pointer after the ".entry" command*/
-	i = 0;
 	while(isspace(*temp))/*ignore whitespaces*/
 		temp++;
 	if(!isLabelDefined(symbolListHead, temp))
 	{
-		printWarning(LABEL_DECLARED_BUT_NOT_DEFINED, temp);/*TODO: add to errors.h*/
+		printFileError(LABEL_DECLARED_BUT_NOT_DEFINED, temp);/*TODO: add to errors.h*/
 		return;
 	}
 	else
@@ -172,7 +170,7 @@ void createFile(char* fileName, FILE* dest, char* destName, char* end)
 	dest = fopen(name,"wb");
 	if(!dest)
 	{
-		printf(ERROR_CREATE_FILE, destName);
+		printFileError(ERROR_CREATE_FILE, destName);
 		return;
 	}
 	fclose(dest);
@@ -182,9 +180,9 @@ void createFile(char* fileName, FILE* dest, char* destName, char* end)
 void encodingCommand(char* objFileName, char* line)
 {
 	int opcodeGroup;
-	char *temp, startLabel, opcodeName, firstOperand, secondOperand;
+	char * temp, opcodeName, firstOperand, secondOperand;
 	char label[MAX_LINE_LENGTH]={0};/*the label*/
-
+	temp = opcodeName = firstOperand = secondOperand = NULL;
 	if(!isFileExists(objFileName))
 	{
 		printFileError(OPEN_FILE_ERROR, objFileName);
@@ -192,19 +190,19 @@ void encodingCommand(char* objFileName, char* line)
 	}
 
 	temp = trimStr(line);
-	startLabel = opcodeName = firstOperand = secondOperand = NULL;
 	opcodeGroup = 0;
 
 	if(isLabel(temp,label))/*case - commmand starts with label*/
 	{
-		temp = (char*)(temp + strlen(startLabel));
+		temp = (char*)(temp + strlen(label));
 	}
 	temp = trimLeftStr(temp);
-	opcodeName = strtok(temp, " ");/*opcode name*/
+	opcodeName = (char *)strtok(temp, " ");/*opcode name*/
 	temp = (char*)(temp + strlen(opcodeName));
 	while(isspace(temp));
 		temp++;
 	opcodeGroup = getOpcodeGroup(opcodeName);/*to which group the opcode belongs*/
+
 	switch(opcodeGroup)
 	{
 		case FIRST_GROUP:/* two operands*/
@@ -368,13 +366,6 @@ void copyBinaryOpcode(int index, int *binary)
 	{
 		binary[i] = (opcodes[index].binaryCode)[i];
 	}
-}
-
-bool isStructWithDotOperand(char* operand)
-{
-	if(strchr(operand, '.'))
-		return TRUE;
-	return FALSE;
 }
 
 

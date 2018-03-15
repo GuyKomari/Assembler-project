@@ -78,6 +78,8 @@ Move all the arrays into a .c file and declare them as extern, in order to solve
 
 #define THIRD_GROUP_SIZE 2
 
+#define MAX_LABEL_SIZE 31
+
 
 
 
@@ -145,7 +147,7 @@ extern char *OpcodesSecondGroup[SECOND_GROUP_SIZE];
 extern char *OpcodesThirdGroup[THIRD_GROUP_SIZE];
 
 
-
+/*
 //ERAStructure ERATypes[] = {
 //	{ 0	,	Absolute	,	"00" },
 //	{ 1	,	External	,	"01" },
@@ -189,7 +191,7 @@ extern char *OpcodesThirdGroup[THIRD_GROUP_SIZE];
 //	{ 14	,	"rts"	, { 1,1,1,0 }	,	THIRD_GROUP },
 //	{ 15	,	"stop"	, { 1,1,1,1 }	,	THIRD_GROUP }
 //};
-
+*/
 
 
 #endif

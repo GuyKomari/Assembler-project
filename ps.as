@@ -4,7 +4,7 @@
 .entry LENGTH
 .extern L3
 .extern W
-MAIN:	mov	s1.1, W
+MAIN:	mo6v	s1.1, W
 	add	‫‪r2,STR‬‬
 LOOP:	jmp	W
 	prn	‫‪#-5‬‬

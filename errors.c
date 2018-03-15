@@ -2,7 +2,7 @@
 
 void printFileError(char* error, char* fileName)
 {
-	fprintf(stderr, "%s %s\n", "[Error] -> ", error, fileName);
+	fprintf(stderr, "%s %s %s\n", "[Error] -> ", error, fileName);
 }
 
 

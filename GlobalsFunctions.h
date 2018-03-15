@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "dataList.h"
 #include "symbolsList.h"
 #include "globalVariables.h"
@@ -157,6 +158,7 @@ bool isKeyword(char*);
 
 int getNumber(char*);
 
+bool readLine(FILE*, char*);
 
 
 

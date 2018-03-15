@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <string.h>
 #include "GlobalsFunctions.h"
 
 
@@ -179,10 +177,9 @@ bool isValidLabel(char* token)
 
 bool isNumOperand(char* token)
 {
-	int length, i = 0;
+	int  i = 0;
 	char* trimmed;
 	trimmed = trimStr(token);
-	length = strlen(trimmed);
 	if (trimmed[i++] != '#')
 		return FALSE;
 	if (atoi(trimmed + i) == 0)
@@ -305,7 +302,7 @@ bool getSymbol(char* data, char* dest)
 	return FALSE;
 }
 
-//why returns bool and not void? #GIL
+/*why returns bool and not void? #GIL*/
 bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 {
 	if (num >= 0)
@@ -666,4 +663,21 @@ bool isKeyword(char* token)
 			return TRUE;
 	}
 	return FALSE;
+}
+
+bool isStructWithDotOperand(char* operand)
+{
+	if(strchr(operand, '.'))
+		return TRUE;
+	return FALSE;
+}
+
+bool readLine(FILE* fp, char* line)
+{
+	if (line == NULL)
+		return FALSE;
+	if(feof(fp))
+		return FALSE;
+	fgets(line, MAX_LINE_LENGTH, fp);
+	return TRUE;
 }

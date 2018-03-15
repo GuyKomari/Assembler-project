@@ -44,8 +44,8 @@ bool firstpass(char* filename)
 				errorFlag&= isLabelDefined(symbolListHead,labelName);/*if label already defined then there is an error*/
 
 				/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-				errorFlag&= addToSymbolsList(symbolListHead, symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
-				errorFlag&= ParseData(dataListHead, dataListTail, data);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
+				errorFlag&= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
+				errorFlag&= ParseData(&dataListHead, &dataListTail, data);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
 			}
 		}
 		else/*case - there is an entry or extern declaration or command declaration with or without a label*/
@@ -65,7 +65,7 @@ bool firstpass(char* filename)
 				{
 				errorFlag&= isLabelDefined(symbolListHead,labelName);
 				/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-				errorFlag&= addToSymbolsList(symbolListHead, symbolListTail, labelName, IC, FALSE, TRUE, FALSE, FALSE);		
+				errorFlag&= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, IC, FALSE, TRUE, FALSE, FALSE);		
 				}
 				errorFlag&= parseCommand(line);/*counter lines for the code(IC) and finds errors
 												 does not encoding the commands, we do it in the
@@ -78,20 +78,15 @@ bool firstpass(char* filename)
 	{
 		return FALSE;
 	}
-	updateDataSymbols(symbolListHead, IC);
+	printf("%s\n", "firstpass");
+	printSymbolsList(symbolListHead);
+	printDataList(dataListHead);
+
+	updateDataSymbols(&symbolListHead, IC);
+
 	return TRUE;
 }
 
-
-bool readLine(FILE* fp, char* line)
-{
-	if (line == NULL)
-		return FALSE;
-	if(feof(fp))
-		return FALSE;
-	fgets(line, MAX_LINE_LENGTH, fp);
-	return TRUE;
-}
 
 /*
 parse the data and insert to the data list
@@ -127,7 +122,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		}
 		if (i == 2)
 		{
-			DC = addStringToData(dataListHead, dataListTail, stringBuffer, DC);
+			DC = addStringToData(&dataListHead, &dataListTail, stringBuffer, DC);
 			return TRUE;
 		}
 		else
@@ -143,12 +138,12 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 			i = atoi(trimStr(token));
 			if (i != 0 || (strcmp(token, "0") == 0))
 			{
-				addNumberToDataList(dataListHead, dataListTail, DC, i);
+				addNumberToDataList(&dataListHead, &dataListTail, DC, i);
 				DC++;
 			}
 			else
 			{
-				printError("Invalid number in .data label");
+				printError(INVALID_NUMBER_IN_DATA_LABEL);
 			}
 			token = strtok(NULL, ",");
 		}
@@ -165,7 +160,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 			i = atoi(token);
 			if (i != 0 || (strcmp(token, "0") == 0))
 			{
-				addNumberToDataList(dataListHead, dataListTail, DC, i);
+				addNumberToDataList(&dataListHead, &dataListTail, DC, i);
 				DC++;
 			}
 			else
@@ -174,17 +169,17 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 				if (strLength > 2 && token[0] == '"' && token[strLength - 1] == '"')
 				{
 					strncpy(stringBuffer, token + 1, strLength - 2);
-					addStringToData(dataListHead, dataListTail, stringBuffer, DC);
+					addStringToData(&dataListHead, &dataListTail, stringBuffer, DC);
 					DC += strLength + 1;
 				}
 				else if (strLength == 3 && token[0] == '\'' && token[2] == '\'')
 				{
-					addToDataList(dataListHead, dataListTail, DC, character, (int)(token[1]));
+					addToDataList(&dataListHead, &dataListTail, DC, character, (int)(token[1]));
 					DC++;
 				}
 				else
 				{
-					printError("Unrecognized Type in struct definition");
+					printError(STRUCT_DEFINITION_ERROR);
 				}
 			}
 			token = strtok(NULL, ",");
@@ -216,7 +211,6 @@ bool parseCommand(char *line)/*with or without label*/
 	int sizeOfCommand = 0;
 	char *temp;
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
-	opcodeStructure *opcode;
 	temp = line;
 	if (isLabel(line, labelName) == TRUE)
 	{
@@ -227,4 +221,5 @@ bool parseCommand(char *line)/*with or without label*/
 	temp = trimStr(temp);
 	sizeOfCommand = getCommandSize(temp);
 	IC += sizeOfCommand;
+	return TRUE;/*always return true? why? @GIL*/
 }

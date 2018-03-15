@@ -3,7 +3,6 @@
 void runAssembler(char* fileName)
 {
 	bool flag;
-	FILE* fp;
 	flag = TRUE;
 	if (isFileExists(fileName) == FALSE)
 	{

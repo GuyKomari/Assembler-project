@@ -60,3 +60,13 @@ void freeSymbolsList(symbolPtr *head)
 		free(temp);
 	}
 }
+
+void printSymbolsList(symbolPtr head)
+{
+    while (head != NULL)
+    {
+        printf(" (%s ,%d) --> ", head->name,head->address);
+        head = head->next;
+    }
+    puts("");
+}
