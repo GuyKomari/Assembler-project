@@ -9,11 +9,6 @@ dataPtr dataListTail = NULL;
 long IC = IC_START;/* = 100 */
 long DC = DC_START;
 
-/*
-TODO:
-implements the functions which parsing a line:
-ParseData , isLabel , externLabels , parseCommand;
-*/
 
 /*does the first pass - returns TRUE if didnt find errors*/
 bool firstpass(char* filename)
@@ -84,6 +79,7 @@ bool firstpass(char* filename)
 		return FALSE;
 	}
 	updateDataSymbols(symbolListHead, IC);
+	return TRUE;
 }
 
 
@@ -109,6 +105,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 }, symbolType[MAX_LINE_LENGTH + 1] = { 0 };
 	char *stringSymbol = ".string", *dataSymbol = ".data", *structSymbol = ".struct";
 
+	i = dataLength = strLength = numRequiredBytes = 0;
 	if (isLabel(data, labelName) == FALSE)
 		return FALSE;
 	if (getSymbol(data, symbolType) == FALSE)
@@ -195,7 +192,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 	}
 	else
 		return FALSE;
-	return;
+	return TRUE;
 }
 
 
@@ -216,8 +213,8 @@ bool externLabels(char *line)
 
 bool parseCommand(char *line)/*with or without label*/
 {
-	int i, sizeOfCommand = 0;
-	char *temp, *token;
+	int sizeOfCommand = 0;
+	char *temp;
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
 	opcodeStructure *opcode;
 	temp = line;
