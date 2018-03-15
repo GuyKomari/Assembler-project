@@ -27,19 +27,27 @@ bool isOpcode(char *token)
 
 bool isLabel(char* src, char* dest)
 {
+	bool isExternDef;
 	char *temp, *start;
 	int len;
 	temp = trimStr(src);
-	start = temp;
 	len = 0;
+	isExternDef = FALSE;
+	if (isExtern(temp))
+	{
+		isExternDef = TRUE;
+		temp = (char *)(temp + EXTERN_LENGTH);
+	}
+	temp = trimLeftStr(temp);
+	start = temp;
 	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
 	{
 		printError("The label does not begins with an alpha letter");
 		return FALSE;
 	}
-	while (!isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
+	while (*temp && !isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
 	{
-		if (!isalpha(*temp) && !isdigit(*temp))
+		if (*temp && !isalpha(*temp) && !isdigit(*temp))
 		{
 			printError("The label contains non-alpha or non-digit characters");
 			return FALSE;
@@ -47,12 +55,12 @@ bool isLabel(char* src, char* dest)
 		temp++;
 		len++;
 	}
-	if (strncmp((char*)(temp++), ":", 1) != 0)
+	if (!isExternDef && strncmp((char*)(temp++), ":", 1) != 0)
 	{
 		printf("A colon is missing");
 		return FALSE;
 	}
-	if (!isspace(*temp))
+	if (!isExternDef && !isspace(*temp))
 	{
 		if (ispunct(*temp) || isdigit(*temp) || isalpha(*temp))
 		{
@@ -71,16 +79,17 @@ headOfSymbolsList - head of the symbols list;
 token - is a valid label
 lineCounter - the code line
 */
-bool isLabelDefined(symbolPtr headOfSymbolsList, char* token)
+bool isLabelDefined(symbolPtr *headOfSymbolsList, char* token)
 {
-	while(headOfSymbolsList)
+	symbolPtr temp = *headOfSymbolsList;
+	while(temp)
 	{
-		if(!(strcmp(token,(headOfSymbolsList->name))))
+		if(!(strcmp(token,(temp)->name)))
 		{
 			printError("Label is already defined");
 			return TRUE;
 		}
-		headOfSymbolsList = headOfSymbolsList->next;
+		temp = (temp)->next;
 	}
 	return FALSE;
 }
@@ -110,7 +119,7 @@ bool isEntry(char* line)
 	{
 		if(isspace(*temp))
 			return FALSE;
-		(*temp)++;
+		temp++;
 	}
 	return TRUE;
 }
@@ -151,7 +160,7 @@ bool isExtern(char* line)
 	{
 		if(isspace(*temp))
 			return FALSE;
-		(*temp)++;
+		temp++;
 	}
 	return TRUE;
 }
@@ -222,7 +231,11 @@ char *trimLeftStr(char *str)
 
 char *trimRightStr(char *str)
 {
-    char* back = str + strlen(str);
+	int length = strlen(str);
+	if (length == 0)
+		return str;
+    char* back = str + length;
+	
     while(isspace(*--back));
     *(back+1) = '\0';
     return str;
@@ -336,12 +349,12 @@ AddressingMode getOperandAddressing(char* token)
 {
 	if (isNumOperand(token))
 		return IMMEDIATE;
-	else if (isValidLabel(token))
-		return DIRECT_MEMORY;
-	else if (isStructWithDotOperand(token))
-		return STRUCT_ACCESS;
 	else if (isRegister(token))
 		return DIRECT_REGISTER;
+	else if (isStructWithDotOperand(token))
+		return STRUCT_ACCESS;
+	else if (isValidLabel(token))
+		return DIRECT_MEMORY;
 	else
 		return -1;
 }
@@ -359,7 +372,9 @@ int getCommandSize(char* command)
 	token = strtok(command, delim);
 	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
-		if (strcmp(token, opcodes->opcodeName) == 0)
+		if (token == NULL)
+			continue;
+		if (strcmp(token, opcodes[i].opcodeName) == 0)
 		{
 			opcode = &(opcodes[i]);
 
@@ -674,10 +689,10 @@ bool isStructWithDotOperand(char* operand)
 
 bool readLine(FILE* fp, char* line)
 {
+	lineCounter++;
 	if (line == NULL)
 		return FALSE;
 	if(feof(fp))
 		return FALSE;
-	fgets(line, MAX_LINE_LENGTH, fp);
-	return TRUE;
+	return (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
 }

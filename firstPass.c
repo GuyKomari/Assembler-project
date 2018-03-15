@@ -13,12 +13,13 @@ long DC = DC_START;
 /*does the first pass - returns TRUE if didnt find errors*/
 bool firstpass(char* filename)
 {
+	int i;
 	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, errorFlag;
 	FILE* sourceFileHandle;
 
-	char line[MAX_LINE_LENGTH + 1] = {0};
-	char labelName[MAX_LINE_LENGTH + 1] = {0};
-	char data[MAX_LINE_LENGTH + 1] = {0};
+	char line[MAX_LINE_LENGTH + 1] = { 0 };
+	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
+	char data[MAX_LINE_LENGTH + 1] = { 0 };
 	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = errorFlag = FALSE;
 	/*open the input file*/
 	sourceFileHandle = fopen(filename, "r");
@@ -28,62 +29,68 @@ bool firstpass(char* filename)
 		printError(OPEN_FILE_ERROR);
 		return FALSE;
 	}
-	while (!(endFile = readLine(sourceFileHandle, line)))/*parse every line in the file*/
+	while (endFile = readLine(sourceFileHandle, line))/*parse every line in the file*/
 	{
-		is_label = isLabel(line,labelName);/*checks if there is a label definition -> LABEL: (more data).
- 											if true, then stores the label in labelName*/
+		symbolFlag = FALSE;
+		if (isComment(line) || (is_entry = isEntry(line)) || isEmptySentence(line))
+		{
+			continue;
+		}
+		is_extern = isExtern(line);
+		is_label = isLabel(line, labelName);/*checks if there is a label definition -> LABEL: (more data). if true, then stores the label in labelName*/
 		if (is_label)/*case - there is a label definition*/
 		{
 			symbolFlag = TRUE;/* "turn on" the symbol flag */
 		}
-		is_data_command = getSymbol(line,data);/* if contains a data command such as : .string/.data/.struct */
+		is_data_command = getSymbol(line, data);/* if contains a data command such as : .string/.data/.struct */
 		if (is_data_command)/*case - there is a data definition*/
 		{
 			if (symbolFlag)/*case - the data definition are inside a label-> LABEL: .string "abcd" */
 			{
-				errorFlag&= isLabelDefined(symbolListHead,labelName);/*if label already defined then there is an error*/
+				errorFlag &= isLabelDefined(&symbolListHead, labelName);/*if label already defined then there is an error*/
 
 				/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-				errorFlag&= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
-				errorFlag&= ParseData(&dataListHead, &dataListTail, data);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
+				errorFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
+				errorFlag &= ParseData(&dataListHead, &dataListTail, data);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
 			}
 		}
 		else/*case - there is an entry or extern declaration or command declaration with or without a label*/
 		{
-			is_extern = isExtern(line);/*there is an extern declaration - .extern LABEL*/
-			is_entry = isEntry(line);/*there is an enntry declaration - .entry - we dont do anything in the first pass*/
 			if (is_extern || is_entry)/*case - entry or extern*/
 			{
 				if (is_extern)
 				{
-					errorFlag&= externLabels(line);/*TODO: phrase 9 - .extern LABEL1...*/
+					errorFlag &= externLabels(line);/*TODO: phrase 9 - .extern LABEL1...*/
 				}
 			}
 			else /* case - command declaration */
 			{
 				if (symbolFlag)/* case command inside a label*/
 				{
-				errorFlag&= isLabelDefined(symbolListHead,labelName);
-				/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-				errorFlag&= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, IC, FALSE, TRUE, FALSE, FALSE);		
+					errorFlag &= isLabelDefined(&symbolListHead, labelName);
+					/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
+					errorFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, IC, FALSE, TRUE, FALSE, FALSE);
 				}
-				errorFlag&= parseCommand(line);/*counter lines for the code(IC) and finds errors
+				errorFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
 												 does not encoding the commands, we do it in the
 												 second pass*/
 			}
 		}
-		
+		for (i = 0; i < MAX_LINE_LENGTH +1; i++)
+		{
+			line[i] = 0;
+			labelName[i] = 0;
+			data[i] = 0;
+		}
 	}
 	if (errorFlag)
 	{
 		return FALSE;
 	}
 	printf("%s\n", "firstpass");
-	printSymbolsList(symbolListHead);
-	printDataList(dataListHead);
-
 	updateDataSymbols(&symbolListHead, IC);
-
+	printSymbolsList(&symbolListHead);
+	fclose(sourceFileHandle);
 	return TRUE;
 }
 

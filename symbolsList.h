@@ -28,7 +28,7 @@ void freeSymbolsList(symbolPtr *head);
 /*phase 17 in the first pass*/
 void updateDataSymbols(symbolPtr*, int);
 
-void printSymbolsList(symbolPtr );
+void printSymbolsList(symbolPtr *);
 
 
 #endif

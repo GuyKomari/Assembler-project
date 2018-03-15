@@ -40,7 +40,7 @@ bool isLabel(char*,char*);
 Description: gets a valid label and checks if this label already defined
 Responsible: GUY
 */
-bool isLabelDefined(symbolPtr, char*);
+bool isLabelDefined(symbolPtr*, char*);
 
 
 /*
