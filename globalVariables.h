@@ -60,6 +60,8 @@ Move all the arrays into a .c file and declare them as extern, in order to solve
 
 #define EXTERN_LENGTH 7
 
+#define MAX_32_WEIRD_LENGTH 5
+
 #define MULT 16
 
 #define MAX10BITS 1024
@@ -69,6 +71,17 @@ Move all the arrays into a .c file and declare them as extern, in order to solve
 #define NUM_OF_KEYWORDS	21
 
 #define uint unsigned int
+
+#define FIRST_GROUP_SIZE 5
+
+#define SECOND_GROUP_SIZE 9
+
+#define THIRD_GROUP_SIZE 2
+
+#define MAX_LABEL_SIZE 31
+
+
+
 
 typedef enum {FALSE, TRUE} bool;
 
@@ -85,10 +98,9 @@ typedef struct opcode_structure
 
 typedef struct register_structure
 {
-	int DecimalCode;
-	char* registerName;
+	const char* registerName;
 	int address[REGISTER_ADDRESS_SIZE];
-} RegisteStructure;
+} RegisterStructure;
 
 
 typedef struct word 
@@ -124,6 +136,18 @@ extern char* Registers[NUM_OF_REGISTERS];
 
 extern opcodeStructure opcodes[NUM_OF_OPCODES];
 
+extern RegisterStructure registersBinary[NUM_OF_REGISTERS];
+
+extern int lineCounter;
+
+extern char *OpcodesFirstGroup[FIRST_GROUP_SIZE];
+
+extern char *OpcodesSecondGroup[SECOND_GROUP_SIZE];
+
+extern char *OpcodesThirdGroup[THIRD_GROUP_SIZE];
+
+
+/*
 //ERAStructure ERATypes[] = {
 //	{ 0	,	Absolute	,	"00" },
 //	{ 1	,	External	,	"01" },
@@ -167,7 +191,7 @@ extern opcodeStructure opcodes[NUM_OF_OPCODES];
 //	{ 14	,	"rts"	, { 1,1,1,0 }	,	THIRD_GROUP },
 //	{ 15	,	"stop"	, { 1,1,1,1 }	,	THIRD_GROUP }
 //};
-
+*/
 
 
 #endif

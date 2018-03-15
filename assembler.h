@@ -1,13 +1,6 @@
-#include <stdio.h>
-#include <string.h>
 #include "firstPass.h"
 #include "GlobalsFunctions.h"
-#include "errors.h"
-
-/*
-File Name: assembler.h
-*/
-
+bool secondPass(char*);
 
 /**
 Function Name: runAssembler

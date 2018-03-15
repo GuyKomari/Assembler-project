@@ -1,6 +1,9 @@
 #ifndef GLOBAL_FUNCTIONS_H
 #define GLOBAL_FUNCTIONS_H
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include "dataList.h"
 #include "symbolsList.h"
 #include "globalVariables.h"
@@ -69,7 +72,7 @@ bool isComment(char*);
 is token a declaration - .data or .string or .extern or .entry or .struct
 if true return the type declaration otherwise -1 
 */
-bool isDeclaration(char*);
+bool isDateDeclaration(char*);
 
 
 /*
@@ -127,21 +130,36 @@ int getCommandSize(char*);
 Description: convert decimal code to binary code
 Responsible: GUY
 */
-bool decimalToBinary(int n, int* binaryNum, int arrSize);
+void decimalToBinary(int , int *, int );
 
 /*
 Description: convert binary code to "wierd 32 base"
 Responsible: GUY
 */
-bool binaryToWierd(int* binary, char* res);
+void binaryToWierd(int* binary, char* res);
 
 /*
 Description: convert a number in decimal base to "wierd 32 base"
 Responsible: GUY
 */
-bool decimalToBinary(int, int* binaryNum, int arrSize);
+
+void decimalToWierd(int num, char* res);
+
+int binaryToDecimal(int *);
 
 
-bool decimalToWierd(int num, char* res);
+
+bool isDataCommand(char* );
+
+bool isNumber(char* );
+
+bool isKeyword(char*);
+
+
+int getNumber(char*);
+
+bool readLine(FILE*, char*);
+
+
 
 #endif

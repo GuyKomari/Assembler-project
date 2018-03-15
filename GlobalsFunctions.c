@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <string.h>
 #include "GlobalsFunctions.h"
 
 
@@ -179,10 +177,9 @@ bool isValidLabel(char* token)
 
 bool isNumOperand(char* token)
 {
-	int length, i = 0;
+	int  i = 0;
 	char* trimmed;
 	trimmed = trimStr(token);
-	length = strlen(trimmed);
 	if (trimmed[i++] != '#')
 		return FALSE;
 	if (atoi(trimmed + i) == 0)
@@ -192,21 +189,6 @@ bool isNumOperand(char* token)
 		if (strcmp(trimmed + 1, "0") != 0)
 			return FALSE;
 	}
-	return TRUE;
-}
-
-bool isStructWithDotOperand(char* operand)
-{
-	int i, length;
-	char* dot = ".";
-	char *trimmed, *token;
-	trimmed = strlen(operand);
-	token = strtok(operand, dot);
-	if (!isValidLabel(token))
-		return FALSE;
-	token = strtok(NULL, dot);
-	if (atoi(token) <= 0)
-		return FALSE;
 	return TRUE;
 }
 
@@ -320,6 +302,7 @@ bool getSymbol(char* data, char* dest)
 	return FALSE;
 }
 
+/*why returns bool and not void? #GIL*/
 bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 {
 	if (num >= 0)
@@ -330,6 +313,7 @@ bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 	{
 		addToDataList(head, tail, dc, negativeNumber, num);
 	}
+	return TRUE;
 }
 
 
@@ -367,7 +351,7 @@ AddressingMode getOperandAddressing(char* token)
 
 int getCommandSize(char* command)
 {
-	int i, j, sizeOfCommand = 0;
+	int i, sizeOfCommand = 0;
 	AddressingMode srcOperandAddressing, destOperandAddressing;
 	opcodeStructure *opcode;
 	char* token, *delim = " \t,";
@@ -538,84 +522,162 @@ int getCommandSize(char* command)
 
 
 
+
 /*
-TODO: add errors checking
 Description: convert 10 word length represents in binary code to "wierd 32 base"
 */
-bool binaryToWierd (int* binary, char* res)
+void decimalToWierd(int num, char* res)
 {
-	bool hasError;
-	int num1, num2 ,mult, i;
-	char* temp = (char*)malloc(sizeof(char));
-	num1 = num2 = i = 0;
-	mult = MULT;
-	for(i = 0; i < (WORD_SIZE/2) ; i++)
-	{
-		num1 = num1 + mult*binary[i];
-		mult=mult/2;
-	}
-	printf("num1 = %d\n", num1);
-	decimalToWierd(num1, res);
-	printf("\n%s\n",res );
-	mult = MULT;
-	for(i = WORD_SIZE/2; i < WORD_SIZE ; i++)
-	{
-		num2 = num2 + mult*binary[i];
-		mult=mult/2;
-	}
-	decimalToWierd(num2,temp);
-	res = strcat(res,temp);
-	free(temp);
-	return hasError;
-}
-
-/*
-TODO: add errors checking
-Description: convert a number in decimal base to "wierd 32 base"
-*/
-bool decimalToWierd(int num, char* res)
-
-{
-	bool error;
 	char *p1, *p2;
-	int div ;
-	if(!num) /*case - num = 0*/
+	int div;
+	int temp = num;
+
+	if (num<0)/*case - num < 0*/
+	{
+		num = MAX10BITS - (num*(-1));
+		printf("%d\n", num);
+	}
+
+	if (num < 0)
 	{
 		strcpy(res, WIERD_32_BASE[0]);
 	}
-	if(num<0) /*case - num < 0*/
+	while (num)
 	{
-		num *= -1;
-		num = MAX10BITS - num;
+		div = BASE_LENGTH * (((double)num / BASE_LENGTH) - (num / BASE_LENGTH));
+		res = strcat(res, WIERD_32_BASE[div]);
+		num = num / BASE_LENGTH;
 	}
-	while(num)
+	if (temp > 0 && temp < BASE_LENGTH)
 	{
-		div = BASE_LENGTH *(((double)num/BASE_LENGTH) - (num/BASE_LENGTH));
-		res = strcat(res ,WIERD_32_BASE[div]);
-		num = num/BASE_LENGTH;
+		res = strcat(res, WIERD_32_BASE[0]);
+
 	}
-    for (p1 = res, p2 = res + strlen(res) - 1; p2 > p1; ++p1, --p2)
-    {
-        *p1 ^= *p2;
-        *p2 ^= *p1;
-        *p1 ^= *p2;
-    }
-	return TRUE;
+	for (p1 = res, p2 = res + strlen(res) - 1; p2 > p1; ++p1, --p2)
+	{
+		*p1 ^= *p2;
+		*p2 ^= *p1;
+		*p1 ^= *p2;
+	}
 }
 
-/*TODO: add errors checking*/
-bool decimalToBinary(int n, int binaryNum[], int arrSize)
+void binaryToWierd(int *binary, char* res)
 {
-	bool hasError;
+	int num = 0;
+	num = binaryToDecimal(binary);
+	decimalToWierd(num, res);
+}
+
+/*arr size = 8(number in command) 10(data)*/
+void decimalToBinary(int num, int *binaryNum, int arrSize)
+{
 	int i;
-	if(n<0)/*case - num < 0*/
+	if (num<0)/*case - num < 0*/
 	{
-		n = MAX10BITS - n*(-1);
+		num = MAX10BITS - num * (-1);
 	}
-    for(i= arrSize-1 ; i>=0 ; i--) 
-    {
-        binaryNum[i] = n % 2;
-        n = n / 2;
-    }
-	return hasError;
+	for (i = arrSize - 1; i >= 0; i--)
+	{
+		binaryNum[i] = num % 2;
+		num = num / 2;
+	}
+}
+
+int binaryToDecimal(int *binaryNum)
+{
+	int i;
+	int num = 0;
+	int mult = 1;
+	for (i = WORD_SIZE - 1; i >= 0; i--)
+	{
+		num = num + binaryNum[i] * mult;
+		mult = mult * 2;
+	}
+	return num;
+}
+
+
+bool isDataCommand(char* token)
+{
+	char * temp;
+	temp = trimStr(token);
+	while (!isspace(*temp))
+	{
+		temp++;
+	}
+	while (isspace(*temp))
+	{
+		temp++;
+	}
+	printf("%s\n", temp);
+	if (!strncmp(temp, ".data", 5) || !strncmp(temp, ".string", 7) || !strncmp(temp, ".struct", 7))
+		return TRUE;
+	return FALSE;
+}
+
+int getNumber(char* token)
+{
+	char * temp;
+	char * num;
+	int end = 0;
+	temp = trimStr(token);
+	if (strncmp(temp, "#", 1) == 0)
+	{
+		temp++;
+	}
+	num = temp;
+	while (!isspace(*temp))
+	{
+		end++;
+		temp++;
+	}
+	return atoi(num);
+}
+
+bool isNumber(char* token)
+{
+	char * temp;
+	temp = trimStr(token);
+	if (strncmp(temp, "#", 1) == 0)
+	{
+		return TRUE;
+	}
+	else if (strncmp(temp, "+", 1) == 0 || strncmp(temp, "-", 1) == 0)
+	{
+		return TRUE;
+	}
+	else if (isdigit(temp[0]))
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+bool isKeyword(char* token)
+{
+	int i = 0;
+	char *tmp = trimStr(token);
+	for (i = 0; i < NUM_OF_KEYWORDS; i++)
+	{
+		if (strcmp(Keywords[i], tmp) == 0)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+bool isStructWithDotOperand(char* operand)
+{
+	if(strchr(operand, '.'))
+		return TRUE;
+	return FALSE;
+}
+
+bool readLine(FILE* fp, char* line)
+{
+	if (line == NULL)
+		return FALSE;
+	if(feof(fp))
+		return FALSE;
+	fgets(line, MAX_LINE_LENGTH, fp);
+	return TRUE;
 }

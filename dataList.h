@@ -1,7 +1,10 @@
 #ifndef DATA_LIST_H
 #define DATA_LIST_H
 #include <stdio.h>
+#include <stdlib.h>
 #include "globalVariables.h"
+#include "errors.h"
+
 
 
 typedef enum {
@@ -26,5 +29,7 @@ int addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii);
 void addNodeToDataList(dataPtr, dataPtr*, dataPtr*);
 
 void freeDataList(dataPtr*);
+
+void printDataList(dataPtr);
 
 #endif

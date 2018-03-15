@@ -6,11 +6,13 @@ int ICounter = IC_START;/*IC*/
 FILE *sourceFileHandle;/*input file handle*/
 FILE *objFile, *entFile, *extFile; /*output files handles*/
 
-extern lineCounter;/*line counter*/
-extern IC , DC ;/*needed?*/
-extern symbolListHead, symbolListTail, dataListHead, dataListTail;
 
-lineCounter = 0;
+/*extern lineCounter;line counter*/
+/*extern IC , DC ;needed?*/
+
+extern symbolPtr symbolListHead, symbolListTail;
+extern dataPtr dataListHead, dataListTail;
+
 /*
 does the second pass, return true if succeeded
 */
@@ -18,27 +20,28 @@ bool secondPass(char* fileName)
 {
 	bool is_label, is_data_command, endFile, is_entry, extFlag, entFlag;
 
-	char *objFileName[MAX_FILE_NAME] = {0}; /*object file name*/
-	char *entFileName[MAX_FILE_NAME] = {0};	/*entry file name*/
-	char *extFileName[MAX_FILE_NAME] = {0}; /*entry file name*/
-
+	char objFileName[MAX_FILE_NAME] = {0}; /*object file name*/
+	char entFileName[MAX_FILE_NAME] = {0};	/*entry file name*/
 	char line[MAX_LINE_LENGTH] = {0};
+
+	lineCounter = 0;
 	is_label = is_data_command = endFile = is_entry = extFlag = entFlag = FALSE;
 
 	sourceFileHandle = fopen(fileName, "r");
 	if (sourceFileHandle == NULL)
 	{
-		printError(OPEN_FILE_ERROR, fileName);/*TODO: add a define to errors.h*/
-		return;
+		printFileError(OPEN_FILE_ERROR, fileName);/*TODO: add a define to errors.h*/
+		return FALSE;
 	}
 	/*input file opened successfully*/
 	createFile(fileName, objFile, objFileName, OBJECT_FILE_END);/*create the object output file*/
 
 	if(!isFileExists(objFileName))/*checks if created successfully*/
 	{
-		printError(OPEN_FILE_ERROR, objFileName);
-		return;
+		printFileError(OPEN_FILE_ERROR, objFileName);
+		return FALSE;
 	}
+	printf("%s\n", "here");
 	/*parse the input assembler file*/
 	while (!(endFile = readLine(sourceFileHandle, line)))
 	{
@@ -63,49 +66,70 @@ bool secondPass(char* fileName)
 			}
 			if(!isFileExists(entFileName))
 			{
-				printError(OPEN_FILE_ERROR, entFileName);
-				return;
+				printFileError(OPEN_FILE_ERROR, entFileName);
+				return FALSE;
 			}
 			printToEntryFile(entFileName ,line);/*print the label name and its address to the entry file*/
 			continue;
 		}
 		if(is_label && is_data_command)/*TODO. case - label with data*/
 		{
-			encodingData(line);/*encoding a the data and add to the dataEncodingList*/
 			continue;
 		}
 		else/*label with command*/
 		{
 			encodingCommand(objFileName, line);
 		}
-		printDataWeird(objFileName);/*print the data in weird base after finished to print the code*/
 	}
+	printDataWeird(objFileName);/*print the data in weird base after finished to print the code*/
+	freeSymbolsList(&symbolListHead);
+	freeDataList(&dataListHead);
+	return TRUE;
 }
+void printDataWeird(char *objFileName)
+{
+	int i = 0;
+	dataPtr temp = dataListHead;
+	char WeirdLineCounter[MAX_32_WEIRD_LENGTH] = { 0 };
+	char weirdWord[MAX_32_WEIRD_LENGTH] = { 0 };
+
+	while (temp)
+	{
+		for (i = 0; i<MAX_32_WEIRD_LENGTH; i++)
+		{
+			WeirdLineCounter[i] = 0;
+			weirdWord[i] = 0;
+		}
+		decimalToWierd(temp->asciiCode, weirdWord);
+		decimalToWierd(ICounter, WeirdLineCounter);
+		fprintf(objFile, "%s	%s\n", WeirdLineCounter, weirdWord);
+		temp = temp->next;
+		ICounter++;
+	}
+	fclose(objFile);
+}
+
+
 
 
 void printToEntryFile(char* entFileName, char* line)
 {
-	int i;
 	char *temp = trimStr(line);/*clear whitespaces*/
 	symbolPtr searchLabel = symbolListHead;/*search is an hendle to the head of the symbols list*/
-	bool toWeird;
-	FILE *entryFile;
-	char weirdLabelAddress[BASE_LENGTH] = { 0 };
-	entryFile = fopen(entryFile,"ab");
+	char weirdLabelAddress[MAX_32_WEIRD_LENGTH] = { 0 };
+	entFile = fopen(entFileName,"ab");
 
-	if(!entryFile)
+	if(!entFile)
 	{
-		printError(OPEN_FILE_ERROR, entFileName);
+		printFileError(OPEN_FILE_ERROR, entFileName);
 		return;
 	}
 	temp = (char *)(temp + ENTRY_LENGTH);/*move the pointer after the ".entry" command*/
-	i = 0;
-	toWeird = TRUE;
 	while(isspace(*temp))/*ignore whitespaces*/
 		temp++;
 	if(!isLabelDefined(symbolListHead, temp))
 	{
-		printWarning(LABEL_DECLARED_BUT_NOT_DEFINED, temp);/*TODO: add to errors.h*/
+		printFileError(LABEL_DECLARED_BUT_NOT_DEFINED, temp);/*TODO: add to errors.h*/
 		return;
 	}
 	else
@@ -114,20 +138,13 @@ void printToEntryFile(char* entFileName, char* line)
 		{
 			if(strcmp((searchLabel->name),temp)==0)/*find the node that hands that label*/
 			{
-				if(toWeird = decimalToWierd((searchLabel->address), weirdLabelAddress))/*convert the label address to "32 weird base"*/
-				{
-					fprintf(entryFile, "%s	%s\n", temp, weirdLabelAddress);
-				}
-				else
-				{
-					printError(ERROR_CONVERT_LABEL_ADDRESS_TO_WEIRD, temp);
-				}
-				break;
+				decimalToWierd((searchLabel->address), weirdLabelAddress);/*convert the label address to "32 weird base"*/
+				fprintf(entFile, "%s	%s\n", temp, weirdLabelAddress);
 			}
-			searchLabel++;
+			searchLabel = searchLabel->next;
 		}
 	}
-	fclose(entryFile);
+	fclose(entFile);
 }
 
 void createFile(char* fileName, FILE* dest, char* destName, char* end)
@@ -153,7 +170,7 @@ void createFile(char* fileName, FILE* dest, char* destName, char* end)
 	dest = fopen(name,"wb");
 	if(!dest)
 	{
-		printf(ERROR_CREATE_FILE, destName);
+		printFileError(ERROR_CREATE_FILE, destName);
 		return;
 	}
 	fclose(dest);
@@ -163,29 +180,29 @@ void createFile(char* fileName, FILE* dest, char* destName, char* end)
 void encodingCommand(char* objFileName, char* line)
 {
 	int opcodeGroup;
-	char *temp, startLabel, opcodeName, firstOperand, secondOperand;
+	char * temp, opcodeName, firstOperand, secondOperand;
 	char label[MAX_LINE_LENGTH]={0};/*the label*/
-
+	temp = opcodeName = firstOperand = secondOperand = NULL;
 	if(!isFileExists(objFileName))
 	{
-		printError(OPEN_FILE_ERROR, objFileName);
+		printFileError(OPEN_FILE_ERROR, objFileName);
 		return;
 	}
 
 	temp = trimStr(line);
-	startLabel = opcodeName = firstOperand = secondOperand = NULL;
 	opcodeGroup = 0;
 
 	if(isLabel(temp,label))/*case - commmand starts with label*/
 	{
-		temp = (char*)(temp + strlen(startLabel));
+		temp = (char*)(temp + strlen(label));
 	}
 	temp = trimLeftStr(temp);
-	opcodeName = strtok(temp, " ");/*opcode name*/
+	opcodeName = (char *)strtok(temp, " ");/*opcode name*/
 	temp = (char*)(temp + strlen(opcodeName));
 	while(isspace(temp));
 		temp++;
 	opcodeGroup = getOpcodeGroup(opcodeName);/*to which group the opcode belongs*/
+
 	switch(opcodeGroup)
 	{
 		case FIRST_GROUP:/* two operands*/
@@ -195,20 +212,22 @@ void encodingCommand(char* objFileName, char* line)
 			secondOperand = strtok(NULL,"");
 			secondOperand = trimStr(secondOperand);
 			makeBinaryCode(objFileName, opcodeName, firstOperand, secondOperand, THREE_OPERANDS);
+			break;
 		}
 		case SECOND_GROUP:/*single operand*/
 		{
 			firstOperand = strtok(NULL,",");
 			firstOperand = trimStr(firstOperand);
 			makeBinaryCode(objFileName, opcodeName, firstOperand, NULL, TWO_OPERANDS);
+			break;
 		}
 		case THIRD_GROUP:/*opcode only*/
 		{
 			makeBinaryCode(objFileName, opcodeName, firstOperand, NULL, SINGLE_OPERAND);
+			break;
 		}
 		default:
 		{
-			printError(OPCODE_GROUP_ERROR, opcodeName);/*TODO: ... */
 		 	break;
 		}
 	}
@@ -218,14 +237,6 @@ void encodingCommand(char* objFileName, char* line)
 int getOpcodeGroup(char *opcodeName)
 {
 	int i = 0;
-	/*TODO: move to globalVariabels.c
-
-	char OpcodesFirstGroup[FIRST_GROUP_SIZE] = {"mov","cmp","add","sub","lea"};
-	char OpcodesSecondGroup[SECOND_GROUP_SIZE] = {"not","clr","inc","dec","jmp","bne","red","prn","jsr"};
-	char OpcodesThirdGroup[THIRD_GROUP_SIZ] = {"rts","stop"};
-	*/
-	extern OpcodesFirstGroup, OpcodesSecondGroup, OpcodesThirdGroup;
-
 	for(i = 0; i < FIRST_GROUP_SIZE; i++)
 	{
 		if(strcmp(OpcodesFirstGroup + i, opcodeName))
@@ -255,7 +266,7 @@ void makeBinaryCode(char* objFileName, char* opcode, char* firstOperand, char *s
 
 	if(isFileExists(objFileName))
 	{
-		printError(OPEN_FILE_ERROR, objFileName);
+		printFileError(OPEN_FILE_ERROR, objFileName);
 		return;
 	}
 	switch(numOfOperands)
@@ -268,14 +279,14 @@ void makeBinaryCode(char* objFileName, char* opcode, char* firstOperand, char *s
 		case TWO_OPERANDS:
 		{
 			setOpcodeBinaryCode(opcode, binaryOpcode);
-			makeOperandBinary(firstOperand,binaryFirstOperand);
+			makeSingleOperandBinary(firstOperand,binaryFirstOperand);
 			break;
 		}
 		case THREE_OPERANDS:
 		{
 			setOpcodeBinaryCode(opcode, binaryOpcode);
-			makeOperandBinary(firstOperand, binaryFirstOperand);
-			makeOperandBinary(secondOperand, binarySecondOperand);
+			makeSingleOperandBinary(firstOperand, binaryFirstOperand);
+			makeSingleOperandBinary(secondOperand, binarySecondOperand);
 			break;
 		}
 		default: break;
@@ -287,10 +298,10 @@ void makeBinaryCode(char* objFileName, char* opcode, char* firstOperand, char *s
 	for(i = 0 ; i < OPERAND_SIZE ; i++, j++)
 		binaryWord[j] = binarySecondOperand[i];
 	printBinaryWord(objFileName, binaryWord);/*print the word in 32 weird base*/	
-	makeOperandsBinary(objFileName, binaryFirstOperand, binarySecondOperand, firstOperand, secondOperand, numOfOperands)/**/
+	makeOperandsBinary(objFileName, binaryFirstOperand, binarySecondOperand, firstOperand, secondOperand, numOfOperands);/**/
 }
 
-void makeOperandBinary(char *operand, int binary[])
+void makeSingleOperandBinary(char *operand, int *binary)
 {
 	int i = 0;
 
@@ -318,8 +329,8 @@ void makeOperandBinary(char *operand, int binary[])
 
 void printBinaryWord(char *objFileName, int *binaryWord)
 {
-	char WeirdLineCounter[BASE_LENGTH] = {0};
-	char weirdWord[BASE_LENGTH] = {0};
+	char WeirdLineCounter[MAX_32_WEIRD_LENGTH] = {0};
+	char weirdWord[MAX_32_WEIRD_LENGTH] = {0};
 
 	binaryToWierd(binaryWord, weirdWord);/**/
 	decimalToWierd(ICounter, WeirdLineCounter);
@@ -327,7 +338,7 @@ void printBinaryWord(char *objFileName, int *binaryWord)
 	objFile = fopen(objFileName, "ab");
 	if(!objFile)
 	{
-		printError(OPEN_FILE_ERROR, objFileName);
+		printFileError(OPEN_FILE_ERROR, objFileName);
 		return;
 	}
 	fprintf(objFile, "%s	%s\n", WeirdLineCounter, weirdWord);
@@ -339,30 +350,22 @@ void printBinaryWord(char *objFileName, int *binaryWord)
 void setOpcodeBinaryCode(char *operand, int *binary)
 {
 	int i = 0;
-	extern opcodes;
 	for(i = 0; i < NUM_OF_OPCODES; i++)
 	{
-		if(strcmp(((opcodes[i])->opcodeName), operand) == 0)
+		if(strcmp(((opcodes[i]).opcodeName), operand) == 0)
 		{
-			copyBinaryOpcode(opcodes, i, binary);
+			copyBinaryOpcode(i, binary);
 		}
 	}
 }
 
-void copyBinaryOpcode(opcodeStructure *opcodes, int index, int *binary)
+void copyBinaryOpcode(int index, int *binary)
 {
 	int i = 0;
 	for(i = 0; i < OPCODE_SIZE; i++)
 	{
 		binary[i] = (opcodes[index].binaryCode)[i];
 	}
-}
-
-bool isStructWithDotOperand(char* operand)
-{
-	if(strchr(operand, '.'))
-		return TRUE;
-	return FALSE;
 }
 
 
@@ -385,8 +388,8 @@ void makeOperandsBinary(char *objFileName, int *binaryFirstOperand, int *binaryS
 	label = reg = number = FALSE;
 	firstAddressingType = secondAddressingType = i = 0;
 
-	firstAddressingType = getAddressingType(binaryWord, "first");
-	secondAddressingType = getAddressingType(binaryWord, "second");
+	firstAddressingType = getAddressingType(binaryFirstOperand);
+	secondAddressingType = getAddressingType(binarySecondOperand);
 
 	switch(firstAddressingType)
 	{
@@ -394,21 +397,21 @@ void makeOperandsBinary(char *objFileName, int *binaryFirstOperand, int *binaryS
 		{
 			printNumberWeird(objFileName, firstOperand);
 			if(numOfOperands == THREE_OPERANDS)
-				printSecondOperand(objFileName, secondOperand, secondAddressingType);
+				printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
 			break;
 		}
 		case 1:/*first operand is data*/
 		{
 			printWeirdDataOperand(objFileName, firstOperand);
 			if(numOfOperands == THREE_OPERANDS)
-				printSecondOperand(objFileName, secondOperand, secondAddressingType);
+				printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
 			break;
 		}
 		case 2:/*first operand is struct with dot*/
 		{	
 			printStructWithDotWeird(objFileName, firstOperand);
 			if(numOfOperands == THREE_OPERANDS)
-				printSecondOperand(objFileName, secondOperand, secondAddressingType);
+				printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
 			break;
 		}
 		case 3:/*first oeprand is register*/
@@ -433,19 +436,18 @@ void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOpera
 {
 	int i;
 	int binaryWord[WORD_SIZE] = { 0 };
-	char weirdWord[BASE_LENGTH] = { 0 };
-	char WeirdLineCounter[BASE_LENGTH] = { 0 };
+	char weirdWord[MAX_32_WEIRD_LENGTH] = { 0 };
+	char WeirdLineCounter[MAX_32_WEIRD_LENGTH] = { 0 };
 
-	extern registersBinary;
 	for(i = 0; i < NUM_OF_REGISTERS; i++)
 	{
-		if((firstRegister) && (((registersBinary[i])->registerName), firstOperand) == 0)
+		if((firstRegister) && (((registersBinary[i]).registerName), firstOperand) == 0)
 		{
-			copyBinaryRegister(binaryWord, registersBinary, i, "first");
+			copyBinaryRegister(binaryWord, i, "first");
 		}
-		if((secondRegister) && strcmp(((registersBinary[i])->registerName), secondOperand) == 0)
+		if((secondRegister) && strcmp(((registersBinary[i]).registerName), secondOperand) == 0)
 		{
-			copyBinaryRegister(binaryWord, registersBinary, i, "second");
+			copyBinaryRegister(binaryWord, i, "second");
 		}
 	}
 	binaryToWierd(binaryWord, weirdWord);
@@ -454,7 +456,7 @@ void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOpera
 	objFile = fopen(objFileName, "ab");
 	if(!objFile)
 	{
-		printError(OPEN_FILE_ERROR, objFileName);
+		printFileError(OPEN_FILE_ERROR, objFileName);
 		return;
 	}
 	fprintf(objFile, "%s	%s\n", WeirdLineCounter, weirdWord);
@@ -463,21 +465,21 @@ void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOpera
 	fclose(objFile);
 }
 
-void copyBinaryRegister(int *binaryWord, RegisterStructure registers, int index, char *operand)
+void copyBinaryRegister(int *binaryWord,int index, char *operand)
 {
 	int i = 0;
 	if(strcmp(operand, "first") == 0)
 	{
 		for(i = 0; i < REGISTER_SIZE; i++)
 		{
-			binaryWord[i] = (registers[index]->address)[i];
+			binaryWord[i] = (registersBinary[index].address)[i];
 		}
 	}
 	else/*seccond*/
 	{
 		for(i = REGISTER_SIZE - 1; i < REGISTER_SIZE*2 ; i++)
 		{
-			binaryWord[i] = (registers[index]->address)[i];
+			binaryWord[i] = (registersBinary[index].address)[i];
 		}
 	}	
 }
@@ -494,8 +496,8 @@ void printNumberWeird(char* objFileName, char *firstOperand)
 {
 	int number = getNumber(firstOperand);/*TODO*/
 	int binaryWord[WORD_SIZE] = { 0 };
-	char WeirdLineCounter[BASE_LENGTH] = { 0 };
-	char NumberWeird[BASE_LENGTH] = { 0 };
+	char WeirdLineCounter[MAX_32_WEIRD_LENGTH] = { 0 };
+	char NumberWeird[MAX_32_WEIRD_LENGTH] = { 0 };
 
 	decimalToBinary(number, binaryWord, EIGHT_BITS);
 	binaryToWierd(binaryWord, NumberWeird);
@@ -504,7 +506,7 @@ void printNumberWeird(char* objFileName, char *firstOperand)
 	objFile = fopen(objFileName, "ab");
 	if(!objFile)
 	{
-		printError(OPEN_FILE_ERROR, objFileName);
+		printFileError(OPEN_FILE_ERROR, objFileName);
 		return;
 	}
 	fprintf(objFile, "%s	%s\n", WeirdLineCounter, NumberWeird);
@@ -537,7 +539,7 @@ void printSecondOperand(char* objFileName,char *firstOperand, char *secondOperan
 
 }
 
-void printWeirdDataOperand(char* obfFileName, char *operand)
+void printWeirdDataOperand(char* objFileName, char *operand)
 {
 	int i;
 	symbolPtr searchLabel = symbolListHead;/*search is an hendle to the head of the symbols list*/
@@ -548,10 +550,10 @@ void printWeirdDataOperand(char* obfFileName, char *operand)
 
 	decimalToWierd(ICounter, WeirdLineCounter);
 
-	objFile = fopen(entryFile, "ab");
+	objFile = fopen(objFileName, "ab");
 	if(!objFile)
 	{
-		printError(OPEN_FILE_ERROR, entFileName);
+		printFileError(OPEN_FILE_ERROR, objFileName);
 		return;
 	}
 
@@ -562,36 +564,29 @@ void printWeirdDataOperand(char* obfFileName, char *operand)
 	{
 		if(strcmp((searchLabel->name),operand)==0)/*find the node that hands that label*/
 		{
-			if(toWeird = decimalToBinary((searchLabel->address), binaryWord, EIGHT_BITS))/*convert the label address to "32 weird base"*/
+			decimalToBinary((searchLabel->address), binaryWord, EIGHT_BITS);/*convert the label address to "32 weird base"*/
+			if(isExtern(operand))/*ARE*/
 			{
-				if(isExtern(operand))/*ARE*/
-				{
-					binaryWord[8] = 0;
-					binaryWord[9] = 1;
-				}
-				else/*ARE*/
-				{
-					binaryWord[8] = 1;
-					binaryWord[9] = 0;
-				}
-				binaryToWierd(binaryWord, weirdWord);
-				fprintf(objFile, "%s	%s\n", WeirdLineCounter, weirdWord);
-				lineCounter++;
-				break;
+				binaryWord[8] = 0;
+				binaryWord[9] = 1;
 			}
-			else
+			else/*ARE*/
 			{
-				printError(ERROR_CONVERT_LABEL_ADDRESS_TO_WEIRD, operand);
+				binaryWord[8] = 1;
+				binaryWord[9] = 0;
 			}
+			binaryToWierd(binaryWord, weirdWord);
+			fprintf(objFile, "%s	%s\n", WeirdLineCounter, weirdWord);
+			lineCounter++;
 			break;
 		}
-		searchLabel++;
+		searchLabel = searchLabel->next;
 	}
 	fclose(objFile);
 }
 
 
-int getAddressingType(int* binaryOperand, char* word)
+int getAddressingType(int* binaryOperand)
 {
 	int res = 0;
 	res = 2*binaryOperand[0] + binaryOperand[1];

@@ -1,7 +1,5 @@
 #ifndef SECOND_PASS_H
 #define SECOND_PASS_H
-#include <stdio.h>
-#include <stdlib.h>
 #include "globalVariables.h"
 #include "GlobalsFunctions.h"
 
@@ -43,6 +41,38 @@ void createFile(char* , FILE* ,char*, char*);
 void printToEntryFile(char* , char*);
 
 void encodingCommand(char* , char*);
+
+void makeBinaryCode(char*, char*, char*, char *, int);
+
+void makeSingleOperandBinary(char *, int *);
+
+void printBinaryWord(char *, int *);
+
+void setOpcodeBinaryCode(char *, int *);
+
+void copyBinaryOpcode(int , int *);
+
+void makeOperandsBinary(char *, int *, int *, char *, char *, int);
+
+void printRegisterWeird(char *, char *, char *, bool, bool);
+
+void copyBinaryRegister(int *, int , char *);
+
+void printStructWithDotWeird(char *, char *);
+
+void printNumberWeird(char*, char *);
+
+void printSecondOperand(char*, char *, char *, int);
+
+void printWeirdDataOperand(char*, char *);
+
+void printDataWeird(char *);
+
+
+
+
+
+
 
 
 

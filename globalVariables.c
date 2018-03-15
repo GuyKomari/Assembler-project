@@ -1,5 +1,7 @@
 #include "globalVariables.h"
 
+int lineCounter;
+
 ERAStructure ERATypes[ERA_TYPES_SIZE] = {
 	{ 0	,	Absolute	,	"00" },
 	{ 1	,	External	,	"01" },
@@ -14,8 +16,6 @@ char* WIERD_32_BASE[BASE_LENGTH] = {
 
 
 
-
-
 char* Keywords[NUM_OF_KEYWORDS] = { "mov","cmp","add","sub","not","clr","inc", "lea","dec","jmp","bne","red","prn","jsr","rts","stop",
 ".data", ".string", ".extern", ".entry", ".struct" };
 
@@ -24,6 +24,16 @@ char* Keywords[NUM_OF_KEYWORDS] = { "mov","cmp","add","sub","not","clr","inc", "
 char* Registers[NUM_OF_REGISTERS] = { "r0","r1","r2","r3","r4","r5","r6","r7" };
 
 
+RegisterStructure registersBinary[NUM_OF_REGISTERS] = {
+	{	"r0"	,	{0,0,0,0}	},
+	{	"r1"	,	{0,0,0,1}	},
+	{	"r2"	,	{0,0,1,0}	},
+	{	"r3"	,	{0,0,1,1}	},
+	{	"r4"	,	{0,1,0,0}	},
+	{	"r5"	,	{0,1,0,1}	},
+	{	"r6"	,	{0,1,1,0}	},
+	{	"r7"	,	{0,1,1,1}	}
+};
 
 opcodeStructure opcodes[NUM_OF_OPCODES] = {
 	{ 0	,	"mov"	,{ 0,0,0,0 }	,	FIRST_GROUP },
@@ -43,3 +53,8 @@ opcodeStructure opcodes[NUM_OF_OPCODES] = {
 	{ 14	,	"rts"	,{ 1,1,1,0 }	,	THIRD_GROUP },
 	{ 15	,	"stop"	,{ 1,1,1,1 }	,	THIRD_GROUP }
 };
+
+
+char *OpcodesFirstGroup[FIRST_GROUP_SIZE] = { "mov","cmp","add","sub","lea" };
+char *OpcodesSecondGroup[SECOND_GROUP_SIZE] = { "not", "clr","inc","dec","jmp","bne","red","prn","jsr" };
+char *OpcodesThirdGroup[THIRD_GROUP_SIZE] = { "rts", "stop"};
