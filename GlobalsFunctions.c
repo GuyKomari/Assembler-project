@@ -27,19 +27,27 @@ bool isOpcode(char *token)
 
 bool isLabel(char* src, char* dest)
 {
+	bool isExternDef;
 	char *temp, *start;
 	int len;
 	temp = trimStr(src);
-	start = temp;
 	len = 0;
+	isExternDef = FALSE;
+	if (isExtern(temp))
+	{
+		isExternDef = TRUE;
+		temp = (char *)(temp + EXTERN_LENGTH);
+	}
+	temp = trimLeftStr(temp);
+	start = temp;
 	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
 	{
 		printError("The label does not begins with an alpha letter");
 		return FALSE;
 	}
-	while (!isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
+	while (*temp && !isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
 	{
-		if (!isalpha(*temp) && !isdigit(*temp))
+		if (*temp && !isalpha(*temp) && !isdigit(*temp))
 		{
 			printError("The label contains non-alpha or non-digit characters");
 			return FALSE;
@@ -47,12 +55,12 @@ bool isLabel(char* src, char* dest)
 		temp++;
 		len++;
 	}
-	if (strncmp((char*)(temp++), ":", 1) != 0)
+	if (!isExternDef && strncmp((char*)(temp++), ":", 1) != 0)
 	{
 		printf("A colon is missing");
 		return FALSE;
 	}
-	if (!isspace(*temp))
+	if (!isExternDef && !isspace(*temp))
 	{
 		if (ispunct(*temp) || isdigit(*temp) || isalpha(*temp))
 		{
@@ -71,16 +79,17 @@ headOfSymbolsList - head of the symbols list;
 token - is a valid label
 lineCounter - the code line
 */
-bool isLabelDefined(symbolPtr headOfSymbolsList, char* token)
+bool isLabelDefined(symbolPtr *headOfSymbolsList, char* token)
 {
-	while(headOfSymbolsList)
+	symbolPtr temp = *headOfSymbolsList;
+	while(temp)
 	{
-		if(!(strcmp(token,(headOfSymbolsList->name))))
+		if(!(strcmp(token,(temp)->name)))
 		{
 			printError("Label is already defined");
 			return TRUE;
 		}
-		headOfSymbolsList = headOfSymbolsList->next;
+		temp = (temp)->next;
 	}
 	return FALSE;
 }
@@ -227,7 +236,7 @@ char *trimRightStr(char *str)
 		return str;
     char* back = str + length;
 	
-    while(isspace(*--back));
+    while(isspace(*(--back)));
     *(back+1) = '\0';
     return str;
 }
@@ -290,7 +299,10 @@ bool getSymbol(char* data, char* dest)
 					return FALSE;
 			}
 			else if (!isalpha(data[i]))
-				return FALSE;
+			{
+				if (i == 0 && !isdigit(data[i]))
+					return FALSE;
+			}
 
 			else
 				continue;
@@ -320,20 +332,6 @@ bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 	return TRUE;
 }
 
-
-int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, long dc)
-{
-	int i, length;
-	length = strlen(str);
-	for (i = 0; i < length; i++)
-	{
-		addToDataList(dataListHead, dataListTail, dc, character, (int)(str[i]));
-		dc++;
-	}
-	addToDataList(dataListHead, dataListTail, dc, character, '\0');
-	dc++;
-	return dc;
-}
 
 
 AddressingMode getOperandAddressing(char* token)
@@ -680,6 +678,7 @@ bool isStructWithDotOperand(char* operand)
 
 bool readLine(FILE* fp, char* line)
 {
+	lineCounter++;
 	if (line == NULL)
 		return FALSE;
 	if(feof(fp))

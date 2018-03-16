@@ -2,15 +2,28 @@
 
 bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int addr, bool isEx , bool isC , bool isD, bool isEn)
 {
+	int i;
 	symbolPtr temp;
+	char* labelName = (char*)(malloc(MAX_LABEL_SIZE + 1));
+	if (!labelName)
+	{
+		printError("Memory allocation failed in symbols list addition");
+		return FALSE;
+	}
+	for (i = 0; i < MAX_LABEL_SIZE + 1; i++)
+	{
+		labelName[i] = 0;
+	}
+	strncpy(labelName, symbol, MAX_LABEL_SIZE);
 	temp = (symbolPtr)((symbolsTableNode*)(malloc(sizeof(symbolsTableNode))));
 	
 	if(!temp)
 	{
 		fprintf(stderr , "cannot allocate memory in line %d for label %s \n",addr ,symbol);
+		free(labelName);
 		return FALSE;
 	}
-	temp->name = symbol;
+	temp->name = labelName;
 	temp->address = addr;
 	temp->isExternal = isEx;
 	temp->isCommand = isC;
@@ -45,8 +58,9 @@ void updateDataSymbols(symbolPtr *head, int ic)
 	symbolPtr temp = *head;
 	while(temp)
 	{
-		if(temp->isData)
-			temp->address+=ic;
+		if((temp)->isData)
+			(temp)->address+=ic;
+		temp = temp->next;
 	}
 }
 
@@ -55,18 +69,22 @@ void freeSymbolsList(symbolPtr *head)
 	symbolPtr temp;
 	while(*head)
 	{
-		temp=*head;
-		*head=(*head)->next;
+		temp = *head;
+		*head = (*head)->next;
+		free(temp->name);
 		free(temp);
 	}
 }
 
-void printSymbolsList(symbolPtr head)
+void printSymbolsList(symbolPtr *head)
 {
-    while (head != NULL)
+	symbolPtr temp = *head;
+	printf("%s\n", "Symbols list:");
+    while (temp != NULL)
     {
-        printf(" (%s ,%d) --> ", head->name,head->address);
-        head = head->next;
+        printf(" (%s ,%d) --> ", temp->name, temp->address);
+		temp = temp->next;
     }
+	printf(" NULL \n");
     puts("");
 }

@@ -1,9 +1,9 @@
 #ifndef ERRORS_H
 #define ERRORS_H
-#include "globalVariables.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "globalVariables.h"
 /*
 TODO:
 add errors definitions

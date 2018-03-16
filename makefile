@@ -1,40 +1,50 @@
+#	Authors: Gil Mansharov
+#			 Guy Komari
+#
+#	File Name: Makefile
+#
+#	TODO: add "secondPass.o" (Responsible: GUY)
+
+
 CFLAGS = -Wall -ansi -pedantic
 CC = gcc
 
-Asembler: main.o GlobalsFunctions.o assembler.o dataList.o errors.o firstPass.o globalVariables.o secondPass.o symbolsList.o
-	$(CC) -g $(CFLAGS) main.o GlobalsFunctions.o assembler.o dataList.o errors.o firstPass.o globalVariables.o secondPass.o symbolsList.o -o Asembler
+Assembler: main.o assembler.o globalVariables.o GlobalsFunctions.o \
+	errors.o dataList.o symbolsList.o firstPass.o
+	$(CC) $(CFLAGS) -o Assembler main.o assembler.o globalVariables.o GlobalsFunctions.o \
+	errors.o dataList.o symbolsList.o firstPass.o
 
-main.o: main.c main.h assembler.h
-	$(CC) -c $(CFLAGS) main.c -o main.o
 
+main.o: main.c main.h
+	$(CC) $(CFLAGS) -c main.c
+
+
+assembler.o: assembler.c assembler.h firstPass.h GlobalsFunctions.h errors.h
+	$(CC) $(CFLAGS) -c assembler.c
 
 GlobalsFunctions.o: GlobalsFunctions.c GlobalsFunctions.h dataList.h symbolsList.h globalVariables.h errors.h
-	$(CC) -c $(CFLAGS) GlobalsFunctions.c -o GlobalsFunctions.o
-
-
-assembler.o: assembler.c assembler.h firstPass.h GlobalsFunctions.h
-	$(CC) -c $(CFLAGS) assembler.c -o assembler.o
-
-
-dataList.o: dataList.c dataList.h globalVariables.h errors.h
-	$(CC) -c $(CFLAGS) dataList.c -o dataList.o
-
-
-errors.o: errors.c errors.h globalVariables.h
-	$(CC) -c $(CFLAGS) errors.c -o errors.o
-	
-
-firstPass.o: firstPass.c firstPass.h GlobalsFunctions.h
-	$(CC) -c $(CFLAGS) firstPass.c -o firstPass.o
+	$(CC) $(CFLAGS) -c GlobalsFunctions.c
 
 
 globalVariables.o: globalVariables.c globalVariables.h
-	$(CC) -c $(CFLAGS) globalVariables.c -o globalVariables.o
+	$(CC) $(CFLAGS) -c globalVariables.c
 
 
-secondPass.o: secondPass.c secondPass.h globalVariables.h GlobalsFunctions.h
-	$(CC) -c $(CFLAGS) secondPass.c -o secondPass.o
+errors.o: errors.c errors.h
+	$(CC) $(CFLAGS) -c errors.c
 
 
-symbolsList.o: symbolsList.c globalVariables.h
-	$(CC) -c $(CFLAGS) symbolsList.c -o symbolsList.o
+dataList.o: dataList.c dataList.h globalVariables.h
+	$(CC) $(CFLAGS) -c dataList.c
+
+
+symbolsList.o: symbolsList.c symbolsList.h globalVariables.h
+	$(CC) $(CFLAGS) -c symbolsList.c
+
+
+firstPass.o: firstPass.c firstPass.h GlobalsFunctions.h symbolsList.h errors.h
+	$(CC) $(CFLAGS) -c firstPass.c
+
+
+clean: Assembler
+	-rm -f *.o

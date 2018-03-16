@@ -180,7 +180,7 @@ void createFile(char* fileName, FILE* dest, char* destName, char* end)
 void encodingCommand(char* objFileName, char* line)
 {
 	int opcodeGroup;
-	char * temp, opcodeName, firstOperand, secondOperand;
+	char *temp, opcodeName, *firstOperand, *secondOperand;
 	char label[MAX_LINE_LENGTH]={0};/*the label*/
 	temp = opcodeName = firstOperand = secondOperand = NULL;
 	if(!isFileExists(objFileName))

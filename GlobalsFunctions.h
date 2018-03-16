@@ -40,7 +40,7 @@ bool isLabel(char*,char*);
 Description: gets a valid label and checks if this label already defined
 Responsible: GUY
 */
-bool isLabelDefined(symbolPtr, char*);
+bool isLabelDefined(symbolPtr*, char*);
 
 
 /*
@@ -101,8 +101,6 @@ Responsible: GIL
 */
 bool getSymbol(char*, char*);
 
-
-int addStringToData(dataPtr*, dataPtr*, char*, long);
 
 /*
 TODO: change the string functions (functions that handles strings) to (char* target, char* dest) type

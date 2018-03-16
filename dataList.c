@@ -1,6 +1,6 @@
 #include "dataList.h"
 
-int addToDataList(dataPtr *head ,dataPtr *tail ,int dc, int dType, int ascii)
+bool addToDataList(dataPtr *head ,dataPtr *tail ,int dc, int dType, int ascii)
 {
 	dataPtr temp;
 	temp = (dataPtr)(malloc(sizeof(dataTableNode)));
@@ -9,28 +9,45 @@ int addToDataList(dataPtr *head ,dataPtr *tail ,int dc, int dType, int ascii)
 		printError(ALLOCATE_MEMORY_ERROR);
 		return FALSE;
 	}
-	((dataTableNode*)temp)->dataCounter = dc;
-	((dataTableNode*)temp)->type = dType;
-	((dataTableNode*)temp)->asciiCode = ascii;
-	((dataTableNode*)temp)->next = NULL;
-	addNodeToDataList(temp , head , tail);
+	temp->dataCounter = dc;
+	temp->type = dType;
+	temp->asciiCode = ascii;
+	temp->next = NULL;
+	addNodeToDataList(&temp , head , tail);
+	return TRUE;
+
 }
 
 
-void addNodeToDataList(dataPtr temp, dataPtr *head, dataPtr *tail)
+int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, long dc)
 {
-	if(*head==NULL)/*case- empty list*/
+	int i, length;
+	length = strlen(str);
+	for (i = 0; i < length; i++)
 	{
-		*head = temp;
-		*tail = temp;
-		((dataTableNode*)temp)->next = NULL;
+		addToDataList(dataListHead, dataListTail, dc, character, (int)(str[i]));
+		dc++;
+	}
+	addToDataList(dataListHead, dataListTail, dc, character, '\0');
+	dc++;
+	return dc;
+}
+
+void addNodeToDataList(dataPtr *temp, dataPtr *head, dataPtr *tail)
+{
+	if(*head == NULL)/*case- empty list*/
+	{
+		
+		*head = *temp;
+		*tail = *temp;
+		(*temp)->next = NULL;
 		return;
 	}
 	else
 	{
-		(*((dataTableNode**)tail))->next=temp;
-		*tail=temp;
-		((dataTableNode*)temp)->next = NULL;
+		(*tail)->next = *temp;
+		*tail = *temp;
+		(*temp)->next = NULL;
 		return;
 	}
 }
@@ -47,12 +64,27 @@ void freeDataList(dataPtr *head)
 	}
 }
 
-void printDataList(dataPtr head)
+void printDataList(dataPtr *head)
 {
-    while (head != NULL)
+	dataPtr temp = *head;
+    while (temp != NULL)
     {
-        printf(" (%d ,%d) --> ", head->asciiCode,head->dataCounter);
-        head = head->next;
+		if (temp->type == character && temp->asciiCode >= 0 && temp->asciiCode < 256)
+		{
+			if (temp->asciiCode != 0)
+				printf(" ('%c' ,%d) --> ", temp->asciiCode, temp->dataCounter);
+			else
+				printf(" ('\\0' ,%d) --> ", temp->dataCounter);
+		}
+		else if (temp->type == positiveNumber || temp->type == negativeNumber)
+		{
+			printf(" (%d ,%d) --> ", temp->asciiCode, temp->dataCounter);
+		}
+		else
+		{
+			printf(" NULL ");
+		}
+		temp = temp->next;
     }
     puts("");
 }

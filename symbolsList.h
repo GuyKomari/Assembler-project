@@ -2,6 +2,7 @@
 #define	SYMBOLS_LIST_H
 #include <stdio.h>
 #include <stdlib.h>
+#include "errors.h"
 #include "globalVariables.h"
 
 
@@ -28,7 +29,6 @@ void freeSymbolsList(symbolPtr *head);
 /*phase 17 in the first pass*/
 void updateDataSymbols(symbolPtr*, int);
 
-void printSymbolsList(symbolPtr );
-
+void printSymbolsList(symbolPtr *);
 
 #endif

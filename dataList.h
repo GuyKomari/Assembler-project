@@ -23,13 +23,14 @@ typedef struct dataTableNode {
 	dataPtr next;
 }dataTableNode;
 
+int addStringToData(dataPtr*, dataPtr*, char*, long);
 
-int addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii);
+bool addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii);
 
-void addNodeToDataList(dataPtr, dataPtr*, dataPtr*);
+void addNodeToDataList(dataPtr*, dataPtr*, dataPtr*);
 
 void freeDataList(dataPtr*);
 
-void printDataList(dataPtr);
+void printDataList(dataPtr*);
 
 #endif
