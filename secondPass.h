@@ -42,9 +42,13 @@ void printToEntryFile(char* , char*);
 
 void encodingCommand(char* , char*);
 
-void makeBinaryCode(char*, char*, char*, char *, int);
+void makeBinaryCode(char*, int, char*, char*, char *);
 
 void makeSingleOperandBinary(char *, int *);
+
+void printToExternFile(char *, int );
+
+void printIcAndDCWeird();
 
 void printBinaryWord(char *, int *);
 
@@ -52,11 +56,11 @@ void setOpcodeBinaryCode(char *, int *);
 
 void copyBinaryOpcode(int , int *);
 
-void makeOperandsBinary(char *, int *, int *, char *, char *, int);
+void makeOperandsBinary(char *,int ,int *, int *, char *, char *);
 
 void printRegisterWeird(char *, char *, char *, bool, bool);
 
-void copyBinaryRegister(int *, int , char *);
+void copyBinaryRegister(int *, int );
 
 void printStructWithDotWeird(char *, char *);
 
