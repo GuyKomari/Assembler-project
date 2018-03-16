@@ -7,7 +7,7 @@ bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int addr, 
 	char* labelName = (char*)(malloc(MAX_LABEL_SIZE + 1));
 	if (!labelName)
 	{
-		printError("Memory allocation failed in symbols list addition");
+		printError(SYMBOLS_LIST_MEM_ALLOCATION_FAILURE);
 		return FALSE;
 	}
 	for (i = 0; i < MAX_LABEL_SIZE + 1; i++)
@@ -19,7 +19,7 @@ bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int addr, 
 	
 	if(!temp)
 	{
-		fprintf(stderr , "cannot allocate memory in line %d for label %s \n",addr ,symbol);
+		printError(SYMBOLS_LIST_MEM_ALLOCATION_FAILURE);
 		free(labelName);
 		return FALSE;
 	}

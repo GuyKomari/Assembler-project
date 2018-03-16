@@ -45,7 +45,6 @@ bool secondPass(char* fileName)
 	/*parse the input assembler file*/
 	while (!(endFile = readLine(sourceFileHandle, line)))
 	{
-		lineCounter++;
 		if(isEmptySentence(line) || isComment(line) || isExtern(line))/*case - empty line OR comment OR extern then continue*/
 		{
 			continue;
@@ -92,7 +91,13 @@ void printDataWeird(char *objFileName)
 	dataPtr temp = dataListHead;
 	char WeirdLineCounter[MAX_32_WEIRD_LENGTH] = { 0 };
 	char weirdWord[MAX_32_WEIRD_LENGTH] = { 0 };
-
+	if (objFile == NULL)
+		objFile = fopen(objFileName, "ab");
+	if (objFile == NULL)
+	{
+		printError("Error in opening the object file");
+		return;
+	}
 	while (temp)
 	{
 		for (i = 0; i<MAX_32_WEIRD_LENGTH; i++)

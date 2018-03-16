@@ -67,6 +67,7 @@ void freeDataList(dataPtr *head)
 void printDataList(dataPtr *head)
 {
 	dataPtr temp = *head;
+	printf("%s\n" ,"Data List:");
     while (temp != NULL)
     {
 		if (temp->type == character && temp->asciiCode >= 0 && temp->asciiCode < 256)

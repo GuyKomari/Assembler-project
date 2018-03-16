@@ -70,7 +70,8 @@ bool firstpass(char* filename)
 			{
 				if (symbolFlag)/* case command inside a label*/
 				{
-					errorFlag &= isLabelDefined(&symbolListHead, labelName);
+					defined_label = isLabelDefined(&symbolListHead, labelName);
+					errorFlag &= defined_label; /*if label already defined then there is an error*/
 				}
 				errorFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
 												 does not encoding the commands, we do it in the
@@ -88,7 +89,7 @@ bool firstpass(char* filename)
 	{
 		return FALSE;
 	}
-	printf("%s\n", "firstpass");
+	printf("%s\n", "Firstpass");
 	updateDataSymbols(&symbolListHead, IC);
 	printSymbolsList(&symbolListHead);
 	printDataList(&dataListHead);
@@ -108,6 +109,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 	char stringBuffer[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 }, symbolType[MAX_LINE_LENGTH + 1] = { 0 };
 	char *stringSymbol = ".string", *dataSymbol = ".data", *structSymbol = ".struct";
+	const int stringSymbolLength = 7, dataSymbolLength = 5, structSymbolLength = 7;
 
 	i = dataLength = strLength = numRequiredBytes = 0;
 	if (isLabel(data, labelName) == FALSE)
@@ -115,9 +117,23 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 	if (getSymbol(data, symbolType) == FALSE)
 		return FALSE;
 	dataLength = strlen(data);
-	if (strncmp(symbolType, stringSymbol, strlen(stringSymbol)) == 0)
+	temp = data;
+	temp += strlen(labelName) + 1;
+	if (!isspace(*temp))
 	{
-
+		printError(MISSING_SPACE_AFTER_COLON);
+		return FALSE;
+	}
+	temp = trimLeftStr(temp);
+	if (strncmp(symbolType, stringSymbol, stringSymbolLength) == 0)
+	{
+		temp += stringSymbolLength;
+		if (!isspace(*temp))
+		{
+			printError(MISSING_SPACE_AFTER_STRING_DECLARATION);
+			return FALSE;
+		}
+		temp = trimLeftStr(temp);
 		token = strtok(data, "\"");
 		while (token != NULL)
 		{
@@ -138,20 +154,12 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		else
 			return FALSE;
 	}
-	else if (strncmp(symbolType, dataSymbol, strlen(dataSymbol)) == 0)
+	else if (strncmp(symbolType, dataSymbol, dataSymbolLength) == 0)
 	{
-		temp = data;
-		temp += strlen(labelName) + 1;
+		temp += dataSymbolLength;
 		if (!isspace(*temp))
 		{
-			printError("Missing space after colon");
-			return FALSE;
-		}
-		temp = trimLeftStr(temp);
-		temp += strlen(dataSymbol);
-		if (!isspace(*temp))
-		{
-			printError("Missing space after .data declaration");
+			printError(MISSING_SPACE_AFTER_DATA_DECLARATION);
 			return FALSE;
 		}
 		temp = trimLeftStr(temp);
@@ -172,11 +180,16 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		}
 
 	}
-	else if (strncmp(symbolType, structSymbol, strlen(structSymbol)) == 0)
+	else if (strncmp(symbolType, structSymbol, structSymbolLength) == 0)
 	{
-		temp = data + strlen(dataSymbol);
+		temp += structSymbolLength;
+		if (!isspace(*temp))
+		{
+			printError(MISSING_SPACE_AFTER_STRUCT_DECLARATION);
+			return FALSE;
+		}
 		temp = trimLeftStr(temp);
-		token = strtok(data, ",");
+		token = strtok(temp, ",");
 		while (token != NULL)
 		{
 			token = trimLeftStr(token);

@@ -27,29 +27,34 @@ bool isOpcode(char *token)
 
 bool isLabel(char* src, char* dest)
 {
-	bool isExternDef;
+	bool isExternDef, isEntryDef;
 	char *temp, *start;
 	int len;
 	temp = trimStr(src);
 	len = 0;
-	isExternDef = FALSE;
+	isExternDef = isEntryDef = FALSE;
 	if (isExtern(temp))
 	{
 		isExternDef = TRUE;
 		temp = (char *)(temp + EXTERN_LENGTH);
 	}
+	else if (isEntry(temp))
+	{
+		isEntryDef = TRUE;
+		temp = (char *)(temp + ENTRY_LENGTH);
+	}
 	temp = trimLeftStr(temp);
 	start = temp;
 	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
 	{
-		printError("The label does not begins with an alpha letter");
+		//printError("The label does not begins with an alpha letter");
 		return FALSE;
 	}
 	while (*temp && !isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
 	{
 		if (*temp && !isalpha(*temp) && !isdigit(*temp))
 		{
-			printError("The label contains non-alpha or non-digit characters");
+			//printError("The label contains non-alpha or non-digit characters");
 			return FALSE;
 		}
 		temp++;
@@ -57,17 +62,17 @@ bool isLabel(char* src, char* dest)
 	}
 	if (!isExternDef && strncmp((char*)(temp++), ":", 1) != 0)
 	{
-		printf("A colon is missing");
+		//printError("A colon is missing");
 		return FALSE;
 	}
 	if (!isExternDef && !isspace(*temp))
 	{
 		if (ispunct(*temp) || isdigit(*temp) || isalpha(*temp))
 		{
-			printError("additional character after declaration of a label");
+			//printError("additional character after declaration of a label");
 			return FALSE;
 		}
-		printError("missing a space");
+		//printError("missing a space");
 		return FALSE;
 	}
 	if (dest != NULL)
@@ -86,7 +91,7 @@ bool isLabelDefined(symbolPtr *headOfSymbolsList, char* token)
 	{
 		if(!(strcmp(token,(temp)->name)))
 		{
-			printError("Label is already defined");
+			printError(LABEL_IS_ALREADY_DEFINED);
 			return TRUE;
 		}
 		temp = (temp)->next;
@@ -151,7 +156,7 @@ bool isExtern(char* line)
 	{
 		if (strcmp(temp, Keywords[i]) == 0)
 		{
-			printError("A variable name has the same name as a keyword");
+			printError(VARIABLE_NAME_EQUALS_KEYWORD_NAME);
 			return FALSE;
 		}
 	}
@@ -235,8 +240,13 @@ char *trimRightStr(char *str)
 	if (length == 0)
 		return str;
     char* back = str + length;
-	
-    while(isspace(*(--back)));
+	if (*back == NULL)
+	{
+		do 
+		{
+			back--;
+		} while (*back >= 0 && *back <= 255 && isspace(*back));
+	}
     *(back+1) = '\0';
     return str;
 }
@@ -375,44 +385,44 @@ int getCommandSize(char* command)
 				token = strtok(NULL, delim);
 				if (token == NULL)
 				{
-					printError("Too few operands in the command");
+					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
 
 				if (isKeyword(token))
 				{
-					printError("An operand name cannot be the same as a keyword name");
+					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
 				if ((srcOperandAddressing = getOperandAddressing(token)) == -1)
 				{
-					printError("Source operand is invalid");
+					printError(INVALID_SRC_OPERAND);
 					return 0;
 				}
 
 				token = strtok(NULL, delim);
 				if (token == NULL)
 				{
-					printError("Too few operands in the command");
+					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
 
 				if (isKeyword(token))
 				{
-					printError("An operand name cannot be the same as a keyword name");
+					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
 				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
 				{
-					printError("Destination operand is invalid");
+					printError(INVALID_DEST_OPERAND);
 					return 0;
 				}
 
 				if (strcmp(opcode->opcodeName, "lea") == 0 && (srcOperandAddressing == IMMEDIATE || srcOperandAddressing == DIRECT_REGISTER))
 				{
-					printError("\"lea\" opcode cannot have an immediate or immediate register addressing mode");
+					printError(LEA_COMMAND_ADDRESSING_MODE_ERROR);
 					return 0;
 				}
 
@@ -420,7 +430,7 @@ int getCommandSize(char* command)
 				{
 					if (strcmp(opcode->opcodeName, "cmp") != 0)
 					{
-						printError("Only \"cmp\" opcode can use immediate addressing mode in the destination operand");
+						printError(CMP_COMMAND_ADDRESSING_MODE_ERROR);
 						return 0;
 					}
 				}
@@ -428,7 +438,7 @@ int getCommandSize(char* command)
 				token = strtok(NULL, delim);
 				if (token != NULL)
 				{
-					printError("Too much words in the command");
+					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
 				}
 
@@ -460,18 +470,18 @@ int getCommandSize(char* command)
 				token = strtok(NULL, delim);
 				if (token == NULL)
 				{
-					printError("Too few operands in the command");
+					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
 				if (isKeyword(token))
 				{
-					printError("An operand name cannot be the same as a keyword name");
+					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
 				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
 				{
-					printError("Destination operand is invalid");
+					printError(INVALID_DEST_OPERAND);
 					return 0;
 				}
 
@@ -479,7 +489,7 @@ int getCommandSize(char* command)
 				{
 					if (strcmp(opcode->opcodeName, "prn") != 0)
 					{
-						printError("Only \"prn\" opcode can use immediate addressing mode in the destination operand");
+						printError(PRN_COMMAND_ADDRESSING_MODE_ERROR);
 						return 0;
 					}
 				}
@@ -487,7 +497,7 @@ int getCommandSize(char* command)
 				token = strtok(NULL, delim);
 				if (token != NULL)
 				{
-					printError("Too much words in the command");
+					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
 				}
 
@@ -507,7 +517,7 @@ int getCommandSize(char* command)
 				token = strtok(NULL, delim);
 				if (token != NULL)
 				{
-					printError("Too much words in the command");
+					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
 				}
 				sizeOfCommand = 1;
