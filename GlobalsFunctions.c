@@ -5,7 +5,7 @@
 bool isRegister(char *token)
 {
 	int i = 0;
-	for(i = 0; i > NUM_OF_REGISTERS ; i++)
+	for(i = 0; i < NUM_OF_REGISTERS ; i++)
 	{
 		if(!(strcmp(token, Registers[i])))
 			return TRUE;
@@ -27,16 +27,21 @@ bool isOpcode(char *token)
 
 bool isLabel(char* src, char* dest)
 {
-	bool isExternDef;
+	bool isExternDef, isEntryDef;
 	char *temp, *start;
 	int len;
 	temp = trimStr(src);
 	len = 0;
-	isExternDef = FALSE;
+	isExternDef = isEntryDef = FALSE;
 	if (isExtern(temp))
 	{
 		isExternDef = TRUE;
 		temp = (char *)(temp + EXTERN_LENGTH);
+	}
+	else if (isEntry(temp))
+	{
+		isEntryDef = TRUE;
+		temp = (char *)(temp + ENTRY_LENGTH);
 	}
 	temp = trimLeftStr(temp);
 	start = temp;
@@ -641,11 +646,6 @@ int getNumber(char* token)
 		temp++;
 	}
 	num = temp;
-	while (!isspace(*temp))
-	{
-		end++;
-		temp++;
-	}
 	return atoi(num);
 }
 
