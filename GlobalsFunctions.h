@@ -29,12 +29,12 @@ bool isStructWithDotOperand(char*);
 AddressingMode getOperandAddressing(char*);
 
 /*
-Description: is token a valid label 
+Description: is token a valid label
 Get a line to check if has a label defenition,
 if true - return true and insert the label to the destination string
 Responsible: GIL
 */
-bool isLabel(char*,char*);
+bool isLabel(char*, char*);
 
 /*
 Description: gets a valid label and checks if this label already defined
@@ -68,11 +68,6 @@ Responsible: GUY
 */
 bool isComment(char*);
 
-/*
-is token a declaration - .data or .string or .extern or .entry or .struct
-if true return the type declaration otherwise -1 
-*/
-bool isDateDeclaration(char*);
 
 
 /*
@@ -102,8 +97,6 @@ Responsible: GIL
 bool getSymbol(char*, char*);
 
 
-int addStringToData(dataPtr*, dataPtr*, char*, long);
-
 /*
 TODO: change the string functions (functions that handles strings) to (char* target, char* dest) type
 Description: trim whitespace from str
@@ -130,7 +123,7 @@ int getCommandSize(char*);
 Description: convert decimal code to binary code
 Responsible: GUY
 */
-void decimalToBinary(int , int *, int );
+void decimalToBinary(int, int *, int);
 
 /*
 Description: convert binary code to "wierd 32 base"
@@ -149,9 +142,9 @@ int binaryToDecimal(int *);
 
 
 
-bool isDataCommand(char* );
+bool isDataCommand(char*);
 
-bool isNumber(char* );
+bool isNumber(char*);
 
 bool isKeyword(char*);
 
