@@ -334,7 +334,7 @@ void makeBinaryCode(char* objFileName, int opcodeGroup, char* opcode, char* firs
 	{
 	case THIRD_GROUP:
 	{
-		setOpcodeBinaryCode(opcode, binaryWord);
+		setOpcodeBinaryCode(opcode, binaryOpcode);
 		break;
 	}
 	case SECOND_GROUP:
@@ -500,11 +500,11 @@ void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOpera
 	{
 		if ((firstRegister) && strcmp(((registersBinary[i]).registerName), firstOperand) == 0)
 		{
-			copyBinaryRegister(binaryWord, i);
+			copyBinaryRegister(binaryWord, i, "first");
 		}
 		if ((secondRegister) && strcmp(((registersBinary[i]).registerName), secondOperand) == 0)
 		{
-			copyBinaryRegister(binaryWord, i);
+			copyBinaryRegister(binaryWord, i, "second");
 		}
 	}
 	binaryToWierd(binaryWord, weirdWord);
@@ -522,12 +522,23 @@ void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOpera
 	fclose(objFile);
 }
 
-void copyBinaryRegister(int *binaryWord, int index)
+void copyBinaryRegister(int *binaryWord, int index, char* operandType)
 {
-	int i = 0;
-	for (i = 0; i < OPCODE_SIZE; i++)
+	int i;
+	int j = 0;
+	if ((strcmp(operandType, "first") == 0))
 	{
-		binaryWord[i] = (registersBinary[index].address)[i];
+		for (i = 0; i < OPCODE_SIZE; i++, j++)
+		{
+			binaryWord[i] = (registersBinary[index].address)[j];
+		}
+	}
+	else
+	{
+		for (i = 4; i < OPCODE_SIZE*2 ; i++, j++)
+		{
+			binaryWord[i] = (registersBinary[index].address)[j];
+		}
 	}
 }
 void printStructWithDotWeird(char *objFileName, char *firstOperand)
@@ -573,9 +584,13 @@ void printNumberWeird(char* objFileName, char *firstOperand)
 
 void printSecondOperand(char* objFileName, char *firstOperand, char *secondOperand, int secondAddressingType)
 {
-
 	switch (secondAddressingType)
 	{
+	case 0:
+	{
+		printNumberWeird(objFileName, secondOperand);
+		break;
+	}
 	case 1:/*second operand is data*/
 	{
 		printWeirdDataOperand(objFileName, secondOperand);
