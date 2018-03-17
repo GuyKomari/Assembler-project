@@ -19,7 +19,7 @@ bool addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii)
 }
 
 
-int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, long dc)
+int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, int dc)
 {
 	int i, length;
 	length = strlen(str);

@@ -1,16 +1,19 @@
 #include "firstPass.h"
 
 /*variables declaration*/
-/*we use them also in the second pass so */
 symbolPtr symbolListHead = NULL;
 symbolPtr symbolListTail = NULL;
 dataPtr dataListHead = NULL;
 dataPtr dataListTail = NULL;
-long IC = IC_START;/* = 100 */
+long IC = IC_START; /* = 100 */
 long DC = DC_START;
 
 
-/*does the first pass - returns TRUE if didnt find errors*/
+/*
+Description: the main function of the first pass.
+parses from the input file the commands and their sizes and updates IC.
+parses from the input file the labels, entries, and externals, and updates DC.
+*/
 bool firstpass(char* filename)
 {
 	int i;
@@ -100,8 +103,7 @@ bool firstpass(char* filename)
 
 
 /*
-parse the data and insert to the data list
-update the
+Description: parses the data and inserts it to the data list, and updates DC.
 */
 bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 {
@@ -255,7 +257,9 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 }
 
 
-/*phrase 9*/
+/*
+Description: gets a line that contains an extern label (.extern) and adds it to the symbols list.
+*/
 bool externLabels(char *line)
 {
 	if (isExtern(line))
@@ -271,6 +275,11 @@ bool externLabels(char *line)
 		return FALSE;
 }
 
+
+/*
+gets a line with a command (for example "mov r1, r2"), and if it has a label, adds it to the symbols list.
+afterwards, calculates the size of the command in memory, and increments IC with the command size.
+*/
 bool parseCommand(char *line)/*with or without label*/
 {
 	int sizeOfCommand = 0;

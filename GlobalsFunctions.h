@@ -1,3 +1,8 @@
+/*
+Authors:
+Gil Mansharov
+Guy Komari
+*/
 #ifndef GLOBAL_FUNCTIONS_H
 #define GLOBAL_FUNCTIONS_H
 #include <stdio.h>
@@ -16,23 +21,32 @@ bool isRegister(char*);
 /*is token a valid opcode*/
 bool isOpcode(char*);
 
-/*TODO: implement these 3 functions that gets a single word and tells if it's a label or numOperand
-Responsible: GIL
-*/
 
+/*
+Description: gets a token and returns TRUE if it's a valid label. otherwise, returns FALSE.
+*/
 bool isValidLabel(char*);
 
+/*
+Description: gets an operand and returns TRUE if it's a number operand. otherwise, returns FALSE.
+*/
 bool isNumOperand(char*);
 
+
+/*
+Description: gets an operand and returns TRUE if it's a struct with a dot, and afterwards the number 1 or 2.
+otherwise, returns FALSE.
+*/
 bool isStructWithDotOperand(char*);
 
+/*
+Description: gets an operand and returns it's addressing mode. if the operand is invalid, returns -1.
+*/
 AddressingMode getOperandAddressing(char*);
 
 /*
-Description: is token a valid label
-Get a line to check if has a label defenition,
-if true - return true and insert the label to the destination string
-Responsible: GIL
+Description: Gets a line to check if it has a label definition,
+if true - returns TRUE and insert the label to the destination string, otherwise, returns FALSE.
 */
 bool isLabel(char*, char*);
 
@@ -71,28 +85,27 @@ bool isComment(char*);
 
 
 /*
-Description: is token a keyword
-Responsible: GIL
+Description: gets a token and returns TRUE if its a keyword. otherwise, returns FALSE.
 */
 bool isKeyword(char*);
 
 
-
-/*char* getLabelNameFromLine(char*);*/
-
+/*
+Description: gets a file path and returns TRUE if the file exists and can be opened for reading. otherwise, returns FALSE.
+*/
 bool isFileExists(char*);
 
 
 /*
-Adds a number to data List
+Description: gets the head and tail of the data list, the current data counter, and a number, and adds it to the data list.
 */
 void addNumberToDataList(dataPtr*, dataPtr*, int, int);
 
 
 /*
-Description: get a line of data and return the data Symbol type if exists (.struct, .string
-or .data), if not, return NULL.
-Responsible: GIL
+Description: gets a line of data and a destination string and copies the symbol (.struct, .string or .data)
+inside the data line to the destination string.
+returns TRUE if .struct, .string or .data symbol is exist (only one of them), if not, returns FALSE.
 */
 bool getSymbol(char*, char*);
 
@@ -115,7 +128,6 @@ char *trimLeftStr(char*);
 Description: gets a parsed command (i.e "mov r1, r3") without any spaces or unnecessary characters.
 returns the number that IC should be incremented with.
 returns 0 when failed.
-Responsible: GIL
 */
 int getCommandSize(char*);
 
@@ -141,16 +153,20 @@ void decimalToWierd(int num, char* res);
 int binaryToDecimal(int *);
 
 
-
+/*
+Description: checks if a line is a data command (declaration of .string, .data or .struct).
+returns TRUE if the line is a data command, otherwise, returns FALSE.
+*/
 bool isDataCommand(char*);
 
-bool isNumber(char*);
-
-bool isKeyword(char*);
-
-
+/*
+Description: gets a number operand and returns it as an integer. 
+*/
 int getNumber(char*);
 
+/*
+Description: gets a FILE* handle and a destination string, and reads the next line from the file to the string.
+*/
 bool readLine(FILE*, char*);
 
 

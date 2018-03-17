@@ -1,3 +1,9 @@
+/*
+Authors:
+Gil Mansharov
+Guy Komari
+*/
+
 #ifndef SECOND_PASS_H
 #define SECOND_PASS_H
 #include "globalVariables.h"

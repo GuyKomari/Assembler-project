@@ -365,7 +365,7 @@ void makeSingleOperandBinary(char *operand, int *binary)
 {
 	int i = 0;
 
-	if (isNumber(operand))/*addressing type number 1*/
+	if (isNumOperand(operand))/*addressing type number 1*/
 	{
 		binary[0] = 0;
 		binary[1] = 0;

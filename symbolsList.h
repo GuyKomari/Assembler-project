@@ -1,3 +1,9 @@
+/*
+Authors:
+Gil Mansharov
+Guy Komari
+*/
+
 #ifndef SYMBOLS_LIST_H
 #define	SYMBOLS_LIST_H
 #include <stdio.h>
@@ -20,16 +26,36 @@ typedef struct symbolsTableNode {
 } symbolsTableNode;
 
 
-/*addToSymbolsList (label name, address, isExternal, isCommand, isData, isEntry)*/
+/*
+Description:
+gets the head and tail of the symbols list, the symbol name, its destinated address, and  4 booleans that indicates whether
+the symbol is an external, command, data, or entry.
+*/
 bool addToSymbolsList(symbolPtr*, symbolPtr*, char*, int, bool, bool, bool, bool);
 
+
+/*
+Description:
+gets a node as a pointer to symbolPtr struct, the head and tail of the symbols list, and adds the node to the symbols list.
+*/
 void addNodeToSymbolList(symbolPtr, symbolPtr*, symbolPtr*);
 
+/*
+Description:
+frees the symbols list dynamically allocated memory.
+*/
 void freeSymbolsList(symbolPtr *head);
 
-/*phase 17 in the first pass*/
+/*
+Description:
+gets the symbols list head, and the value of IC, and updates the addresses of the symbols that stored in the symbols list.
+*/
 void updateDataSymbols(symbolPtr*, int);
 
+/*
+Description:
+gets the symbols list head, and prints all of its nodes.
+*/
 void printSymbolsList(symbolPtr *);
 
 #endif

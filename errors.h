@@ -1,3 +1,9 @@
+/*
+Authors:
+Gil Mansharov
+Guy Komari
+*/
+
 #ifndef ERRORS_H
 #define ERRORS_H
 #include <stdio.h>

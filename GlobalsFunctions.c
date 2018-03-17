@@ -639,24 +639,6 @@ int getNumber(char* token)
 	return atoi(num);
 }
 
-bool isNumber(char* token)
-{
-	char * temp;
-	temp = trimStr(token);
-	if (strncmp(temp, "#", 1) == 0)
-	{
-		return TRUE;
-	}
-	else if (strncmp(temp, "+", 1) == 0 || strncmp(temp, "-", 1) == 0)
-	{
-		return TRUE;
-	}
-	else if (isdigit(temp[0]))
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
 
 bool isKeyword(char* token)
 {
