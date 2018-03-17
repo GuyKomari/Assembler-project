@@ -101,7 +101,7 @@ void printIcAndDCWeird()
 	if (!objFile)
 	{
 		printFileError(OPEN_FILE_ERROR, objFileName);
-		return FALSE;
+		return;
 	}
 	decimalToWierd((IC - IC_START), weirdIC);
 	decimalToWierd(DC, weirdDC);
@@ -193,7 +193,6 @@ bool LabelDeclaredButNotDefined(char *temp)
 
 void createFile(char* fileName, FILE* dest, char* destName, char* end)
 {
-	char *tempFileName;
 	int strLength, fileExtensionLength, destExtensionLength, i;
 	strLength = strlen(fileName);
 	destExtensionLength = strlen(end);
@@ -255,7 +254,7 @@ void encodingCommand(char* objFileName, char* line)
 		temp++;
 	}
 	strcat(temp, "\n");
-	for (i = 0; *temp != NULL && (!isspace(*temp)); i++)
+	for (i = 0; (*temp) != (int)NULL && (!isspace(*temp)); i++)
 	{
 		opcodeName[i] = temp[0];
 		temp++;

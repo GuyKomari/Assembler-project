@@ -40,6 +40,10 @@ void createFile(char*, FILE*, char*, char*);
 
 void printToEntryFile(char*, char*);
 
+int getOpcodeGroup(char*);
+
+int getAddressingType(int*);
+
 void encodingCommand(char*, char*);
 
 void makeBinaryCode(char*, int, char*, char*, char *);
