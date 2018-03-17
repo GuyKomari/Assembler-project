@@ -10,6 +10,7 @@ void runAssembler(char* fileName)
 		return;
 	}
 	flag = firstpass(fileName);
+	printf("first pass flag = %d\n", flag);
 	if (flag)/*no errors found in the first pass*/
 	{
 		flag = secondPass(fileName);

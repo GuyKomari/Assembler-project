@@ -1,61 +1,79 @@
-/*
-Authors:
-Gil Mansharov
-Guy Komari
-*/
-
 #ifndef SECOND_PASS_H
 #define SECOND_PASS_H
 #include "globalVariables.h"
 #include "GlobalsFunctions.h"
 
 
-/*
-functions used for the second pass module
-*/
+#define MAX_FILE_NAME 50
+
+#define ENTRY_FILE_END ".ent"
+
+#define EXTERN_FILE_END ".ext"
+
+#define OBJECT_FILE_END ".ob"
+
+#define SINGLE_OPERAND 1
+
+#define TWO_OPERANDS 2
+
+#define THREE_OPERANDS 3
+
+#define FIRST_GROUP 1
+
+#define SECOND_GROUP 2
+
+#define THIRD_GROUP 3
+
+#define FIRST_GROUP_SIZE 5
+
+#define SECOND_GROUP_SIZE 9
+
+#define THIRD_GROUP_SIZE 2
+
+#define EIGHT_BITS 8
+
+#define TEN_BITS 10
 
 bool secondPass(char*);
 
-void createFile(char*, FILE*, char*, char*);
+void createFile(char* , FILE* ,char*, char*);
 
-void printToEntryFile(char*);
+void printToEntryFile(char* , char*);
 
-int getOpcodeGroup(char*);
+void encodingCommand(char* , char*);
 
-int getAddressingType(int*);
-
-void encodingCommand(char*);
-
-void makeBinaryCode(int, char*, char*, char *);
+void makeBinaryCode(char*, char*, char*, char *, int);
 
 void makeSingleOperandBinary(char *, int *);
 
-void printToExternFile(char *);
-
-void printIcAndDCWeird();
-
-void printBinaryWord(int *);
+void printBinaryWord(char *, int *);
 
 void setOpcodeBinaryCode(char *, int *);
 
-void copyBinaryOpcode(int, int *);
+void copyBinaryOpcode(int , int *);
 
-void makeOperandsWeird(int, int *, int *, char *, char *);
+void makeOperandsBinary(char *, int *, int *, char *, char *, int);
 
-void printRegisterWeird(char *, char *, bool, bool);
+void printRegisterWeird(char *, char *, char *, bool, bool);
 
-void copyBinaryRegister(int *, int, char *);
+void copyBinaryRegister(int *, int , char *);
 
-void printStructWithDotWeird(char *);
+void printStructWithDotWeird(char *, char *);
 
 void printNumberWeird(char*, char *);
 
-void printDestOperand(char *, char *, int);
+void printSecondOperand(char*, char *, char *, int);
 
-void printWeirdDataOperand(char *);
+void printWeirdDataOperand(char*, char *);
 
-void printDataWeird();
+void printDataWeird(char *);
 
-bool LabelDeclaredButNotDefined(char *);
+
+
+
+
+
+
+
 
 #endif
