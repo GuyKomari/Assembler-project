@@ -1,20 +1,26 @@
 #include "symbolsList.h"
 
-bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int addr, bool isEx , bool isC , bool isD, bool isEn)
+bool addToSymbolsList(symbolPtr *head, symbolPtr *tail, char* symbol, int addr, bool isEx, bool isC, bool isD, bool isEn)
 {
 	int i;
 	symbolPtr temp;
 	char* labelName = (char*)(malloc(MAX_LABEL_SIZE + 1));
+	if (!labelName)
+	{
+		printError("Memory allocation failed in symbols list addition");
+		return FALSE;
+	}
 	for (i = 0; i < MAX_LABEL_SIZE + 1; i++)
 	{
 		labelName[i] = 0;
 	}
 	strncpy(labelName, symbol, MAX_LABEL_SIZE);
 	temp = (symbolPtr)((symbolsTableNode*)(malloc(sizeof(symbolsTableNode))));
-	
-	if(!temp)
+
+	if (!temp)
 	{
-		fprintf(stderr , "cannot allocate memory in line %d for label %s \n",addr ,symbol);
+		fprintf(stderr, "cannot allocate memory in line %d for label %s \n", addr, symbol);
+		free(labelName);
 		return FALSE;
 	}
 	temp->name = labelName;
@@ -24,14 +30,14 @@ bool addToSymbolsList(symbolPtr *head ,symbolPtr *tail ,char* symbol, int addr, 
 	temp->isData = isD;
 	temp->isEntry = isEn;
 	temp->next = NULL;
-	addNodeToSymbolList(&temp , head , tail);
+	addNodeToSymbolList(&temp, head, tail);
 	return TRUE;
 }
 
 
 void addNodeToSymbolList(symbolPtr *temp, symbolPtr *head, symbolPtr *tail)
 {
-	if(*head == NULL)/*case- empty list*/
+	if (*head == NULL)/*case- empty list*/
 	{
 		*head = *temp;
 		*tail = *temp;
@@ -50,10 +56,10 @@ void addNodeToSymbolList(symbolPtr *temp, symbolPtr *head, symbolPtr *tail)
 void updateDataSymbols(symbolPtr *head, int ic)
 {
 	symbolPtr temp = *head;
-	while(temp)
+	while (temp)
 	{
-		if((temp)->isData)
-			(temp)->address+=ic;
+		if ((temp)->isData)
+			(temp)->address += ic;
 		temp = temp->next;
 	}
 }
@@ -61,10 +67,11 @@ void updateDataSymbols(symbolPtr *head, int ic)
 void freeSymbolsList(symbolPtr *head)
 {
 	symbolPtr temp;
-	while(*head)
+	while (*head)
 	{
-		temp=*head;
-		*head=(*head)->next;
+		temp = *head;
+		*head = (*head)->next;
+		free(temp->name);
 		free(temp);
 	}
 }
@@ -72,10 +79,12 @@ void freeSymbolsList(symbolPtr *head)
 void printSymbolsList(symbolPtr *head)
 {
 	symbolPtr temp = *head;
-    while ((temp) != NULL)
-    {
-        printf(" (%s ,%d) --> ", (temp)->name,(temp)->address);
-		(temp) = (temp)->next;
-    }
-    puts("");
+	printf("%s\n", "Symbols list:");
+	while (temp != NULL)
+	{
+		printf(" (%s ,%d) --> ", temp->name, temp->address);
+		temp = temp->next;
+	}
+	printf(" NULL \n");
+	puts("");
 }

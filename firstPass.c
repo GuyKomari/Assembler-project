@@ -14,13 +14,13 @@ long DC = DC_START;
 bool firstpass(char* filename)
 {
 	int i;
-	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, errorFlag;
+	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, errorFlag, defined_label;
 	FILE* sourceFileHandle;
 
 	char line[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
 	char data[MAX_LINE_LENGTH + 1] = { 0 };
-	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = errorFlag = FALSE;
+	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = errorFlag = defined_label = FALSE;
 	/*open the input file*/
 	sourceFileHandle = fopen(filename, "r");
 
@@ -47,11 +47,14 @@ bool firstpass(char* filename)
 		{
 			if (symbolFlag)/*case - the data definition are inside a label-> LABEL: .string "abcd" */
 			{
-				errorFlag &= isLabelDefined(&symbolListHead, labelName);/*if label already defined then there is an error*/
-
-				/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-				errorFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
-				errorFlag &= ParseData(&dataListHead, &dataListTail, data);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
+				defined_label = isLabelDefined(&symbolListHead, labelName);
+				errorFlag &= defined_label; /*if label already defined then there is an error*/
+				if (!defined_label)
+				{
+					/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
+					errorFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
+				}
+				errorFlag &= ParseData(&dataListHead, &dataListTail, line);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
 			}
 		}
 		else/*case - there is an entry or extern declaration or command declaration with or without a label*/
@@ -67,16 +70,15 @@ bool firstpass(char* filename)
 			{
 				if (symbolFlag)/* case command inside a label*/
 				{
-					errorFlag &= isLabelDefined(&symbolListHead, labelName);
-					/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-					errorFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, IC, FALSE, TRUE, FALSE, FALSE);
+					defined_label = isLabelDefined(&symbolListHead, labelName);
+					errorFlag &= defined_label; /*if label already defined then there is an error*/
 				}
 				errorFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
-												 does not encoding the commands, we do it in the
-												 second pass*/
+												does not encoding the commands, we do it in the
+												second pass*/
 			}
 		}
-		for (i = 0; i < MAX_LINE_LENGTH +1; i++)
+		for (i = 0; i < MAX_LINE_LENGTH + 1; i++)
 		{
 			line[i] = 0;
 			labelName[i] = 0;
@@ -87,9 +89,10 @@ bool firstpass(char* filename)
 	{
 		return FALSE;
 	}
-	printf("%s\n", "firstpass");
+	printf("%s\n", "Firstpass");
 	updateDataSymbols(&symbolListHead, IC);
 	printSymbolsList(&symbolListHead);
+	printDataList(&dataListHead);
 	fclose(sourceFileHandle);
 	return TRUE;
 }
@@ -97,55 +100,98 @@ bool firstpass(char* filename)
 
 /*
 parse the data and insert to the data list
-update the 
+update the
 */
 bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 {
 	int i, dataLength, strLength, numRequiredBytes;
-	char *token, *temp;
+	char *token, *temp, *dataTempBuffer;
 	char stringBuffer[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 }, symbolType[MAX_LINE_LENGTH + 1] = { 0 };
 	char *stringSymbol = ".string", *dataSymbol = ".data", *structSymbol = ".struct";
-
+	const int stringSymbolLength = 7, dataSymbolLength = 5, structSymbolLength = 7;
 	i = dataLength = strLength = numRequiredBytes = 0;
-	if (isLabel(data, labelName) == FALSE)
-		return FALSE;
-	if (getSymbol(data, symbolType) == FALSE)
-		return FALSE;
 	dataLength = strlen(data);
-	if (strncmp(symbolType, stringSymbol, strlen(stringSymbol)) == 0)
+	dataTempBuffer = (char*)malloc(dataLength + 1);
+	if (!dataTempBuffer)
 	{
-		token = strtok(data, "\"");
+		printError(ALLOCATE_MEMORY_ERROR);
+		return FALSE;
+	}
+	strncpy(dataTempBuffer, data, dataLength + 1);
+	if (isLabel(dataTempBuffer, labelName) == FALSE)
+	{
+		free(dataTempBuffer);
+		return FALSE;
+	}
+	if (getSymbol(dataTempBuffer, symbolType) == FALSE)
+	{
+		free(dataTempBuffer);
+		return FALSE;
+	}
+	temp = dataTempBuffer;
+	temp += strlen(labelName) + 1;
+	if (!isspace(*temp))
+	{
+		free(dataTempBuffer);
+		printError(MISSING_SPACE_AFTER_COLON);
+		return FALSE;
+	}
+	temp = trimLeftStr(temp);
+	if (strncmp(symbolType, stringSymbol, stringSymbolLength) == 0)
+	{
+		temp += stringSymbolLength;
+		if (!isspace(*temp))
+		{
+			free(dataTempBuffer);
+			printError(MISSING_SPACE_AFTER_STRING_DECLARATION);
+			return FALSE;
+		}
+		temp = trimLeftStr(temp);
+		token = strtok(dataTempBuffer, "\"");
 		while (token != NULL)
 		{
 			if (i == 1)
 			{
-				strncpy(stringBuffer, token, strlen(token));
+				strncpy(stringBuffer, token, strlen(token) - 1);
 			}
 			else if (i > 2)
+			{
+				free(dataTempBuffer);
 				return FALSE;
+			}
 			i++;
-			token = strtok(NULL, data);
+			token = strtok(NULL, dataTempBuffer);
 		}
 		if (i == 2)
 		{
-			DC = addStringToData(&dataListHead, &dataListTail, stringBuffer, DC);
+			DC = addStringToData(dataListHead, dataListTail, stringBuffer, DC);
+			free(dataTempBuffer);
 			return TRUE;
 		}
 		else
+		{
+			free(dataTempBuffer);
 			return FALSE;
+		}
 	}
-	else if (strncmp(symbolType, dataSymbol, strlen(dataSymbol)) == 0)
+	else if (strncmp(symbolType, dataSymbol, dataSymbolLength) == 0)
 	{
-		temp = data + strlen(dataSymbol);
+		temp += dataSymbolLength;
+		if (!isspace(*temp))
+		{
+			free(dataTempBuffer);
+			printError(MISSING_SPACE_AFTER_DATA_DECLARATION);
+			return FALSE;
+		}
 		temp = trimLeftStr(temp);
-		token = strtok(data, ",");
+		token = strtok(temp, ",");
 		while (token != NULL)
 		{
 			i = atoi(trimStr(token));
 			if (i != 0 || (strcmp(token, "0") == 0))
 			{
-				addNumberToDataList(&dataListHead, &dataListTail, DC, i);
+				addNumberToDataList(dataListHead, dataListTail, DC, i);
 				DC++;
 			}
 			else
@@ -156,18 +202,24 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		}
 
 	}
-	else if (strncmp(symbolType, structSymbol, strlen(structSymbol)) == 0)
+	else if (strncmp(symbolType, structSymbol, structSymbolLength) == 0)
 	{
-		temp = data + strlen(dataSymbol);
+		temp += structSymbolLength;
+		if (!isspace(*temp))
+		{
+			free(dataTempBuffer);
+			printError(MISSING_SPACE_AFTER_STRUCT_DECLARATION);
+			return FALSE;
+		}
 		temp = trimLeftStr(temp);
-		token = strtok(data, ",");
+		token = strtok(temp, ",");
 		while (token != NULL)
 		{
 			token = trimLeftStr(token);
 			i = atoi(token);
 			if (i != 0 || (strcmp(token, "0") == 0))
 			{
-				addNumberToDataList(&dataListHead, &dataListTail, DC, i);
+				addNumberToDataList(dataListHead, dataListTail, DC, i);
 				DC++;
 			}
 			else
@@ -176,12 +228,12 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 				if (strLength > 2 && token[0] == '"' && token[strLength - 1] == '"')
 				{
 					strncpy(stringBuffer, token + 1, strLength - 2);
-					addStringToData(&dataListHead, &dataListTail, stringBuffer, DC);
-					DC += strLength + 1;
+					addStringToData(dataListHead, dataListTail, stringBuffer, DC);
+					DC += strLength - 1;
 				}
 				else if (strLength == 3 && token[0] == '\'' && token[2] == '\'')
 				{
-					addToDataList(&dataListHead, &dataListTail, DC, character, (int)(token[1]));
+					addToDataList(dataListHead, dataListTail, DC, character, (int)(token[1]));
 					DC++;
 				}
 				else
@@ -193,7 +245,11 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		}
 	}
 	else
+	{
+		free(dataTempBuffer);
 		return FALSE;
+	}
+	free(dataTempBuffer);
 	return TRUE;
 }
 
@@ -228,5 +284,5 @@ bool parseCommand(char *line)/*with or without label*/
 	temp = trimStr(temp);
 	sizeOfCommand = getCommandSize(temp);
 	IC += sizeOfCommand;
-	return TRUE;/*always return true? why? @GIL*/
+	return (sizeOfCommand != 0) ? TRUE : FALSE;
 }

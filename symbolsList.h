@@ -2,6 +2,7 @@
 #define	SYMBOLS_LIST_H
 #include <stdio.h>
 #include <stdlib.h>
+#include "errors.h"
 #include "globalVariables.h"
 
 
@@ -19,7 +20,7 @@ typedef struct symbolsTableNode {
 
 
 /*addToSymbolsList (label name, address, isExternal, isCommand, isData, isEntry)*/
-bool addToSymbolsList(symbolPtr* ,symbolPtr*, char*, int, bool, bool, bool, bool);
+bool addToSymbolsList(symbolPtr*, symbolPtr*, char*, int, bool, bool, bool, bool);
 
 void addNodeToSymbolList(symbolPtr, symbolPtr*, symbolPtr*);
 
@@ -29,6 +30,5 @@ void freeSymbolsList(symbolPtr *head);
 void updateDataSymbols(symbolPtr*, int);
 
 void printSymbolsList(symbolPtr *);
-
 
 #endif
