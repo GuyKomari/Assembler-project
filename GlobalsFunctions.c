@@ -337,8 +337,7 @@ bool getSymbol(char* data, char* dest)
 	return FALSE;
 }
 
-/*why returns bool and not void? #GIL*/
-bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
+void addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 {
 	if (num >= 0)
 	{
@@ -348,7 +347,6 @@ bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 	{
 		addToDataList(head, tail, dc, negativeNumber, num);
 	}
-	return TRUE;
 }
 
 

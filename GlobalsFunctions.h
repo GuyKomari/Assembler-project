@@ -86,7 +86,7 @@ bool isFileExists(char*);
 /*
 Adds a number to data List
 */
-bool addNumberToDataList(dataPtr*, dataPtr*, int, int);
+void addNumberToDataList(dataPtr*, dataPtr*, int, int);
 
 
 /*
