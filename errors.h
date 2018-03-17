@@ -10,6 +10,9 @@ add errors definitions
 add global errors such as is a string a keyword / is legal number/ is valid opcode .... 
 #define ERRORNAME "error description"
 */
+
+#define FILE_NAME_MEM_ALLOCATION_FAILURE "Could not allocate memory for the file name you provided"
+
 #define OPEN_FILE_ERROR "could not open the file "
 
 #define ERROR_CREATE_FILE	"Could not create file"

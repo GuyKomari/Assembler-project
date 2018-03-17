@@ -4,10 +4,11 @@
 
 bool isRegister(char *token)
 {
-	int i = 0;
-	for(i = 0; i > NUM_OF_REGISTERS ; i++)
+	int i;
+
+	for (i = 0; i < NUM_OF_REGISTERS ; i++)
 	{
-		if(!(strcmp(token, Registers[i])))
+		if(strcmp(token, Registers[i]) == 0)
 			return TRUE;
 	}
 	return FALSE;
@@ -179,10 +180,14 @@ bool isValidLabel(char* token)
 	length = strlen(trimmed);
 	if (length == 0 || length > 30)
 		return FALSE;
+	if (trimmed[i] < 0 || trimmed[i] > 255)
+		return FALSE;
 	if (!isalpha(trimmed[i++]))
 		return FALSE;
 	for (; i < length; i++)
 	{
+		if (trimmed[i] < 0 || trimmed[i] > 255)
+			return FALSE;
 		if (!(isalpha(trimmed[i]) || isdigit(trimmed[i])))
 			return FALSE;
 	}
@@ -229,13 +234,17 @@ bool isComment(char* token)
 
 char *trimLeftStr(char *str)
 {
-	while(isspace(*str))
+	if (str == NULL)
+		return NULL;
+	while(*str >= 0 && *str <= 255 && isspace(*str))
 		str++;
     return str;
 }
 
 char *trimRightStr(char *str)
 {
+	if (str == NULL)
+		return NULL;
 	int length = strlen(str);
 	if (length == 0)
 		return str;
@@ -363,11 +372,10 @@ AddressingMode getOperandAddressing(char* token)
 
 int getCommandSize(char* command)
 {
-	int i, sizeOfCommand = 0;
+	int i, srcOperandLength, destOperandLength, sizeOfCommand = 0;
 	AddressingMode srcOperandAddressing, destOperandAddressing;
 	opcodeStructure *opcode;
-	char* token, *delim = " \t,";
-
+	char* token, *srcOperand, *destOperand, tooMuchWordsFlag, *delim = " \t,";
 	token = strtok(command, delim);
 	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
@@ -382,39 +390,45 @@ int getCommandSize(char* command)
 				/* 2 Operands Opcode */
 			case FIRST_GROUP:
 			{
-				token = strtok(NULL, delim);
-				if (token == NULL)
+				srcOperand = strtok(NULL, delim);
+				destOperand = strtok(NULL, delim);
+				tooMuchWordsFlag = strtok(NULL, delim);
+
+				if (srcOperand == NULL)
 				{
 					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
 
-				if (isKeyword(token))
+				if (isKeyword(srcOperand))
 				{
 					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
-				if ((srcOperandAddressing = getOperandAddressing(token)) == -1)
+
+				if ((srcOperandAddressing = getOperandAddressing(srcOperand)) == -1)
 				{
 					printError(INVALID_SRC_OPERAND);
 					return 0;
 				}
 
-				token = strtok(NULL, delim);
-				if (token == NULL)
+
+				if (destOperand == NULL)
 				{
 					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
-
-				if (isKeyword(token))
+				
+				if (isKeyword(destOperand))
 				{
 					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
-				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
+
+
+				if ((destOperandAddressing = getOperandAddressing(destOperand)) == -1)
 				{
 					printError(INVALID_DEST_OPERAND);
 					return 0;
@@ -435,8 +449,7 @@ int getCommandSize(char* command)
 					}
 				}
 
-				token = strtok(NULL, delim);
-				if (token != NULL)
+				if (tooMuchWordsFlag != NULL)
 				{
 					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
@@ -459,7 +472,6 @@ int getCommandSize(char* command)
 				/* All the other cases, for example: "lea STR,r1" - requires the address of STR + the code of the register r1 (2 instructions total) */
 				else
 					sizeOfCommand += 2;
-
 				return sizeOfCommand;
 			}
 			break;
@@ -467,19 +479,21 @@ int getCommandSize(char* command)
 			/* 1 Operand Opcode*/
 			case SECOND_GROUP:
 			{
-				token = strtok(NULL, delim);
-				if (token == NULL)
+				destOperand = strtok(NULL, delim);
+				tooMuchWordsFlag = strtok(NULL, delim);
+
+				if (destOperand == NULL)
 				{
 					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
-				if (isKeyword(token))
+				if (isKeyword(destOperand))
 				{
 					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
-				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
+				if ((destOperandAddressing = getOperandAddressing(destOperand)) == -1)
 				{
 					printError(INVALID_DEST_OPERAND);
 					return 0;
@@ -494,8 +508,7 @@ int getCommandSize(char* command)
 					}
 				}
 
-				token = strtok(NULL, delim);
-				if (token != NULL)
+				if (tooMuchWordsFlag != NULL)
 				{
 					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
@@ -506,7 +519,6 @@ int getCommandSize(char* command)
 					sizeOfCommand += 2;
 				else
 					sizeOfCommand++;
-
 				return sizeOfCommand;
 			}
 			break;
@@ -514,8 +526,8 @@ int getCommandSize(char* command)
 			/* No Operands Opcode */
 			case THIRD_GROUP:
 			{
-				token = strtok(NULL, delim);
-				if (token != NULL)
+				tooMuchWordsFlag = strtok(NULL, delim);
+				if (tooMuchWordsFlag != NULL)
 				{
 					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
@@ -631,7 +643,7 @@ bool isDataCommand(char* token)
 
 int getNumber(char* token)
 {
-	char * temp;
+	char* temp;
 	char * num;
 	int end = 0;
 	temp = trimStr(token);
@@ -640,7 +652,8 @@ int getNumber(char* token)
 		temp++;
 	}
 	num = temp;
-	while (!isspace(*temp))
+
+	while (*temp >= 0 && temp <= 255 && !isspace(*temp))
 	{
 		end++;
 		temp++;
@@ -681,9 +694,46 @@ bool isKeyword(char* token)
 
 bool isStructWithDotOperand(char* operand)
 {
-	if(strchr(operand, '.'))
-		return TRUE;
-	return FALSE;
+	int length;
+	char* temp;
+	char* token;
+	int num;
+	length = strlen(operand);
+	temp = (char*)malloc(length + 1);
+	if (!temp)
+	{
+		printError(ALLOCATE_MEMORY_ERROR);
+		return FALSE;
+	}
+	strncpy(temp, operand, length + 1);
+	token = strtok(temp, ".");
+	trimLeftStr(token);
+	if (!isValidLabel(token))
+	{
+		free(temp);
+		return FALSE;
+	}
+	token = strtok(NULL, ".");
+	if (token == NULL)
+	{
+		free(temp);
+		return FALSE;
+	}
+	token = trimRightStr(token);
+	num = atoi(token);
+	if (num != 1 && num != 2)
+	{
+		free(temp);
+		return FALSE;
+	}
+	token = strtok(NULL, ".");
+	free(temp);
+	return (token == NULL) ? TRUE : FALSE;
+
+
+	//if(strchr(operand, '.'))
+	//	return TRUE;
+	//return FALSE;
 }
 
 bool readLine(FILE* fp, char* line)

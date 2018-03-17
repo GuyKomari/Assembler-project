@@ -4,7 +4,7 @@
 #include "GlobalsFunctions.h"
 
 
-#define MAX_FILE_NAME 50
+#define MAX_FILE_NAME_LENGTH 260
 
 #define ENTRY_FILE_END ".ent"
 
@@ -36,27 +36,31 @@
 
 bool secondPass(char*);
 
-void createFile(char* , FILE* ,char*, char*);
+void createFile(char*, FILE*, char*, char*);
 
-void printToEntryFile(char* , char*);
+void printToEntryFile(char*, char*);
 
-void encodingCommand(char* , char*);
+void encodingCommand(char*, char*);
 
-void makeBinaryCode(char*, char*, char*, char *, int);
+void makeBinaryCode(char*, int, char*, char*, char *);
 
 void makeSingleOperandBinary(char *, int *);
+
+void printToExternFile(char *, int);
+
+void printIcAndDCWeird();
 
 void printBinaryWord(char *, int *);
 
 void setOpcodeBinaryCode(char *, int *);
 
-void copyBinaryOpcode(int , int *);
+void copyBinaryOpcode(int, int *);
 
-void makeOperandsBinary(char *, int *, int *, char *, char *, int);
+void makeOperandsBinary(char *, int, int *, int *, char *, char *);
 
 void printRegisterWeird(char *, char *, char *, bool, bool);
 
-void copyBinaryRegister(int *, int , char *);
+void copyBinaryRegister(int *, int);
 
 void printStructWithDotWeird(char *, char *);
 
@@ -67,12 +71,6 @@ void printSecondOperand(char*, char *, char *, int);
 void printWeirdDataOperand(char*, char *);
 
 void printDataWeird(char *);
-
-
-
-
-
-
 
 
 

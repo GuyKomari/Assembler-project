@@ -68,11 +68,6 @@ Responsible: GUY
 */
 bool isComment(char*);
 
-/*
-is token a declaration - .data or .string or .extern or .entry or .struct
-if true return the type declaration otherwise -1 
-*/
-bool isDateDeclaration(char*);
 
 
 /*

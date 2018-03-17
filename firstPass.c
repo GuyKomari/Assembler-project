@@ -105,22 +105,35 @@ update the
 bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 {
 	int i, dataLength, strLength, numRequiredBytes;
-	char *token, *temp;
+	char *token, *temp, *dataTempBuffer;
 	char stringBuffer[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 }, symbolType[MAX_LINE_LENGTH + 1] = { 0 };
 	char *stringSymbol = ".string", *dataSymbol = ".data", *structSymbol = ".struct";
 	const int stringSymbolLength = 7, dataSymbolLength = 5, structSymbolLength = 7;
-
 	i = dataLength = strLength = numRequiredBytes = 0;
-	if (isLabel(data, labelName) == FALSE)
-		return FALSE;
-	if (getSymbol(data, symbolType) == FALSE)
-		return FALSE;
 	dataLength = strlen(data);
-	temp = data;
+	dataTempBuffer = (char*)malloc(dataLength + 1);
+	if (!dataTempBuffer)
+	{
+		printError(ALLOCATE_MEMORY_ERROR);
+		return FALSE;
+	}
+	strncpy(dataTempBuffer, data, dataLength + 1);
+	if (isLabel(dataTempBuffer, labelName) == FALSE)
+	{
+		free(dataTempBuffer);
+		return FALSE;
+	}
+	if (getSymbol(dataTempBuffer, symbolType) == FALSE)
+	{
+		free(dataTempBuffer);
+		return FALSE;
+	}	
+	temp = dataTempBuffer;
 	temp += strlen(labelName) + 1;
 	if (!isspace(*temp))
 	{
+		free(dataTempBuffer);
 		printError(MISSING_SPACE_AFTER_COLON);
 		return FALSE;
 	}
@@ -130,11 +143,12 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		temp += stringSymbolLength;
 		if (!isspace(*temp))
 		{
+			free(dataTempBuffer);
 			printError(MISSING_SPACE_AFTER_STRING_DECLARATION);
 			return FALSE;
 		}
 		temp = trimLeftStr(temp);
-		token = strtok(data, "\"");
+		token = strtok(dataTempBuffer, "\"");
 		while (token != NULL)
 		{
 			if (i == 1)
@@ -142,23 +156,31 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 				strncpy(stringBuffer, token, strlen(token) - 1);
 			}
 			else if (i > 2)
+			{
+				free(dataTempBuffer);
 				return FALSE;
+			}
 			i++;
-			token = strtok(NULL, data);
+			token = strtok(NULL, dataTempBuffer);
 		}
 		if (i == 2)
 		{
 			DC = addStringToData(dataListHead, dataListTail, stringBuffer, DC);
+			free(dataTempBuffer);
 			return TRUE;
 		}
 		else
+		{
+			free(dataTempBuffer);
 			return FALSE;
+		}
 	}
 	else if (strncmp(symbolType, dataSymbol, dataSymbolLength) == 0)
 	{
 		temp += dataSymbolLength;
 		if (!isspace(*temp))
 		{
+			free(dataTempBuffer);
 			printError(MISSING_SPACE_AFTER_DATA_DECLARATION);
 			return FALSE;
 		}
@@ -185,6 +207,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		temp += structSymbolLength;
 		if (!isspace(*temp))
 		{
+			free(dataTempBuffer);
 			printError(MISSING_SPACE_AFTER_STRUCT_DECLARATION);
 			return FALSE;
 		}
@@ -222,7 +245,11 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 		}
 	}
 	else
+	{
+		free(dataTempBuffer);
 		return FALSE;
+	}
+	free(dataTempBuffer);
 	return TRUE;
 }
 
