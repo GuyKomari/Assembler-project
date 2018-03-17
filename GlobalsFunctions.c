@@ -716,10 +716,13 @@ bool isStructWithDotOperand(char* operand)
 
 bool readLine(FILE* fp, char* line)
 {
+	int c;
+	bool flag = FALSE;
 	lineCounter++;
 	if (line == NULL)
 		return FALSE;
 	if (feof(fp))
 		return FALSE;
-	return (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
+	flag = (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
+	return flag;
 }

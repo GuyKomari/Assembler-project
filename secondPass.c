@@ -394,7 +394,6 @@ void printBinaryWord(char *objFileName, int *binaryWord)
 
 	binaryToWierd(binaryWord, weirdWord);/**/
 	decimalToWierd(ICounter, WeirdLineCounter);
-
 	objFile = fopen(objFileName, "ab");
 	if (!objFile)
 	{
