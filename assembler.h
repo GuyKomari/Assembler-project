@@ -1,3 +1,9 @@
+/*
+Authors:
+Gil Mansharov
+Guy Komari
+*/
+
 #include "firstPass.h"
 #include "GlobalsFunctions.h"
 bool secondPass(char*);
