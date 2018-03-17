@@ -74,11 +74,11 @@ bool firstpass(char* filename)
 					errorFlag &= defined_label; /*if label already defined then there is an error*/
 				}
 				errorFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
-												 does not encoding the commands, we do it in the
-												 second pass*/
+												does not encoding the commands, we do it in the
+												second pass*/
 			}
 		}
-		for (i = 0; i < MAX_LINE_LENGTH +1; i++)
+		for (i = 0; i < MAX_LINE_LENGTH + 1; i++)
 		{
 			line[i] = 0;
 			labelName[i] = 0;
@@ -100,7 +100,7 @@ bool firstpass(char* filename)
 
 /*
 parse the data and insert to the data list
-update the 
+update the
 */
 bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 {
@@ -128,7 +128,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 	{
 		free(dataTempBuffer);
 		return FALSE;
-	}	
+	}
 	temp = dataTempBuffer;
 	temp += strlen(labelName) + 1;
 	if (!isspace(*temp))
@@ -274,7 +274,7 @@ bool parseCommand(char *line)/*with or without label*/
 	int sizeOfCommand = 0;
 	char *temp;
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
-	temp = trimStr(line);
+	temp = line;
 	if (isLabel(line, labelName) == TRUE)
 	{
 		temp += strlen(labelName) + 1;

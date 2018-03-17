@@ -7,7 +7,7 @@
 /*
 TODO:
 add errors definitions
-add global errors such as is a string a keyword / is legal number/ is valid opcode .... 
+add global errors such as is a string a keyword / is legal number/ is valid opcode ....
 #define ERRORNAME "error description"
 */
 
@@ -91,9 +91,9 @@ TODO:
 
 void printError(char*);
 
-void printFileError(char* , char* );
+void printFileError(char*, char*);
 
-void printWarning(char* );
+void printWarning(char*);
 
 
 

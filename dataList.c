@@ -1,10 +1,10 @@
 #include "dataList.h"
 
-bool addToDataList(dataPtr *head ,dataPtr *tail ,int dc, int dType, int ascii)
+bool addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii)
 {
 	dataPtr temp;
 	temp = (dataPtr)(malloc(sizeof(dataTableNode)));
-	if(!temp)
+	if (!temp)
 	{
 		printError(ALLOCATE_MEMORY_ERROR);
 		return FALSE;
@@ -13,7 +13,7 @@ bool addToDataList(dataPtr *head ,dataPtr *tail ,int dc, int dType, int ascii)
 	temp->type = dType;
 	temp->asciiCode = ascii;
 	temp->next = NULL;
-	addNodeToDataList(&temp , head , tail);
+	addNodeToDataList(&temp, head, tail);
 	return TRUE;
 
 }
@@ -35,9 +35,9 @@ int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, lon
 
 void addNodeToDataList(dataPtr *temp, dataPtr *head, dataPtr *tail)
 {
-	if(*head == NULL)/*case- empty list*/
+	if (*head == NULL)/*case- empty list*/
 	{
-		
+
 		*head = *temp;
 		*tail = *temp;
 		(*temp)->next = NULL;
@@ -56,7 +56,7 @@ void addNodeToDataList(dataPtr *temp, dataPtr *head, dataPtr *tail)
 void freeDataList(dataPtr *head)
 {
 	dataPtr* temp;
-	while(*head)
+	while (*head)
 	{
 		temp = *head;
 		*head = (*head)->next;
@@ -67,9 +67,9 @@ void freeDataList(dataPtr *head)
 void printDataList(dataPtr *head)
 {
 	dataPtr temp = *head;
-	printf("%s\n" ,"Data List:");
-    while (temp != NULL)
-    {
+	printf("%s\n", "Data List:");
+	while (temp != NULL)
+	{
 		if (temp->type == character && temp->asciiCode >= 0 && temp->asciiCode < 256)
 		{
 			if (temp->asciiCode != 0)
@@ -86,6 +86,6 @@ void printDataList(dataPtr *head)
 			printf(" NULL ");
 		}
 		temp = temp->next;
-    }
-    puts("");
+	}
+	puts("");
 }

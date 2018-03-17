@@ -83,9 +83,9 @@ Move all the arrays into a .c file and declare them as extern, in order to solve
 
 
 
-typedef enum {FALSE, TRUE} bool;
+typedef enum { FALSE, TRUE } bool;
 
-typedef enum {IMMEDIATE, DIRECT_MEMORY, STRUCT_ACCESS, DIRECT_REGISTER} AddressingMode;
+typedef enum { IMMEDIATE, DIRECT_MEMORY, STRUCT_ACCESS, DIRECT_REGISTER } AddressingMode;
 
 typedef struct opcode_structure
 {
@@ -103,7 +103,7 @@ typedef struct register_structure
 } RegisterStructure;
 
 
-typedef struct word 
+typedef struct word
 {
 	int opcode[OPCODE_SIZE];
 	int sourceOperand[OPERAND_SIZE];

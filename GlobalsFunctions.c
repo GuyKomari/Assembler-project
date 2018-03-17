@@ -556,11 +556,11 @@ void decimalToWierd(int num, char* res)
 {
 	char *a;
 	char *b;
-	if (num<0)/*case - num < 0*/
+	if(num<0)/*case - num < 0*/
 	{
 		num = MAX10BITS - (num*(-1));
 	}
-	a = WIERD_32_BASE[num % 32];
+	a = WIERD_32_BASE[num%32];
 	num = num / 32;
 	b = WIERD_32_BASE[num % 32];
 	strcat(res, b);

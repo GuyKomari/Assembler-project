@@ -45,7 +45,7 @@ bool secondPass(char* fileName)
 	printf("%s\n", "start of the second pass");/*TODO: REMOVE*/
 	printf("IC = %d , DC = %d", IC, DC);
 
-	/* parse the input assembler file */
+											   /* parse the input assembler file */
 	while ((endFile = readLine(sourceFileHandle, line)))
 	{
 		if (isEmptySentence(line) || isComment(line) || isExtern(line))/*case - empty line OR comment OR extern then continue*/
@@ -535,7 +535,7 @@ void copyBinaryRegister(int *binaryWord, int index, char* operandType)
 	}
 	else
 	{
-		for (i = 4; i < OPCODE_SIZE * 2; i++, j++)
+		for (i = 4; i < OPCODE_SIZE*2 ; i++, j++)
 		{
 			binaryWord[i] = (registersBinary[index].address)[j];
 		}

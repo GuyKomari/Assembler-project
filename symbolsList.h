@@ -20,7 +20,7 @@ typedef struct symbolsTableNode {
 
 
 /*addToSymbolsList (label name, address, isExternal, isCommand, isData, isEntry)*/
-bool addToSymbolsList(symbolPtr* ,symbolPtr*, char*, int, bool, bool, bool, bool);
+bool addToSymbolsList(symbolPtr*, symbolPtr*, char*, int, bool, bool, bool, bool);
 
 void addNodeToSymbolList(symbolPtr, symbolPtr*, symbolPtr*);
 
