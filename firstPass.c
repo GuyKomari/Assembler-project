@@ -14,13 +14,14 @@ long DC = DC_START;
 bool firstpass(char* filename)
 {
 	int i;
-	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, errorFlag, defined_label;
+	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, noErrorsFlag, defined_label;
 	FILE* sourceFileHandle;
 
 	char line[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
 	char data[MAX_LINE_LENGTH + 1] = { 0 };
-	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = errorFlag = defined_label = FALSE;
+	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = defined_label = FALSE;
+	noErrorsFlag = TRUE;
 	/*open the input file*/
 	sourceFileHandle = fopen(filename, "r");
 
@@ -48,13 +49,13 @@ bool firstpass(char* filename)
 			if (symbolFlag)/*case - the data definition are inside a label-> LABEL: .string "abcd" */
 			{
 				defined_label = isLabelDefined(&symbolListHead, labelName);
-				errorFlag &= defined_label; /*if label already defined then there is an error*/
+				noErrorsFlag &= !defined_label; /*if label already defined then there is an error*/
 				if (!defined_label)
 				{
 					/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-					errorFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
+					noErrorsFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
 				}
-				errorFlag &= ParseData(&dataListHead, &dataListTail, line);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
+				noErrorsFlag &= ParseData(&dataListHead, &dataListTail, line);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
 			}
 		}
 		else/*case - there is an entry or extern declaration or command declaration with or without a label*/
@@ -63,7 +64,7 @@ bool firstpass(char* filename)
 			{
 				if (is_extern)
 				{
-					errorFlag &= externLabels(line);/*TODO: phrase 9 - .extern LABEL1...*/
+					noErrorsFlag &= externLabels(line);/*TODO: phrase 9 - .extern LABEL1...*/
 				}
 			}
 			else /* case - command declaration */
@@ -71,9 +72,9 @@ bool firstpass(char* filename)
 				if (symbolFlag)/* case command inside a label*/
 				{
 					defined_label = isLabelDefined(&symbolListHead, labelName);
-					errorFlag &= defined_label; /*if label already defined then there is an error*/
+					noErrorsFlag &= !defined_label; /*if label already defined then there is an error*/
 				}
-				errorFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
+				noErrorsFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
 												does not encoding the commands, we do it in the
 												second pass*/
 			}
@@ -85,7 +86,7 @@ bool firstpass(char* filename)
 			data[i] = 0;
 		}
 	}
-	if (errorFlag)
+	if (!noErrorsFlag)
 	{
 		return FALSE;
 	}

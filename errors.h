@@ -19,7 +19,7 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 
 #define MISSING_INPUT_FILE "missing input files "
 
-#define ERRORS_IN_FIRST_PASS "errrors found on the first pass, output files will not be created for the input file "
+#define ERRORS_IN_FIRST_PASS "errors found on the first pass, output files will not be created for the input file "
 
 #define ERRORS_IN_SECOND_PASS "errrors found on the second pass, output files will not be created for the input file "
 
