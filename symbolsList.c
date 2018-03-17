@@ -4,6 +4,7 @@ bool addToSymbolsList(symbolPtr *head, symbolPtr *tail, char* symbol, int addr, 
 {
 	int i;
 	symbolPtr temp;
+	symbolPtr* pTemp;
 	char* labelName = (char*)(malloc(MAX_LABEL_SIZE + 1));
 	if (!labelName)
 	{
@@ -30,7 +31,8 @@ bool addToSymbolsList(symbolPtr *head, symbolPtr *tail, char* symbol, int addr, 
 	temp->isData = isD;
 	temp->isEntry = isEn;
 	temp->next = NULL;
-	addNodeToSymbolList(&temp, head, tail);
+	pTemp = &temp;
+	addNodeToSymbolList(pTemp, head, tail);
 	return TRUE;
 }
 

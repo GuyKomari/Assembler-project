@@ -1,3 +1,9 @@
+/*
+Authors:
+Gil Mansharov
+Guy Komari
+*/
+
 #ifndef ERRORS_H
 #define ERRORS_H
 #include <stdio.h>
@@ -5,9 +11,6 @@
 #include <stdlib.h>
 #include "globalVariables.h"
 /*
-TODO:
-add errors definitions
-add global errors such as is a string a keyword / is legal number/ is valid opcode ....
 #define ERRORNAME "error description"
 */
 
@@ -19,7 +22,7 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 
 #define MISSING_INPUT_FILE "missing input files "
 
-#define ERRORS_IN_FIRST_PASS "errrors found on the first pass, output files will not be created for the input file "
+#define ERRORS_IN_FIRST_PASS "errors found on the first pass, output files will not be created for the input file "
 
 #define ERRORS_IN_SECOND_PASS "errrors found on the second pass, output files will not be created for the input file "
 
@@ -83,17 +86,12 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 
 #define MISSING_SPACE_AFTER_STRUCT_DECLARATION	"Missing space after .struct declaration"
 
-/*/
-TODO:
-1. add references for <errno.h> standard library macros when generating error logs.
-*/
-
 
 void printError(char*);
 
 void printFileError(char*, char*);
 
-void printWarning(char*);
+void printWarning(char*, char *);
 
 
 

@@ -1,26 +1,30 @@
 #include "firstPass.h"
 
 /*variables declaration*/
-/*we use them also in the second pass so */
 symbolPtr symbolListHead = NULL;
 symbolPtr symbolListTail = NULL;
 dataPtr dataListHead = NULL;
 dataPtr dataListTail = NULL;
-long IC = IC_START;/* = 100 */
+long IC = IC_START; /* = 100 */
 long DC = DC_START;
 
 
-/*does the first pass - returns TRUE if didnt find errors*/
+/*
+Description: the main function of the first pass.
+parses from the input file the commands and their sizes and updates IC.
+parses from the input file the labels, entries, and externals, and updates DC.
+*/
 bool firstpass(char* filename)
 {
 	int i;
-	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, errorFlag, defined_label;
+	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, noErrorsFlag, defined_label;
 	FILE* sourceFileHandle;
 
 	char line[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
 	char data[MAX_LINE_LENGTH + 1] = { 0 };
-	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = errorFlag = defined_label = FALSE;
+	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = defined_label = FALSE;
+	noErrorsFlag = TRUE;
 	/*open the input file*/
 	sourceFileHandle = fopen(filename, "r");
 
@@ -48,13 +52,13 @@ bool firstpass(char* filename)
 			if (symbolFlag)/*case - the data definition are inside a label-> LABEL: .string "abcd" */
 			{
 				defined_label = isLabelDefined(&symbolListHead, labelName);
-				errorFlag &= defined_label; /*if label already defined then there is an error*/
+				noErrorsFlag &= !defined_label; /*if label already defined then there is an error*/
 				if (!defined_label)
 				{
 					/*addToSymbolsList (head, tail, label name, address, isExternal, isCommand, isData, isEntry)*/
-					errorFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
+					noErrorsFlag &= addToSymbolsList(&symbolListHead, &symbolListTail, labelName, DC, FALSE, FALSE, TRUE, FALSE);
 				}
-				errorFlag &= ParseData(&dataListHead, &dataListTail, line);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
+				noErrorsFlag &= ParseData(&dataListHead, &dataListTail, line);/*TODO: phrase 7 - parse the data and adds it to the data list - return true if didnt find errors in the data declaration*/
 			}
 		}
 		else/*case - there is an entry or extern declaration or command declaration with or without a label*/
@@ -63,7 +67,7 @@ bool firstpass(char* filename)
 			{
 				if (is_extern)
 				{
-					errorFlag &= externLabels(line);/*TODO: phrase 9 - .extern LABEL1...*/
+					noErrorsFlag &= externLabels(line);/*TODO: phrase 9 - .extern LABEL1...*/
 				}
 			}
 			else /* case - command declaration */
@@ -71,11 +75,11 @@ bool firstpass(char* filename)
 				if (symbolFlag)/* case command inside a label*/
 				{
 					defined_label = isLabelDefined(&symbolListHead, labelName);
-					errorFlag &= defined_label; /*if label already defined then there is an error*/
+					noErrorsFlag &= !defined_label; /*if label already defined then there is an error*/
 				}
-				errorFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
-												does not encoding the commands, we do it in the
-												second pass*/
+				noErrorsFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
+												   does not encoding the commands, we do it in the
+												   second pass*/
 			}
 		}
 		for (i = 0; i < MAX_LINE_LENGTH + 1; i++)
@@ -85,7 +89,7 @@ bool firstpass(char* filename)
 			data[i] = 0;
 		}
 	}
-	if (errorFlag)
+	if (!noErrorsFlag)
 	{
 		return FALSE;
 	}
@@ -99,8 +103,7 @@ bool firstpass(char* filename)
 
 
 /*
-parse the data and insert to the data list
-update the
+Description: parses the data and inserts it to the data list, and updates DC.
 */
 bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 {
@@ -254,14 +257,17 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 }
 
 
-/*phrase 9*/
+/*
+Description: gets a line that contains an extern label (.extern) and adds it to the symbols list.
+*/
 bool externLabels(char *line)
 {
 	if (isExtern(line))
 	{
 		char* temp;
-		int extLength = 7;		/*".extern" Length is 7*/
-		temp = line + extLength;
+		int extLength = EXTERN_LENGTH;		/*".extern" Length is 7*/
+		temp = trimStr(line);
+		temp += extLength;
 		temp = trimStr(temp);
 		return addToSymbolsList(&symbolListHead, &symbolListTail, temp, 0, TRUE, FALSE, FALSE, FALSE);
 	}
@@ -269,6 +275,11 @@ bool externLabels(char *line)
 		return FALSE;
 }
 
+
+/*
+gets a line with a command (for example "mov r1, r2"), and if it has a label, adds it to the symbols list.
+afterwards, calculates the size of the command in memory, and increments IC with the command size.
+*/
 bool parseCommand(char *line)/*with or without label*/
 {
 	int sizeOfCommand = 0;

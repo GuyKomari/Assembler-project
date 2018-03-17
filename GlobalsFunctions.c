@@ -135,7 +135,6 @@ TODO: add the define to global variables class.
 add errors printing ?
 check if the label is not a keyword ?
 */
-#define EXTERN_LENGTH 7
 bool isExtern(char* line)
 {
 	int i;
@@ -337,8 +336,7 @@ bool getSymbol(char* data, char* dest)
 	return FALSE;
 }
 
-/*why returns bool and not void? #GIL*/
-bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
+void addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 {
 	if (num >= 0)
 	{
@@ -348,7 +346,6 @@ bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 	{
 		addToDataList(head, tail, dc, negativeNumber, num);
 	}
-	return TRUE;
 }
 
 
@@ -556,11 +553,11 @@ void decimalToWierd(int num, char* res)
 {
 	char *a;
 	char *b;
-	if(num<0)/*case - num < 0*/
+	if (num<0)/*case - num < 0*/
 	{
 		num = MAX10BITS - (num*(-1));
 	}
-	a = WIERD_32_BASE[num%32];
+	a = WIERD_32_BASE[num % 32];
 	num = num / 32;
 	b = WIERD_32_BASE[num % 32];
 	strcat(res, b);
@@ -641,24 +638,6 @@ int getNumber(char* token)
 	return atoi(num);
 }
 
-bool isNumber(char* token)
-{
-	char * temp;
-	temp = trimStr(token);
-	if (strncmp(temp, "#", 1) == 0)
-	{
-		return TRUE;
-	}
-	else if (strncmp(temp, "+", 1) == 0 || strncmp(temp, "-", 1) == 0)
-	{
-		return TRUE;
-	}
-	else if (isdigit(temp[0]))
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
 
 bool isKeyword(char* token)
 {
@@ -718,10 +697,13 @@ bool isStructWithDotOperand(char* operand)
 
 bool readLine(FILE* fp, char* line)
 {
+	int c;
+	bool flag = FALSE;
 	lineCounter++;
 	if (line == NULL)
 		return FALSE;
 	if (feof(fp))
 		return FALSE;
-	return (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
+	flag = (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
+	return flag;
 }
