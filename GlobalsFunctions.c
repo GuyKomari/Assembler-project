@@ -4,10 +4,11 @@
 
 bool isRegister(char *token)
 {
-	int i = 0;
-	for(i = 0; i < NUM_OF_REGISTERS ; i++)
+	int i;
+
+	for (i = 0; i < NUM_OF_REGISTERS; i++)
 	{
-		if(!(strcmp(token, Registers[i])))
+		if (strcmp(token, Registers[i]) == 0)
 			return TRUE;
 	}
 	return FALSE;
@@ -16,9 +17,9 @@ bool isRegister(char *token)
 bool isOpcode(char *token)
 {
 	int i = 0;
-	for(i = 0 ; i < NUM_OF_OPCODES ; i++)
+	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
-		if(!(strcmp(token, opcodes[i].opcodeName)))
+		if (!(strcmp(token, opcodes[i].opcodeName)))
 			return TRUE;
 	}
 	return FALSE;
@@ -47,14 +48,14 @@ bool isLabel(char* src, char* dest)
 	start = temp;
 	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
 	{
-		printError("The label does not begins with an alpha letter");
+		//printError("The label does not begins with an alpha letter");
 		return FALSE;
 	}
 	while (*temp && !isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
 	{
 		if (*temp && !isalpha(*temp) && !isdigit(*temp))
 		{
-			printError("The label contains non-alpha or non-digit characters");
+			//printError("The label contains non-alpha or non-digit characters");
 			return FALSE;
 		}
 		temp++;
@@ -62,17 +63,17 @@ bool isLabel(char* src, char* dest)
 	}
 	if (!isExternDef && strncmp((char*)(temp++), ":", 1) != 0)
 	{
-		printf("A colon is missing");
+		//printError("A colon is missing");
 		return FALSE;
 	}
 	if (!isExternDef && !isspace(*temp))
 	{
 		if (ispunct(*temp) || isdigit(*temp) || isalpha(*temp))
 		{
-			printError("additional character after declaration of a label");
+			//printError("additional character after declaration of a label");
 			return FALSE;
 		}
-		printError("missing a space");
+		//printError("missing a space");
 		return FALSE;
 	}
 	if (dest != NULL)
@@ -87,11 +88,11 @@ lineCounter - the code line
 bool isLabelDefined(symbolPtr *headOfSymbolsList, char* token)
 {
 	symbolPtr temp = *headOfSymbolsList;
-	while(temp)
+	while (temp)
 	{
-		if(!(strcmp(token,(temp)->name)))
+		if (!(strcmp(token, (temp)->name)))
 		{
-			printError("Label is already defined");
+			printError(LABEL_IS_ALREADY_DEFINED);
 			return TRUE;
 		}
 		temp = (temp)->next;
@@ -107,22 +108,22 @@ check if the label is not a keyword ?
 bool isEntry(char* line)
 {
 	char *temp = trimStr(line);
-	if(strncmp(temp , ".entry", ENTRY_LENGTH))
+	if (strncmp(temp, ".entry", ENTRY_LENGTH))
 		return FALSE;
 	temp = (char *)(temp + ENTRY_LENGTH);
 
-	if(!isspace(*temp))
+	if (!isspace(*temp))
 		return FALSE;
 
-	while(isspace(*temp))
+	while (isspace(*temp))
 		temp++;
 
-	if(!(isalpha(*temp)))
+	if (!(isalpha(*temp)))
 		return FALSE;
 
-	while(*temp)
+	while (*temp)
 	{
-		if(isspace(*temp))
+		if (isspace(*temp))
 			return FALSE;
 		temp++;
 	}
@@ -139,31 +140,31 @@ bool isExtern(char* line)
 {
 	int i;
 	char *temp = trimStr(line);
-	if(strncmp(temp , ".extern", EXTERN_LENGTH))
+	if (strncmp(temp, ".extern", EXTERN_LENGTH))
 		return FALSE;
 	temp = (char *)(temp + EXTERN_LENGTH);
 
-	if(!isspace(*temp))
+	if (!isspace(*temp))
 		return FALSE;
 
-	while(isspace(*temp))
+	while (isspace(*temp))
 		temp++;
 
-	if(!(isalpha(*temp)))
+	if (!(isalpha(*temp)))
 		return FALSE;
 
 	for (i = 0; i < NUM_OF_KEYWORDS; i++)
 	{
 		if (strcmp(temp, Keywords[i]) == 0)
 		{
-			printError("A variable name has the same name as a keyword");
+			printError(VARIABLE_NAME_EQUALS_KEYWORD_NAME);
 			return FALSE;
 		}
 	}
 
-	while(*temp)
+	while (*temp)
 	{
-		if(isspace(*temp))
+		if (isspace(*temp))
 			return FALSE;
 		temp++;
 	}
@@ -179,10 +180,14 @@ bool isValidLabel(char* token)
 	length = strlen(trimmed);
 	if (length == 0 || length > 30)
 		return FALSE;
+	if (trimmed[i] < 0 || trimmed[i] > 255)
+		return FALSE;
 	if (!isalpha(trimmed[i++]))
 		return FALSE;
 	for (; i < length; i++)
 	{
+		if (trimmed[i] < 0 || trimmed[i] > 255)
+			return FALSE;
 		if (!(isalpha(trimmed[i]) || isdigit(trimmed[i])))
 			return FALSE;
 	}
@@ -209,19 +214,19 @@ bool isNumOperand(char* token)
 
 bool isEmptySentence(char* token)
 {
-	while (*token != '\0') 
+	while (*token != '\0')
 	{
 		if (!isspace((unsigned char)*token))
-      		return FALSE;
-    	token++;
+			return FALSE;
+		token++;
 	}
-  return TRUE;
+	return TRUE;
 }
 
 bool isComment(char* token)
 {
 	char* temp = trimLeftStr(token);
-	if(temp[0]==';')
+	if (temp[0] == ';')
 		return TRUE;
 	return FALSE;
 }
@@ -229,21 +234,30 @@ bool isComment(char* token)
 
 char *trimLeftStr(char *str)
 {
-	while(isspace(*str))
+	if (str == NULL)
+		return NULL;
+	while (*str >= 0 && *str <= 255 && isspace(*str))
 		str++;
-    return str;
+	return str;
 }
 
 char *trimRightStr(char *str)
 {
+	if (str == NULL)
+		return NULL;
 	int length = strlen(str);
 	if (length == 0)
 		return str;
-    char* back = str + length;
-	
-    while(isspace(*--back));
-    *(back+1) = '\0';
-    return str;
+	char* back = str + length;
+	if (*back == NULL)
+	{
+		do
+		{
+			back--;
+		} while (*back >= 0 && *back <= 255 && isspace(*back));
+	}
+	*(back + 1) = '\0';
+	return str;
 }
 
 char* trimStr(char* str)
@@ -304,7 +318,10 @@ bool getSymbol(char* data, char* dest)
 					return FALSE;
 			}
 			else if (!isalpha(data[i]))
-				return FALSE;
+			{
+				if (i == 0 && !isdigit(data[i]))
+					return FALSE;
+			}
 
 			else
 				continue;
@@ -335,20 +352,6 @@ bool addNumberToDataList(dataPtr *head, dataPtr *tail, int dc, int num)
 }
 
 
-int addStringToData(dataPtr *dataListHead, dataPtr *dataListTail, char *str, long dc)
-{
-	int i, length;
-	length = strlen(str);
-	for (i = 0; i < length; i++)
-	{
-		addToDataList(dataListHead, dataListTail, dc, character, (int)(str[i]));
-		dc++;
-	}
-	addToDataList(dataListHead, dataListTail, dc, character, '\0');
-	dc++;
-	return dc;
-}
-
 
 AddressingMode getOperandAddressing(char* token)
 {
@@ -369,11 +372,10 @@ AddressingMode getOperandAddressing(char* token)
 
 int getCommandSize(char* command)
 {
-	int i, sizeOfCommand = 0;
+	int i, srcOperandLength, destOperandLength, sizeOfCommand = 0;
 	AddressingMode srcOperandAddressing, destOperandAddressing;
 	opcodeStructure *opcode;
-	char* token, *delim = " \t,";
-
+	char* token, *srcOperand, *destOperand, tooMuchWordsFlag, *delim = " \t,";
 	token = strtok(command, delim);
 	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
@@ -388,47 +390,53 @@ int getCommandSize(char* command)
 				/* 2 Operands Opcode */
 			case FIRST_GROUP:
 			{
-				token = strtok(NULL, delim);
-				if (token == NULL)
+				srcOperand = strtok(NULL, delim);
+				destOperand = strtok(NULL, delim);
+				tooMuchWordsFlag = strtok(NULL, delim);
+
+				if (srcOperand == NULL)
 				{
-					printError("Too few operands in the command");
+					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
 
-				if (isKeyword(token))
+				if (isKeyword(srcOperand))
 				{
-					printError("An operand name cannot be the same as a keyword name");
+					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
-				if ((srcOperandAddressing = getOperandAddressing(token)) == -1)
+
+				if ((srcOperandAddressing = getOperandAddressing(srcOperand)) == -1)
 				{
-					printError("Source operand is invalid");
+					printError(INVALID_SRC_OPERAND);
 					return 0;
 				}
 
-				token = strtok(NULL, delim);
-				if (token == NULL)
+
+				if (destOperand == NULL)
 				{
-					printError("Too few operands in the command");
+					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
 
-				if (isKeyword(token))
+				if (isKeyword(destOperand))
 				{
-					printError("An operand name cannot be the same as a keyword name");
+					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
-				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
+
+
+				if ((destOperandAddressing = getOperandAddressing(destOperand)) == -1)
 				{
-					printError("Destination operand is invalid");
+					printError(INVALID_DEST_OPERAND);
 					return 0;
 				}
 
 				if (strcmp(opcode->opcodeName, "lea") == 0 && (srcOperandAddressing == IMMEDIATE || srcOperandAddressing == DIRECT_REGISTER))
 				{
-					printError("\"lea\" opcode cannot have an immediate or immediate register addressing mode");
+					printError(LEA_COMMAND_ADDRESSING_MODE_ERROR);
 					return 0;
 				}
 
@@ -436,21 +444,20 @@ int getCommandSize(char* command)
 				{
 					if (strcmp(opcode->opcodeName, "cmp") != 0)
 					{
-						printError("Only \"cmp\" opcode can use immediate addressing mode in the destination operand");
+						printError(CMP_COMMAND_ADDRESSING_MODE_ERROR);
 						return 0;
 					}
 				}
 
-				token = strtok(NULL, delim);
-				if (token != NULL)
+				if (tooMuchWordsFlag != NULL)
 				{
-					printError("Too much words in the command");
+					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
 				}
 
 				sizeOfCommand++; /*opcode instruction size*/
 
-				/* For example: "sub r1,r4" */
+								 /* For example: "sub r1,r4" */
 				if (srcOperandAddressing == DIRECT_REGISTER && destOperandAddressing == DIRECT_REGISTER)
 					sizeOfCommand++;
 
@@ -465,7 +472,6 @@ int getCommandSize(char* command)
 				/* All the other cases, for example: "lea STR,r1" - requires the address of STR + the code of the register r1 (2 instructions total) */
 				else
 					sizeOfCommand += 2;
-
 				return sizeOfCommand;
 			}
 			break;
@@ -473,21 +479,23 @@ int getCommandSize(char* command)
 			/* 1 Operand Opcode*/
 			case SECOND_GROUP:
 			{
-				token = strtok(NULL, delim);
-				if (token == NULL)
+				destOperand = strtok(NULL, delim);
+				tooMuchWordsFlag = strtok(NULL, delim);
+
+				if (destOperand == NULL)
 				{
-					printError("Too few operands in the command");
+					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
-				if (isKeyword(token))
+				if (isKeyword(destOperand))
 				{
-					printError("An operand name cannot be the same as a keyword name");
+					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
 					return FALSE;
 				}
 
-				if ((destOperandAddressing = getOperandAddressing(token)) == -1)
+				if ((destOperandAddressing = getOperandAddressing(destOperand)) == -1)
 				{
-					printError("Destination operand is invalid");
+					printError(INVALID_DEST_OPERAND);
 					return 0;
 				}
 
@@ -495,15 +503,14 @@ int getCommandSize(char* command)
 				{
 					if (strcmp(opcode->opcodeName, "prn") != 0)
 					{
-						printError("Only \"prn\" opcode can use immediate addressing mode in the destination operand");
+						printError(PRN_COMMAND_ADDRESSING_MODE_ERROR);
 						return 0;
 					}
 				}
 
-				token = strtok(NULL, delim);
-				if (token != NULL)
+				if (tooMuchWordsFlag != NULL)
 				{
-					printError("Too much words in the command");
+					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
 				}
 
@@ -512,7 +519,6 @@ int getCommandSize(char* command)
 					sizeOfCommand += 2;
 				else
 					sizeOfCommand++;
-
 				return sizeOfCommand;
 			}
 			break;
@@ -520,10 +526,10 @@ int getCommandSize(char* command)
 			/* No Operands Opcode */
 			case THIRD_GROUP:
 			{
-				token = strtok(NULL, delim);
-				if (token != NULL)
+				tooMuchWordsFlag = strtok(NULL, delim);
+				if (tooMuchWordsFlag != NULL)
 				{
-					printError("Too much words in the command");
+					printError(TOO_MUCH_WORDS_IN_COMMAND);
 					return 0;
 				}
 				sizeOfCommand = 1;
@@ -548,37 +554,17 @@ Description: convert 10 word length represents in binary code to "wierd 32 base"
 */
 void decimalToWierd(int num, char* res)
 {
-	char *p1, *p2;
-	int div;
-	int temp = num;
-
-	if (num<0)/*case - num < 0*/
+	char *a;
+	char *b;
+	if(num<0)/*case - num < 0*/
 	{
 		num = MAX10BITS - (num*(-1));
-		printf("%d\n", num);
 	}
-
-	if (num < 0)
-	{
-		strcpy(res, WIERD_32_BASE[0]);
-	}
-	while (num)
-	{
-		div = BASE_LENGTH * (((double)num / BASE_LENGTH) - (num / BASE_LENGTH));
-		res = strcat(res, WIERD_32_BASE[div]);
-		num = num / BASE_LENGTH;
-	}
-	if (temp > 0 && temp < BASE_LENGTH)
-	{
-		res = strcat(res, WIERD_32_BASE[0]);
-
-	}
-	for (p1 = res, p2 = res + strlen(res) - 1; p2 > p1; ++p1, --p2)
-	{
-		*p1 ^= *p2;
-		*p2 ^= *p1;
-		*p1 ^= *p2;
-	}
+	a = WIERD_32_BASE[num%32];
+	num = num / 32;
+	b = WIERD_32_BASE[num % 32];
+	strcat(res, b);
+	strcat(res, a);
 }
 
 void binaryToWierd(int *binary, char* res)
@@ -637,7 +623,7 @@ bool isDataCommand(char* token)
 
 int getNumber(char* token)
 {
-	char * temp;
+	char* temp;
 	char * num;
 	int end = 0;
 	temp = trimStr(token);
@@ -646,6 +632,12 @@ int getNumber(char* token)
 		temp++;
 	}
 	num = temp;
+
+	while (*temp >= 0 && temp <= 255 && !isspace(*temp))
+	{
+		end++;
+		temp++;
+	}
 	return atoi(num);
 }
 
@@ -682,9 +674,46 @@ bool isKeyword(char* token)
 
 bool isStructWithDotOperand(char* operand)
 {
-	if(strchr(operand, '.'))
-		return TRUE;
-	return FALSE;
+	int length;
+	char* temp;
+	char* token;
+	int num;
+	length = strlen(operand);
+	temp = (char*)malloc(length + 1);
+	if (!temp)
+	{
+		printError(ALLOCATE_MEMORY_ERROR);
+		return FALSE;
+	}
+	strncpy(temp, operand, length + 1);
+	token = strtok(temp, ".");
+	trimLeftStr(token);
+	if (!isValidLabel(token))
+	{
+		free(temp);
+		return FALSE;
+	}
+	token = strtok(NULL, ".");
+	if (token == NULL)
+	{
+		free(temp);
+		return FALSE;
+	}
+	token = trimRightStr(token);
+	num = atoi(token);
+	if (num != 1 && num != 2)
+	{
+		free(temp);
+		return FALSE;
+	}
+	token = strtok(NULL, ".");
+	free(temp);
+	return (token == NULL) ? TRUE : FALSE;
+
+
+	//if(strchr(operand, '.'))
+	//	return TRUE;
+	//return FALSE;
 }
 
 bool readLine(FILE* fp, char* line)
@@ -692,7 +721,7 @@ bool readLine(FILE* fp, char* line)
 	lineCounter++;
 	if (line == NULL)
 		return FALSE;
-	if(feof(fp))
+	if (feof(fp))
 		return FALSE;
 	return (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
 }
