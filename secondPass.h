@@ -46,7 +46,7 @@ void makeBinaryCode(char*, int, char*, char*, char *);
 
 void makeSingleOperandBinary(char *, int *);
 
-void printToExternFile(char *, int);
+void printToExternFile(char *);
 
 void printIcAndDCWeird();
 
@@ -72,6 +72,6 @@ void printWeirdDataOperand(char*, char *);
 
 void printDataWeird(char *);
 
-
+bool LabelDeclaredButNotDefined(char *);
 
 #endif

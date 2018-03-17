@@ -43,11 +43,11 @@ bool secondPass(char* fileName)
 	}
 	printIcAndDCWeird();/* prints the IC and the DC to the object file into the first line */
 	printf("%s\n", "start of the second pass");/*TODO: REMOVE*/
+	printf("IC = %d , DC = %d", IC, DC);
 
-											   /* parse the input assembler file */
+	/* parse the input assembler file */
 	while ((endFile = readLine(sourceFileHandle, line)))
 	{
-		/*TODO : check for extern label if defined, else print warning*/
 		if (isEmptySentence(line) || isComment(line) || isExtern(line))/*case - empty line OR comment OR extern then continue*/
 		{
 			continue;
@@ -157,9 +157,8 @@ void printToEntryFile(char* entFileName, char* line)
 	temp = (char *)(temp + ENTRY_LENGTH);/*move the pointer after the ".entry" command*/
 	while (isspace(*temp))/*ignore whitespaces*/
 		temp++;
-	if (!isLabelDefined(&symbolListHead, temp))
+	if (LabelDeclaredButNotDefined(temp) == TRUE)
 	{
-		printFileError(LABEL_DECLARED_BUT_NOT_DEFINED, temp);/* TODO: chang to warning */
 		return;
 	}
 	else
@@ -178,10 +177,24 @@ void printToEntryFile(char* entFileName, char* line)
 	fclose(entFile);
 }
 
+bool LabelDeclaredButNotDefined(char *temp)
+{
+	symbolPtr searchLabel = symbolListHead;/*search is an hendle to the head of the symbols list*/
+	while (searchLabel)
+	{
+		if (strcmp((searchLabel->name), temp) == 0)/*find the node that hands that label*/
+		{
+			return FALSE;
+		}
+		searchLabel = searchLabel->next;
+	}
+	return TRUE;
+}
+
 void createFile(char* fileName, FILE* dest, char* destName, char* end)
 {
 	char *tempFileName;
-	int strLength,  fileExtensionLength, destExtensionLength, i;
+	int strLength, fileExtensionLength, destExtensionLength, i;
 	strLength = strlen(fileName);
 	destExtensionLength = strlen(end);
 	if (strLength >= MAX_FILE_NAME_LENGTH)
@@ -614,7 +627,7 @@ void printWeirdDataOperand(char* objFileName, char *operand)
 			{
 				binaryWord[8] = 0;
 				binaryWord[9] = 1;
-				printToExternFile(operand, addressNum);
+				printToExternFile(operand);
 			}
 			else/*ARE*/
 			{
@@ -632,20 +645,21 @@ void printWeirdDataOperand(char* objFileName, char *operand)
 	fclose(objFile);
 }
 
-void printToExternFile(char *operand, int addressNum)
+void printToExternFile(char *operand)
 {
 	char weirdAddress[MAX_32_WEIRD_LENGTH] = { 0 };
 	if (!extFlag)
 	{
 		createFile(assemblerFileName, extFile, extFileName, EXTERN_FILE_END);/* create the object output file */
+		extFlag = TRUE;
 	}
 	extFile = fopen(extFileName, "ab");
 	if (!extFile)
 	{
 		printFileError(OPEN_FILE_ERROR, extFileName);
 	}
-	decimalToWierd(addressNum, weirdAddress);
-	fprintf(extFile, "%s	%s", operand, addressNum);
+	decimalToWierd(ICounter, weirdAddress);
+	fprintf(extFile, "%s	%s\n", operand, weirdAddress);
 	fclose(extFile);
 }
 

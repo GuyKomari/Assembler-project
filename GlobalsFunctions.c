@@ -6,9 +6,9 @@ bool isRegister(char *token)
 {
 	int i;
 
-	for (i = 0; i < NUM_OF_REGISTERS ; i++)
+	for (i = 0; i < NUM_OF_REGISTERS; i++)
 	{
-		if(strcmp(token, Registers[i]) == 0)
+		if (strcmp(token, Registers[i]) == 0)
 			return TRUE;
 	}
 	return FALSE;
@@ -17,9 +17,9 @@ bool isRegister(char *token)
 bool isOpcode(char *token)
 {
 	int i = 0;
-	for(i = 0 ; i < NUM_OF_OPCODES ; i++)
+	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
-		if(!(strcmp(token, opcodes[i].opcodeName)))
+		if (!(strcmp(token, opcodes[i].opcodeName)))
 			return TRUE;
 	}
 	return FALSE;
@@ -88,9 +88,9 @@ lineCounter - the code line
 bool isLabelDefined(symbolPtr *headOfSymbolsList, char* token)
 {
 	symbolPtr temp = *headOfSymbolsList;
-	while(temp)
+	while (temp)
 	{
-		if(!(strcmp(token,(temp)->name)))
+		if (!(strcmp(token, (temp)->name)))
 		{
 			printError(LABEL_IS_ALREADY_DEFINED);
 			return TRUE;
@@ -108,22 +108,22 @@ check if the label is not a keyword ?
 bool isEntry(char* line)
 {
 	char *temp = trimStr(line);
-	if(strncmp(temp , ".entry", ENTRY_LENGTH))
+	if (strncmp(temp, ".entry", ENTRY_LENGTH))
 		return FALSE;
 	temp = (char *)(temp + ENTRY_LENGTH);
 
-	if(!isspace(*temp))
+	if (!isspace(*temp))
 		return FALSE;
 
-	while(isspace(*temp))
+	while (isspace(*temp))
 		temp++;
 
-	if(!(isalpha(*temp)))
+	if (!(isalpha(*temp)))
 		return FALSE;
 
-	while(*temp)
+	while (*temp)
 	{
-		if(isspace(*temp))
+		if (isspace(*temp))
 			return FALSE;
 		temp++;
 	}
@@ -140,17 +140,17 @@ bool isExtern(char* line)
 {
 	int i;
 	char *temp = trimStr(line);
-	if(strncmp(temp , ".extern", EXTERN_LENGTH))
+	if (strncmp(temp, ".extern", EXTERN_LENGTH))
 		return FALSE;
 	temp = (char *)(temp + EXTERN_LENGTH);
 
-	if(!isspace(*temp))
+	if (!isspace(*temp))
 		return FALSE;
 
-	while(isspace(*temp))
+	while (isspace(*temp))
 		temp++;
 
-	if(!(isalpha(*temp)))
+	if (!(isalpha(*temp)))
 		return FALSE;
 
 	for (i = 0; i < NUM_OF_KEYWORDS; i++)
@@ -162,9 +162,9 @@ bool isExtern(char* line)
 		}
 	}
 
-	while(*temp)
+	while (*temp)
 	{
-		if(isspace(*temp))
+		if (isspace(*temp))
 			return FALSE;
 		temp++;
 	}
@@ -214,19 +214,19 @@ bool isNumOperand(char* token)
 
 bool isEmptySentence(char* token)
 {
-	while (*token != '\0') 
+	while (*token != '\0')
 	{
 		if (!isspace((unsigned char)*token))
-      		return FALSE;
-    	token++;
+			return FALSE;
+		token++;
 	}
-  return TRUE;
+	return TRUE;
 }
 
 bool isComment(char* token)
 {
 	char* temp = trimLeftStr(token);
-	if(temp[0]==';')
+	if (temp[0] == ';')
 		return TRUE;
 	return FALSE;
 }
@@ -236,9 +236,9 @@ char *trimLeftStr(char *str)
 {
 	if (str == NULL)
 		return NULL;
-	while(*str >= 0 && *str <= 255 && isspace(*str))
+	while (*str >= 0 && *str <= 255 && isspace(*str))
 		str++;
-    return str;
+	return str;
 }
 
 char *trimRightStr(char *str)
@@ -248,16 +248,16 @@ char *trimRightStr(char *str)
 	int length = strlen(str);
 	if (length == 0)
 		return str;
-    char* back = str + length;
+	char* back = str + length;
 	if (*back == NULL)
 	{
-		do 
+		do
 		{
 			back--;
 		} while (*back >= 0 && *back <= 255 && isspace(*back));
 	}
-    *(back+1) = '\0';
-    return str;
+	*(back + 1) = '\0';
+	return str;
 }
 
 char* trimStr(char* str)
@@ -419,7 +419,7 @@ int getCommandSize(char* command)
 					printError(TOO_FEW_OPERANDS_IN_COMMAND);
 					return FALSE;
 				}
-				
+
 				if (isKeyword(destOperand))
 				{
 					printError(OPERAND_NAME_EQUALS_KEYWORD_NAME);
@@ -457,7 +457,7 @@ int getCommandSize(char* command)
 
 				sizeOfCommand++; /*opcode instruction size*/
 
-				/* For example: "sub r1,r4" */
+								 /* For example: "sub r1,r4" */
 				if (srcOperandAddressing == DIRECT_REGISTER && destOperandAddressing == DIRECT_REGISTER)
 					sizeOfCommand++;
 
@@ -554,37 +554,17 @@ Description: convert 10 word length represents in binary code to "wierd 32 base"
 */
 void decimalToWierd(int num, char* res)
 {
-	char *p1, *p2;
-	int div;
-	int temp = num;
-
+	char *a;
+	char *b;
 	if (num<0)/*case - num < 0*/
 	{
 		num = MAX10BITS - (num*(-1));
-		printf("%d\n", num);
 	}
-
-	if (num < 0)
-	{
-		strcpy(res, WIERD_32_BASE[0]);
-	}
-	while (num)
-	{
-		div = BASE_LENGTH * (((double)num / BASE_LENGTH) - (num / BASE_LENGTH));
-		res = strcat(res, WIERD_32_BASE[div]);
-		num = num / BASE_LENGTH;
-	}
-	if (temp > 0 && temp < BASE_LENGTH)
-	{
-		res = strcat(res, WIERD_32_BASE[0]);
-
-	}
-	for (p1 = res, p2 = res + strlen(res) - 1; p2 > p1; ++p1, --p2)
-	{
-		*p1 ^= *p2;
-		*p2 ^= *p1;
-		*p1 ^= *p2;
-	}
+	a = WIERD_32_BASE[num % 32];
+	num = num / 32;
+	b = WIERD_32_BASE[num % 32];
+	strcat(res, b);
+	strcat(res, a);
 }
 
 void binaryToWierd(int *binary, char* res)
@@ -741,7 +721,7 @@ bool readLine(FILE* fp, char* line)
 	lineCounter++;
 	if (line == NULL)
 		return FALSE;
-	if(feof(fp))
+	if (feof(fp))
 		return FALSE;
 	return (fgets(line, MAX_LINE_LENGTH, fp) != NULL) ? TRUE : FALSE;
 }
