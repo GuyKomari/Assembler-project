@@ -229,7 +229,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 				{
 					strncpy(stringBuffer, token + 1, strLength - 2);
 					addStringToData(dataListHead, dataListTail, stringBuffer, DC);
-					DC += strLength + - 1;
+					DC += strLength - 1;
 				}
 				else if (strLength == 3 && token[0] == '\'' && token[2] == '\'')
 				{
