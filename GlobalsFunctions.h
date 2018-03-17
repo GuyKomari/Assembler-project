@@ -52,36 +52,32 @@ bool isLabel(char*, char*);
 
 /*
 Description: gets a valid label and checks if this label already defined
-Responsible: GUY
 */
 bool isLabelDefined(symbolPtr*, char*);
 
 
 /*
-Description:
-Responsible: GUY
+Description: gets an line and returns TRUE if it's an entry line declaration. otherwise, returns FALSE.
 */
 bool isEntry(char*);
 
 
-
+/*
+Description: gets an line and returns TRUE if it's an extern line declaration. otherwise, returns FALSE.
+*/
 bool isExtern(char*);
 
 
 /*
-Description: is token empty sentence
-Responsible: GUY
+Description: is an empty sentence 
 */
 bool isEmptySentence(char*);
 
 
-
 /*
-Description: is token comment sentence
-Responsible: GUY
+Description: is a comment sentence - begins with ';'
 */
 bool isComment(char*);
-
 
 
 /*
@@ -111,16 +107,18 @@ bool getSymbol(char*, char*);
 
 
 /*
-TODO: change the string functions (functions that handles strings) to (char* target, char* dest) type
-Description: trim whitespace from str
-Responsible: GUY
+Description: trim whitespace from a string
 */
 char *trimStr(char*);
 
-/*trim whitespace on right end of str*/
+/*
+Description: trim whitespace on right end of a string
+*/
 char *trimRightStr(char*);
 
-/*trim whitespaces on left end of str*/
+/*
+trim whitespaces on left end of a string
+*/
 char *trimLeftStr(char*);
 
 
@@ -133,23 +131,24 @@ int getCommandSize(char*);
 
 /*
 Description: convert decimal code to binary code
-Responsible: GUY
 */
 void decimalToBinary(int, int *, int);
 
 /*
 Description: convert binary code to "wierd 32 base"
-Responsible: GUY
 */
 void binaryToWierd(int* binary, char* res);
 
 /*
 Description: convert a number in decimal base to "wierd 32 base"
-Responsible: GUY
 */
 
 void decimalToWierd(int num, char* res);
 
+/*
+Description: convert a binary code to decimal number
+and returns the number
+*/
 int binaryToDecimal(int *);
 
 
@@ -160,7 +159,7 @@ returns TRUE if the line is a data command, otherwise, returns FALSE.
 bool isDataCommand(char*);
 
 /*
-Description: gets a number operand and returns it as an integer. 
+Description: gets a number operand and returns it as an integer.
 */
 int getNumber(char*);
 

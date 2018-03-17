@@ -8,6 +8,7 @@ Guy Komari
 #define DATA_LIST_H
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "globalVariables.h"
 #include "errors.h"
 
@@ -44,7 +45,7 @@ bool addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii);
 
 /*
 Description:
-Gets a node as a pointer to a symbolPtr struct, and the head and tail of the data list, and adds the node to the data list. 
+Gets a node as a pointer to a symbolPtr struct, and the head and tail of the data list, and adds the node to the data list.
 */
 void addNodeToDataList(dataPtr*, dataPtr*, dataPtr*);
 

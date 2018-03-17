@@ -11,9 +11,6 @@ Guy Komari
 #include <stdlib.h>
 #include "globalVariables.h"
 /*
-TODO:
-add errors definitions
-add global errors such as is a string a keyword / is legal number/ is valid opcode ....
 #define ERRORNAME "error description"
 */
 
@@ -32,6 +29,8 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 #define MISSING_SPACE_AFTER_ENTRY "A space is missing after declaration of an entry"
 
 #define MISSING_SPACE_AFTER_EXTERN "A space is missing after declaration of an extern"
+
+#define INVALID_OPCODE_ERROR	"The opcode is invalid"
 
 #define LABEL_BEGINS_WITH_NUMBER  "Label should not begin with a number"
 
@@ -89,17 +88,12 @@ add global errors such as is a string a keyword / is legal number/ is valid opco
 
 #define MISSING_SPACE_AFTER_STRUCT_DECLARATION	"Missing space after .struct declaration"
 
-/*/
-TODO:
-1. add references for <errno.h> standard library macros when generating error logs.
-*/
-
 
 void printError(char*);
 
 void printFileError(char*, char*);
 
-void printWarning(char*);
+void printWarning(char*, char *);
 
 
 

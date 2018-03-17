@@ -3,6 +3,8 @@
 bool addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii)
 {
 	dataPtr temp;
+	if (ascii >= 512 || ascii <= -512)
+		return FALSE;
 	temp = (dataPtr)(malloc(sizeof(dataTableNode)));
 	if (!temp)
 	{
@@ -15,7 +17,6 @@ bool addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii)
 	temp->next = NULL;
 	addNodeToDataList(&temp, head, tail);
 	return TRUE;
-
 }
 
 
@@ -55,7 +56,7 @@ void addNodeToDataList(dataPtr *temp, dataPtr *head, dataPtr *tail)
 
 void freeDataList(dataPtr *head)
 {
-	dataPtr* temp;
+	dataPtr temp;
 	while (*head)
 	{
 		temp = *head;

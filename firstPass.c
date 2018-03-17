@@ -33,7 +33,7 @@ bool firstpass(char* filename)
 		printError(OPEN_FILE_ERROR);
 		return FALSE;
 	}
-	while (endFile = readLine(sourceFileHandle, line))/*parse every line in the file*/
+	while ((endFile = readLine(sourceFileHandle, line)))/*parse every line in the file*/
 	{
 		symbolFlag = FALSE;
 		if (isComment(line) || (is_entry = isEntry(line)) || isEmptySentence(line))
@@ -78,8 +78,8 @@ bool firstpass(char* filename)
 					noErrorsFlag &= !defined_label; /*if label already defined then there is an error*/
 				}
 				noErrorsFlag &= parseCommand(line);/*counter lines for the code(IC) and finds errors
-												does not encoding the commands, we do it in the
-												second pass*/
+												   does not encoding the commands, we do it in the
+												   second pass*/
 			}
 		}
 		for (i = 0; i < MAX_LINE_LENGTH + 1; i++)
@@ -265,7 +265,7 @@ bool externLabels(char *line)
 	if (isExtern(line))
 	{
 		char* temp;
-		int extLength = 7;		/*".extern" Length is 7*/
+		int extLength = EXTERN_LENGTH;		/*".extern" Length is 7*/
 		temp = trimStr(line);
 		temp += extLength;
 		temp = trimStr(temp);

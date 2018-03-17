@@ -14,4 +14,3 @@ Arguments: filename (char*)
 Description: This function assembles a single file
 */
 void runAssembler(char*);
-

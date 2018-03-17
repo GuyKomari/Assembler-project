@@ -38,7 +38,7 @@ bool addToSymbolsList(symbolPtr*, symbolPtr*, char*, int, bool, bool, bool, bool
 Description:
 gets a node as a pointer to symbolPtr struct, the head and tail of the symbols list, and adds the node to the symbols list.
 */
-void addNodeToSymbolList(symbolPtr, symbolPtr*, symbolPtr*);
+void addNodeToSymbolList(symbolPtr*, symbolPtr*, symbolPtr*);
 
 /*
 Description:

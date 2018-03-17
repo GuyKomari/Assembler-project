@@ -3,7 +3,7 @@
 int lineCounter;
 
 ERAStructure ERATypes[ERA_TYPES_SIZE] = {
-	{ 0	,	Absolute	,	"00" },
+{ 0	,	Absolute	,	"00" },
 { 1	,	External	,	"01" },
 { 2	,	Relocatable	,	"10" }
 };
@@ -25,7 +25,7 @@ char* Registers[NUM_OF_REGISTERS] = { "r0","r1","r2","r3","r4","r5","r6","r7" };
 
 
 RegisterStructure registersBinary[NUM_OF_REGISTERS] = {
-	{ "r0"	,{ 0,0,0,0 } },
+{ "r0"	,{ 0,0,0,0 } },
 { "r1"	,{ 0,0,0,1 } },
 { "r2"	,{ 0,0,1,0 } },
 { "r3"	,{ 0,0,1,1 } },
@@ -36,7 +36,7 @@ RegisterStructure registersBinary[NUM_OF_REGISTERS] = {
 };
 
 opcodeStructure opcodes[NUM_OF_OPCODES] = {
-	{ 0	,	"mov"	,{ 0,0,0,0 }	,	FIRST_GROUP },
+{ 0	,	"mov"	,{ 0,0,0,0 }	,	FIRST_GROUP },
 { 1	,	"cmp"	,{ 0,0,0,1 }	,	FIRST_GROUP },
 { 2	,	"add"	,{ 0,0,1,0 }	,	FIRST_GROUP },
 { 3	,	"sub"	,{ 0,0,1,1 }	,	FIRST_GROUP },

@@ -1,23 +1,26 @@
 #include "secondPass.h"
 
+/* Variables declaration */
+
 int ICounter = IC_START;/*IC*/
+static FILE *sourceFileHandle; /* input file handle */
+static FILE *objFile, *entFile, *extFile; /* output files handles */
+static char objFileName[MAX_FILE_NAME_LENGTH + 1] = { 0 }; /* object file name */
+static char entFileName[MAX_FILE_NAME_LENGTH + 1] = { 0 }; /* entry file name */
+static char extFileName[MAX_FILE_NAME_LENGTH + 1] = { 0 }; /* extern file name */
+static char *assemblyFileName;
+static bool extFlag = FALSE;
 
-FILE *sourceFileHandle; /* input file handle */
-FILE *objFile, *entFile, *extFile; /* output files handles */
-char objFileName[MAX_FILE_NAME_LENGTH + 1] = { 0 }; /* object file name */
-char entFileName[MAX_FILE_NAME_LENGTH + 1] = { 0 }; /* entry file name */
-char extFileName[MAX_FILE_NAME_LENGTH + 1] = { 0 }; /* extern file name */
-char *assemblerFileName;
-bool extFlag = FALSE;
-
-extern IC, DC; /* IC and DC after the first pass */
+extern int IC, DC; /* IC and DC after the first pass */
 extern symbolPtr symbolListHead, symbolListTail; /* extern from firstPass.c */
 extern dataPtr dataListHead, dataListTail; /* extern from firstPass.c */
 
-										   /*
-										   secondPass:
-										   Does the second pass, return true if succeeded
-										   */
+/*
+Description:
+The main function of the second pass.
+Generates the output files - object file, entry file, and extern file.
+Parses from the input file, and converts any line and operand to "weird 32 base".
+*/
 bool secondPass(char* fileName)
 {
 	int i = 0;
@@ -26,7 +29,7 @@ bool secondPass(char* fileName)
 
 	lineCounter = 0; /* resets the global line counnter */
 	is_label = is_data_command = endFile = is_entry = entFlag = FALSE;
-	assemblerFileName = fileName;
+	assemblyFileName = fileName;
 	sourceFileHandle = fopen(fileName, "r");
 	if (sourceFileHandle == NULL)
 	{
@@ -42,17 +45,13 @@ bool secondPass(char* fileName)
 		return FALSE;
 	}
 	printIcAndDCWeird();/* prints the IC and the DC to the object file into the first line */
-	printf("%s\n", "start of the second pass");/*TODO: REMOVE*/
-	printf("IC = %d , DC = %d", IC, DC);
-
-											   /* parse the input assembler file */
+	/* parse the input assembler file */
 	while ((endFile = readLine(sourceFileHandle, line)))
 	{
 		if (isEmptySentence(line) || isComment(line) || isExtern(line))/*case - empty line OR comment OR extern then continue*/
 		{
 			continue;
 		}
-
 		is_entry = isEntry(line);
 		is_label = isLabel(line, NULL); /*contains a label definition*/
 		if (!is_entry && is_label)
@@ -71,28 +70,33 @@ bool secondPass(char* fileName)
 				printFileError(OPEN_FILE_ERROR, entFileName);
 				return FALSE;
 			}
-			printToEntryFile(entFileName, line);/*print the label name and its address to the entry file*/
+			printToEntryFile(line);/*print the label name and its address to the entry file*/
 			continue;
 		}
-		if (is_label && is_data_command)/*TODO. case - label with data*/
+		if (is_label && is_data_command)
 		{
 			continue;
 		}
 		else/*label with command*/
 		{
-			encodingCommand(objFileName, line);
+			encodingCommand(line);/*encodding the line and each operand*/
 		}
-		for (i = 0; i < MAX_LINE_LENGTH + 1; i++)
+		for (i = 0; i < MAX_LINE_LENGTH + 1; i++)/* reset the line */
 		{
 			line[i] = 0;
 		}
 	}
-	printDataWeird(objFileName);/*print the data in weird base after finished to print the code*/
-	freeSymbolsList(&symbolListHead);
-	freeDataList(&dataListHead);
-	return TRUE;
+	printDataWeird();/*print the data in weird base after finished to print the instructions*/
+
+	freeSymbolsList(&symbolListHead);/* free memory of the symbols list */
+	freeDataList(&dataListHead);/* free memory of the symbols list */
+	return TRUE;/* second pass succeeded */
 }
 
+/*
+Description:
+Prints the DC and the IC after were calculated during the first pass
+*/
 void printIcAndDCWeird()
 {
 	char weirdIC[MAX_32_WEIRD_LENGTH] = { 0 };
@@ -109,7 +113,13 @@ void printIcAndDCWeird()
 	fclose(objFile);
 }
 
-void printDataWeird(char *objFileName)
+/*
+Description:
+Prints the data of the assembly file in weird 32 base, after the instructions were printted.
+
+objFileName - file name to print
+*/
+void printDataWeird()
 {
 	int i = 0;
 	dataPtr temp = dataListHead;
@@ -138,11 +148,15 @@ void printDataWeird(char *objFileName)
 	}
 	fclose(objFile);
 }
+/*
+Description:
+If the label was defined during the assembly -
+then prints the entry label and its address to the entry file in weird 32 base,
+otherwise prints a warning.
 
-
-
-
-void printToEntryFile(char* entFileName, char* line)
+line - a single line from the assembly file
+*/
+void printToEntryFile(char* line)
 {
 	char *temp = trimStr(line);/*clear whitespaces*/
 	symbolPtr searchLabel = symbolListHead;/*search is an hendle to the head of the symbols list*/
@@ -159,6 +173,7 @@ void printToEntryFile(char* entFileName, char* line)
 		temp++;
 	if (LabelDeclaredButNotDefined(temp) == TRUE)
 	{
+		printWarning(LABEL_DECLARED_BUT_NOT_DEFINED, temp);
 		return;
 	}
 	else
@@ -176,7 +191,12 @@ void printToEntryFile(char* entFileName, char* line)
 	}
 	fclose(entFile);
 }
+/*
+Description:
+Checks if an entry label was defined during the assembly file.
 
+temp - label name
+*/
 bool LabelDeclaredButNotDefined(char *temp)
 {
 	symbolPtr searchLabel = symbolListHead;/*search is an hendle to the head of the symbols list*/
@@ -190,7 +210,15 @@ bool LabelDeclaredButNotDefined(char *temp)
 	}
 	return TRUE;
 }
+/*
+Description:
+Generates an output file.
 
+fileName - the input file name
+dest - output file hendle
+destName - output file name
+end - output file extension
+*/
 void createFile(char* fileName, FILE* dest, char* destName, char* end)
 {
 	int strLength, fileExtensionLength, destExtensionLength, i;
@@ -218,16 +246,22 @@ void createFile(char* fileName, FILE* dest, char* destName, char* end)
 	}
 }
 
+/*
+Description:
+Encoding a command
 
-void encodingCommand(char* objFileName, char* line)
+objFileName - object file name
+line - a single line from the assembly file
+*/
+void encodingCommand(char* line)
 {
 	int i, opcodeGroup, trimmedLineLength;
 	char *temp, *lineBuffer;
-	char *firstOperand;
-	char *secondOperand;
+	char *sourceOperand;
+	char *destOperand;
 	char opcodeName[5] = { 0 };/*opcode word size*/
 	char label[MAX_LINE_LENGTH] = { 0 };/*the label*/
-	temp = firstOperand = secondOperand = NULL;
+	temp = sourceOperand = destOperand = NULL;
 	if (!isFileExists(objFileName))
 	{
 		printFileError(OPEN_FILE_ERROR, objFileName);
@@ -254,7 +288,7 @@ void encodingCommand(char* objFileName, char* line)
 		temp++;
 	}
 	strcat(temp, "\n");
-	for (i = 0; (*temp) != (int)NULL && (!isspace(*temp)); i++)
+	for (i = 0; (*temp) != '\0' && (!isspace(*temp)); i++)
 	{
 		opcodeName[i] = temp[0];
 		temp++;
@@ -272,22 +306,19 @@ void encodingCommand(char* objFileName, char* line)
 	{
 	case FIRST_GROUP:/* two operands*/
 	{
-		firstOperand = strtok(temp, ",");/*the operands are separated by a comma*/
-		secondOperand = strtok(NULL, "");
-		secondOperand = trimStr(secondOperand);
-		makeBinaryCode(objFileName, opcodeGroup, opcodeName, firstOperand, secondOperand);
+		sourceOperand = strtok(temp, ",");/*the operands are separated by a comma*/
+		destOperand = strtok(NULL, "");
+		destOperand = trimStr(destOperand);
 		break;
 	}
 	case SECOND_GROUP:/*single operand*/
 	{
-		secondOperand = strtok(temp, "");
-		secondOperand = trimStr(secondOperand);
-		makeBinaryCode(objFileName, opcodeGroup, opcodeName, firstOperand, secondOperand);
+		destOperand = strtok(temp, "");
+		destOperand = trimStr(destOperand);
 		break;
 	}
 	case THIRD_GROUP:/*opcode only*/
 	{
-		makeBinaryCode(objFileName, opcodeGroup, opcodeName, firstOperand, secondOperand);
 		break;
 	}
 	default:
@@ -295,10 +326,15 @@ void encodingCommand(char* objFileName, char* line)
 		break;
 	}
 	}
+	makeBinaryCode(opcodeGroup, opcodeName, sourceOperand, destOperand);
 	free(lineBuffer);
 }
+/*
+Description:
+Returns the opcode group number.
 
-
+opcodeName - the opcode name in binary
+*/
 int getOpcodeGroup(char *opcodeName)
 {
 	int i = 0;
@@ -314,15 +350,23 @@ int getOpcodeGroup(char *opcodeName)
 	}
 	return THIRD_GROUP;
 }
+/*
+Description:
+The executor of line encoding.
 
-void makeBinaryCode(char* objFileName, int opcodeGroup, char* opcode, char* firstOperand, char *secondOperand)
+opcodeGroup - opcode group number
+opcode - opcoda name
+sourceOperand -  source Operand
+destOperand - destination Operand
+*/
+void makeBinaryCode(int opcodeGroup, char* opcode, char* sourceOperand, char *destOperand)
 {
 	int i = 0, j = 0;
 
 	int binaryWord[WORD_SIZE] = { 0 };/*the whole line in binary code*/
 	int binaryOpcode[OPCODE_SIZE] = { 0 };
-	int binaryFirstOperand[OPERAND_SIZE] = { 0 };
-	int binarySecondOperand[OPERAND_SIZE] = { 0 };
+	int binarySourceOperand[OPERAND_SIZE] = { 0 };
+	int binaryDestOperand[OPERAND_SIZE] = { 0 };
 
 	if (!isFileExists(objFileName))
 	{
@@ -339,14 +383,14 @@ void makeBinaryCode(char* objFileName, int opcodeGroup, char* opcode, char* firs
 	case SECOND_GROUP:
 	{
 		setOpcodeBinaryCode(opcode, binaryOpcode);
-		makeSingleOperandBinary(secondOperand, binarySecondOperand);
+		makeSingleOperandBinary(destOperand, binaryDestOperand);
 		break;
 	}
 	case FIRST_GROUP:
 	{
 		setOpcodeBinaryCode(opcode, binaryOpcode);
-		makeSingleOperandBinary(firstOperand, binaryFirstOperand);
-		makeSingleOperandBinary(secondOperand, binarySecondOperand);
+		makeSingleOperandBinary(sourceOperand, binarySourceOperand);
+		makeSingleOperandBinary(destOperand, binaryDestOperand);
 		break;
 	}
 	default: break;
@@ -354,16 +398,21 @@ void makeBinaryCode(char* objFileName, int opcodeGroup, char* opcode, char* firs
 	for (i = 0; i < OPCODE_SIZE; i++, j++)
 		binaryWord[j] = binaryOpcode[i];
 	for (i = 0; i < OPERAND_SIZE; i++, j++)
-		binaryWord[j] = binaryFirstOperand[i];
+		binaryWord[j] = binarySourceOperand[i];
 	for (i = 0; i < OPERAND_SIZE; i++, j++)
-		binaryWord[j] = binarySecondOperand[i];
-	printBinaryWord(objFileName, binaryWord);/*print the word in 32 weird base*/
-	makeOperandsBinary(objFileName, opcodeGroup, binaryFirstOperand, binarySecondOperand, firstOperand, secondOperand);/**/
+		binaryWord[j] = binaryDestOperand[i];
+	printBinaryWord(binaryWord);/*print the word in 32 weird base*/
+	makeOperandsWeird(opcodeGroup, binarySourceOperand, binaryDestOperand, sourceOperand, destOperand);/**/
 }
+/*
+Description:
+Converts a single operand to binary for the line encodding .
 
+operand - operand string
+binary - binary array
+*/
 void makeSingleOperandBinary(char *operand, int *binary)
 {
-	int i = 0;
 
 	if (isNumOperand(operand))/*addressing type number 1*/
 	{
@@ -386,8 +435,13 @@ void makeSingleOperandBinary(char *operand, int *binary)
 		binary[1] = 1;
 	}
 }
+/*
+Description:
+Converts a word to weird 32 base and prints its encodding to the object output file.
 
-void printBinaryWord(char *objFileName, int *binaryWord)
+binaryWord - binary word array
+*/
+void printBinaryWord(int *binaryWord)
 {
 	char WeirdLineCounter[MAX_32_WEIRD_LENGTH] = { 0 };
 	char weirdWord[MAX_32_WEIRD_LENGTH] = { 0 };
@@ -405,7 +459,13 @@ void printBinaryWord(char *objFileName, int *binaryWord)
 	fclose(objFile);
 }
 
+/*
+Description:
+Converts an operand to binary.
 
+operand - opcode name
+binary - binary array
+*/
 void setOpcodeBinaryCode(char *operand, int *binary)
 {
 	int i = 0;
@@ -418,7 +478,13 @@ void setOpcodeBinaryCode(char *operand, int *binary)
 		}
 	}
 }
+/*
+Description:
+Copy the binary opcode.
 
+index - index of the opcode in the opcodes array
+binary - binary array
+*/
 void copyBinaryOpcode(int index, int *binary)
 {
 	int i = 0;
@@ -428,66 +494,80 @@ void copyBinaryOpcode(int index, int *binary)
 	}
 }
 
+/*
+Description:
+Prints the source operand and the destination in weird 32 base.
 
-void makeOperandsBinary(char *objFileName, int opcodeGroup, int *binaryFirstOperand, int *binarySecondOperand, char *firstOperand, char *secondOperand)
+opcodeGroup - opcode group name
+binarySourceOperand - source operand group
+binaryDestOperand - destination operand group
+sourceOperand - source operand string
+destOperand - destination operand string
+*/
+void makeOperandsWeird(int opcodeGroup, int *binarySourceperand, int *binaryDestOperand, char *sourceOperand, char *destOperand)
 {
-	int i;
-	bool label, reg, number;
-	int firstAddressingType, secondAddressingType;
+	int sourceAddressingType, destAddressingType;
 
 	if (opcodeGroup == THIRD_GROUP)
 		return;
 
-	label = reg = number = FALSE;
-	firstAddressingType = secondAddressingType = i = 0;
+	sourceAddressingType = destAddressingType = 0;
 
-	secondAddressingType = getAddressingType(binarySecondOperand);
+	destAddressingType = getAddressingType(binaryDestOperand);
 	if (opcodeGroup == SECOND_GROUP)
 	{
-		printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
+		printDestOperand(sourceOperand, destOperand, destAddressingType);
 		return;
 	}
 
 	/*case - FIRST_GROUP*/
-	firstAddressingType = getAddressingType(binaryFirstOperand);
-	switch (firstAddressingType)
+	sourceAddressingType = getAddressingType(binarySourceperand);
+	switch (sourceAddressingType)
 	{
 	case 0:/*first operand is a number*/
 	{
-		printNumberWeird(objFileName, firstOperand);
-		printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
+		printNumberWeird(objFileName, sourceOperand);
+		printDestOperand(sourceOperand, destOperand, destAddressingType);
 		break;
 	}
 	case 1:/*first operand is data*/
 	{
-		printWeirdDataOperand(objFileName, firstOperand);
-		printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
+		printWeirdDataOperand(sourceOperand);
+		printDestOperand(sourceOperand, destOperand, destAddressingType);
 		break;
 	}
 	case 2:/*first operand is struct with dot*/
 	{
-		printStructWithDotWeird(objFileName, firstOperand);
-		printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
+		printStructWithDotWeird(sourceOperand);
+		printDestOperand(sourceOperand, destOperand, destAddressingType);
 		break;
 	}
 	case 3:/*first oeprand is register*/
 	{
-		if (isRegister(secondOperand))
+		if (isRegister(destOperand))
 		{
-			printRegisterWeird(objFileName, firstOperand, secondOperand, TRUE, TRUE);
+			printRegisterWeird(sourceOperand, destOperand, TRUE, TRUE);
 		}
 		else
 		{
-			printRegisterWeird(objFileName, firstOperand, secondOperand, TRUE, FALSE);
-			printSecondOperand(objFileName, firstOperand, secondOperand, secondAddressingType);
+			printRegisterWeird(sourceOperand, destOperand, TRUE, FALSE);
+			printDestOperand(sourceOperand, destOperand, destAddressingType);
 		}
 		break;
 	}
 	default: break;
 	}
 }
+/*
+Description:
+Prints a register in weird 32 base.
 
-void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOperand, bool firstRegister, bool secondRegister)
+sourceOperand - source operand string
+destOperand - dest operand string
+sourceRegister - is source operand register
+destRegister - is dest operand register
+*/
+void printRegisterWeird(char *sourceOperand, char *destOperand, bool sourceRegister, bool destRegister)
 {
 	int i;
 	int binaryWord[WORD_SIZE] = { 0 };
@@ -496,11 +576,11 @@ void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOpera
 
 	for (i = 0; i < NUM_OF_REGISTERS; i++)
 	{
-		if ((firstRegister) && strcmp(((registersBinary[i]).registerName), firstOperand) == 0)
+		if ((sourceRegister) && strcmp(((registersBinary[i]).registerName), sourceOperand) == 0)
 		{
 			copyBinaryRegister(binaryWord, i, "first");
 		}
-		if ((secondRegister) && strcmp(((registersBinary[i]).registerName), secondOperand) == 0)
+		if ((destRegister) && strcmp(((registersBinary[i]).registerName), destOperand) == 0)
 		{
 			copyBinaryRegister(binaryWord, i, "second");
 		}
@@ -519,7 +599,14 @@ void printRegisterWeird(char *objFileName, char *firstOperand, char *secondOpera
 
 	fclose(objFile);
 }
+/*
+Description:
+Copy the binary register code.
 
+binaryWord - binary array
+index - index of the register in the registersBinary structure
+operandType - "first" or "second"
+*/
 void copyBinaryRegister(int *binaryWord, int index, char* operandType)
 {
 	int i;
@@ -533,13 +620,20 @@ void copyBinaryRegister(int *binaryWord, int index, char* operandType)
 	}
 	else
 	{
-		for (i = 4; i < OPCODE_SIZE*2 ; i++, j++)
+		for (i = 4; i < OPCODE_SIZE * 2; i++, j++)
 		{
 			binaryWord[i] = (registersBinary[index].address)[j];
 		}
 	}
 }
-void printStructWithDotWeird(char *objFileName, char *firstOperand)
+/*
+Description:
+Prints a "struct with dot" in weird 32 base.
+
+objFileName - object File Name
+firstOperand - operand string to print in weird base
+*/
+void printStructWithDotWeird(char *firstOperand)
 {
 	int length;
 	char *token, *temp;
@@ -552,12 +646,18 @@ void printStructWithDotWeird(char *objFileName, char *firstOperand)
 	}
 	strncpy(temp, firstOperand, length + 1);
 	token = strtok(temp, ".");/*the label name example: s.1 -> temp = s*/
-	printWeirdDataOperand(objFileName, token);
+	printWeirdDataOperand(token);
 	token = strtok(NULL, ""); /*s.1 -> temp = 1*/
 	printNumberWeird(objFileName, token);
 	free(temp);
 }
+/*
+Description:
+Prints a number in weird 32 base.
 
+objFileName - object File Name
+operand - operand string to print in weird base
+*/
 void printNumberWeird(char* objFileName, char *firstOperand)
 {
 	int number = getNumber(firstOperand);
@@ -579,42 +679,53 @@ void printNumberWeird(char* objFileName, char *firstOperand)
 	ICounter++;
 	fclose(objFile);
 }
+/*
+Description:
+Prints the second opernd in weird 32 base.
 
-void printSecondOperand(char* objFileName, char *firstOperand, char *secondOperand, int secondAddressingType)
+sourceOperand - first operand string
+destOperand - desination operand string
+destAddressingType - desination operand addressing type
+*/
+void printDestOperand(char *sourceOperand, char *destOperand, int destAddressingType)
 {
-	switch (secondAddressingType)
+	switch (destAddressingType)
 	{
 	case 0:
 	{
-		printNumberWeird(objFileName, secondOperand);
+		printNumberWeird(objFileName, destOperand);
 		break;
 	}
 	case 1:/*second operand is data*/
 	{
-		printWeirdDataOperand(objFileName, secondOperand);
+		printWeirdDataOperand(destOperand);
 		break;
 	}
 	case 2:/*second operand is struct with dot*/
 	{
-		printStructWithDotWeird(objFileName, secondOperand);
+		printStructWithDotWeird(destOperand);
 		break;
 	}
 	case 3:/*second operand is a register*/
 	{
-		printRegisterWeird(objFileName, firstOperand, secondOperand, FALSE, TRUE);
+		printRegisterWeird(sourceOperand, destOperand, FALSE, TRUE);
 		break;
 	}
 	default: break;
 	}
 
 }
+/*
+Description:
+Prints a  data opernd in weird 32 base.
 
-void printWeirdDataOperand(char* objFileName, char *operand)
+objFileName - object File Name
+operand - operand string
+*/
+void printWeirdDataOperand(char *operand)
 {
-	int i;
 	int addressNum;
 	symbolPtr searchLabel = symbolListHead;/*search is an hendle to the head of the symbols list*/
-	bool toWeird;
 	int binaryWord[WORD_SIZE] = { 0 };
 	char weirdWord[MAX_32_WEIRD_LENGTH] = { 0 };
 	char WeirdLineCounter[MAX_32_WEIRD_LENGTH] = { 0 };
@@ -627,9 +738,6 @@ void printWeirdDataOperand(char* objFileName, char *operand)
 		printFileError(OPEN_FILE_ERROR, objFileName);
 		return;
 	}
-
-	i = 0;
-	toWeird = TRUE;
 
 	while (searchLabel)
 	{
@@ -657,13 +765,18 @@ void printWeirdDataOperand(char* objFileName, char *operand)
 	}
 	fclose(objFile);
 }
+/*
+Description:
+Prints To extern File
 
+operand - operand string
+*/
 void printToExternFile(char *operand)
 {
 	char weirdAddress[MAX_32_WEIRD_LENGTH] = { 0 };
 	if (!extFlag)
 	{
-		createFile(assemblerFileName, extFile, extFileName, EXTERN_FILE_END);/* create the object output file */
+		createFile(assemblyFileName, extFile, extFileName, EXTERN_FILE_END);/* create the object output file */
 		extFlag = TRUE;
 	}
 	extFile = fopen(extFileName, "ab");
@@ -677,7 +790,12 @@ void printToExternFile(char *operand)
 }
 
 
+/*
+Description:
+Returns an operand addressing type
 
+binaryOperand - binary operand
+*/
 int getAddressingType(int* binaryOperand)
 {
 	int res = 0;

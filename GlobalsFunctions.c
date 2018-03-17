@@ -48,14 +48,14 @@ bool isLabel(char* src, char* dest)
 	start = temp;
 	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
 	{
-		//printError("The label does not begins with an alpha letter");
+		printError(LABEL_NOT_START_WITH_ALPHA);
 		return FALSE;
 	}
 	while (*temp && !isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
 	{
 		if (*temp && !isalpha(*temp) && !isdigit(*temp))
 		{
-			//printError("The label contains non-alpha or non-digit characters");
+			printError(LABEL_CONTAINS_NON_ALPHA_OR_DIGIT);
 			return FALSE;
 		}
 		temp++;
@@ -63,17 +63,14 @@ bool isLabel(char* src, char* dest)
 	}
 	if (!isExternDef && strncmp((char*)(temp++), ":", 1) != 0)
 	{
-		//printError("A colon is missing");
 		return FALSE;
 	}
 	if (!isExternDef && !isspace(*temp))
 	{
 		if (ispunct(*temp) || isdigit(*temp) || isalpha(*temp))
 		{
-			//printError("additional character after declaration of a label");
 			return FALSE;
 		}
-		//printError("missing a space");
 		return FALSE;
 	}
 	if (dest != NULL)
@@ -100,11 +97,7 @@ bool isLabelDefined(symbolPtr *headOfSymbolsList, char* token)
 	return FALSE;
 }
 
-/*
-TODO:
-add errors printing ?
-check if the label is not a keyword ?
-*/
+
 bool isEntry(char* line)
 {
 	char *temp = trimStr(line);
@@ -130,12 +123,7 @@ bool isEntry(char* line)
 	return TRUE;
 }
 
-/*
-TODO: add the define to global variables class.
-add errors printing ?
-check if the label is not a keyword ?
-*/
-#define EXTERN_LENGTH 7
+
 bool isExtern(char* line)
 {
 	int i;
@@ -186,7 +174,7 @@ bool isValidLabel(char* token)
 		return FALSE;
 	for (; i < length; i++)
 	{
-		if (trimmed[i] < 0 || trimmed[i] > 255)
+		if (trimmed[i] < 0 || trimmed[i] > 255 || trimmed[i] == '.')
 			return FALSE;
 		if (!(isalpha(trimmed[i]) || isdigit(trimmed[i])))
 			return FALSE;
@@ -196,19 +184,23 @@ bool isValidLabel(char* token)
 
 bool isNumOperand(char* token)
 {
-	int  i = 0;
+	int  i = 0, num;
 	char* trimmed;
 	trimmed = trimStr(token);
 	if (trimmed[i++] != '#')
 		return FALSE;
-	if (atoi(trimmed + i) == 0)
+	num = atoi(trimmed + i);
+	if (num == 0)
 	{
 		if (trimmed[i] == '+' || trimmed[i] == '-')
 			i++;
 		if (strcmp(trimmed + 1, "0") != 0)
 			return FALSE;
 	}
-	return TRUE;
+	if (num > 127 || num < -127)
+		return FALSE;
+	else
+		return TRUE;
 }
 
 
@@ -243,13 +235,15 @@ char *trimLeftStr(char *str)
 
 char *trimRightStr(char *str)
 {
+	int length;
+	char *back;
 	if (str == NULL)
 		return NULL;
-	int length = strlen(str);
+	length = strlen(str);
 	if (length == 0)
 		return str;
-	char* back = str + length;
-	if (*back == NULL)
+	back = str + length;
+	if (*back == '\0')
 	{
 		do
 		{
@@ -370,10 +364,10 @@ AddressingMode getOperandAddressing(char* token)
 
 int getCommandSize(char* command)
 {
-	int i, srcOperandLength, destOperandLength, sizeOfCommand = 0;
+	int i, sizeOfCommand = 0;
 	AddressingMode srcOperandAddressing, destOperandAddressing;
 	opcodeStructure *opcode;
-	char* token, *srcOperand, *destOperand, tooMuchWordsFlag, *delim = " \t,";
+	char* token, *srcOperand, *destOperand, *tooMuchWordsFlag, *delim = " \t,";
 	token = strtok(command, delim);
 	for (i = 0; i < NUM_OF_OPCODES; i++)
 	{
@@ -541,6 +535,7 @@ int getCommandSize(char* command)
 			return 0;
 		}
 	}
+	printError(INVALID_OPCODE_ERROR);
 	return 0;
 }
 
@@ -554,11 +549,11 @@ void decimalToWierd(int num, char* res)
 {
 	char *a;
 	char *b;
-	if(num<0)/*case - num < 0*/
+	if (num<0)/*case - num < 0*/
 	{
 		num = MAX10BITS - (num*(-1));
 	}
-	a = WIERD_32_BASE[num%32];
+	a = WIERD_32_BASE[num % 32];
 	num = num / 32;
 	b = WIERD_32_BASE[num % 32];
 	strcat(res, b);
@@ -631,7 +626,7 @@ int getNumber(char* token)
 	}
 	num = temp;
 
-	while (*temp >= 0 && temp <= 255 && !isspace(*temp))
+	while (*temp >= 0 && *temp <= 255 && !isspace(*temp))
 	{
 		end++;
 		temp++;
@@ -690,15 +685,10 @@ bool isStructWithDotOperand(char* operand)
 	free(temp);
 	return (token == NULL) ? TRUE : FALSE;
 
-
-	//if(strchr(operand, '.'))
-	//	return TRUE;
-	//return FALSE;
 }
 
 bool readLine(FILE* fp, char* line)
 {
-	int c;
 	bool flag = FALSE;
 	lineCounter++;
 	if (line == NULL)

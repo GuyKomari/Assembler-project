@@ -7,9 +7,10 @@ Guy Komari
 #ifndef GLOBAL_VARIABLES_H
 #define GLOBAL_VARIABLES_H
 
+
 #define REGISTER_SIZE 10
 
-#define ERACODE_SIZE	2
+#define ERACODE_SIZE 2
 
 #define MEMORY_SIZE 256
 
@@ -45,18 +46,23 @@ Guy Komari
 
 #define THIRD_GROUP 3
 
+#define FIRST_GROUP_SIZE 5
+
+#define SECOND_GROUP_SIZE 9
+
+#define THIRD_GROUP_SIZE 2
+
 /*Minimum machine instructions*/
 #define MIN_ROWS 1
 
 /*maximum machine instructions*/
 #define MAX_ROWS 5
 
-
 #define ENTRY_LENGTH 6
 
 #define EXTERN_LENGTH 7
 
-#define MAX_32_WEIRD_LENGTH 5
+#define MAX_32_WEIRD_LENGTH 3
 
 #define MULT 16
 
@@ -68,20 +74,29 @@ Guy Komari
 
 #define uint unsigned int
 
-#define FIRST_GROUP_SIZE 5
+#define MAX_LABEL_SIZE 30
 
-#define SECOND_GROUP_SIZE 9
+#define MAX_FILE_NAME_LENGTH 255
 
-#define THIRD_GROUP_SIZE 2
+#define ENTRY_FILE_END ".ent"
 
-#define MAX_LABEL_SIZE 31
+#define EXTERN_FILE_END ".ext"
+
+#define OBJECT_FILE_END ".ob"
+
+#define EIGHT_BITS 8
+
+#define TEN_BITS 10
+
 
 
 
 
 typedef enum { FALSE, TRUE } bool;
 
+
 typedef enum { IMMEDIATE, DIRECT_MEMORY, STRUCT_ACCESS, DIRECT_REGISTER } AddressingMode;
+
 
 typedef struct opcode_structure
 {
