@@ -60,7 +60,7 @@ void makeOperandsBinary(char *, int, int *, int *, char *, char *);
 
 void printRegisterWeird(char *, char *, char *, bool, bool);
 
-void copyBinaryRegister(int *, int);
+void copyBinaryRegister(int *, int, char *);
 
 void printStructWithDotWeird(char *, char *);
 
