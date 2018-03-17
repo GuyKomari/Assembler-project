@@ -261,7 +261,8 @@ bool externLabels(char *line)
 	{
 		char* temp;
 		int extLength = 7;		/*".extern" Length is 7*/
-		temp = line + extLength;
+		temp = trimStr(line);
+		temp += extLength;
 		temp = trimStr(temp);
 		return addToSymbolsList(&symbolListHead, &symbolListTail, temp, 0, TRUE, FALSE, FALSE, FALSE);
 	}
