@@ -274,7 +274,7 @@ bool parseCommand(char *line)/*with or without label*/
 	int sizeOfCommand = 0;
 	char *temp;
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
-	temp = line;
+	temp = trimStr(line);
 	if (isLabel(line, labelName) == TRUE)
 	{
 		temp += strlen(labelName) + 1;
