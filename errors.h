@@ -30,8 +30,6 @@ Guy Komari
 
 #define MISSING_SPACE_AFTER_EXTERN "A space is missing after declaration of an extern"
 
-#define INVALID_OPCODE_ERROR	"The opcode is invalid"
-
 #define LABEL_BEGINS_WITH_NUMBER  "Label should not begin with a number"
 
 #define ENTRY_MORE_THEN_ONE_LABEL "only one label can be declared in entry declaration"

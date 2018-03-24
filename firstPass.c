@@ -9,22 +9,21 @@ long IC = IC_START; /* = 100 */
 long DC = DC_START;
 
 
-/*
-Description: the main function of the first pass.
-parses from the input file the commands and their sizes and updates IC.
-parses from the input file the labels, entries, and externals, and updates DC.
-*/
+
 bool firstpass(char* filename)
 {
+	
 	int i;
 	bool is_label, is_data_command, endFile, is_entry, is_extern, symbolFlag, noErrorsFlag, defined_label;
 	FILE* sourceFileHandle;
-
 	char line[MAX_LINE_LENGTH + 1] = { 0 };
 	char labelName[MAX_LINE_LENGTH + 1] = { 0 };
 	char data[MAX_LINE_LENGTH + 1] = { 0 };
 	is_label = is_data_command = endFile = is_entry = is_extern = symbolFlag = defined_label = FALSE;
 	noErrorsFlag = TRUE;
+	lineCounter = 0;
+	IC = IC_START;
+	DC = DC_START;
 	/*open the input file*/
 	sourceFileHandle = fopen(filename, "r");
 
@@ -91,6 +90,9 @@ bool firstpass(char* filename)
 	}
 	if (!noErrorsFlag)
 	{
+		freeSymbolsList(symbolListHead);
+		freeDataList(dataListHead);
+		fclose(sourceFileHandle);
 		return FALSE;
 	}
 	printf("%s\n", "Firstpass");
@@ -102,9 +104,7 @@ bool firstpass(char* filename)
 }
 
 
-/*
-Description: parses the data and inserts it to the data list, and updates DC.
-*/
+
 bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 {
 	int i, dataLength, strLength, numRequiredBytes;
@@ -257,9 +257,7 @@ bool ParseData(dataPtr *dataListHead, dataPtr *dataListTail, char *data)
 }
 
 
-/*
-Description: gets a line that contains an extern label (.extern) and adds it to the symbols list.
-*/
+
 bool externLabels(char *line)
 {
 	if (isExtern(line))
@@ -276,10 +274,7 @@ bool externLabels(char *line)
 }
 
 
-/*
-gets a line with a command (for example "mov r1, r2"), and if it has a label, adds it to the symbols list.
-afterwards, calculates the size of the command in memory, and increments IC with the command size.
-*/
+
 bool parseCommand(char *line)/*with or without label*/
 {
 	int sizeOfCommand = 0;

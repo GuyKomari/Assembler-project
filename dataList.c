@@ -3,8 +3,6 @@
 bool addToDataList(dataPtr *head, dataPtr *tail, int dc, int dType, int ascii)
 {
 	dataPtr temp;
-	if (ascii >= 512 || ascii <= -512)
-		return FALSE;
 	temp = (dataPtr)(malloc(sizeof(dataTableNode)));
 	if (!temp)
 	{

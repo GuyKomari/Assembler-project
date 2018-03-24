@@ -13,7 +13,7 @@ void runAssembler(char* fileName)
 	if (flag)/*no errors found in the first pass*/
 	{
 		flag = secondPass(fileName);
-		if (!flag)/*error found in the second pass*/
+		if (!flag)/*errors found in the second pass*/
 		{
 			printFileError(ERRORS_IN_SECOND_PASS, fileName);
 			return;

@@ -137,19 +137,19 @@ void decimalToBinary(int, int *, int);
 /*
 Description: convert binary code to "wierd 32 base"
 */
-void binaryToWierd(int* binary, char* res);
+void binaryToWierd(int*, char*);
 
 /*
 Description: convert a number in decimal base to "wierd 32 base"
 */
 
-void decimalToWierd(int num, char* res);
+void decimalToWierd(int, char*);
 
 /*
 Description: convert a binary code to decimal number
 and returns the number
 */
-int binaryToDecimal(int *);
+int binaryToDecimal(int*);
 
 
 /*

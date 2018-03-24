@@ -34,6 +34,8 @@ bool secondPass(char* fileName)
 	if (sourceFileHandle == NULL)
 	{
 		printFileError(OPEN_FILE_ERROR, fileName);
+		freeSymbolsList(symbolListHead);
+		freeDataList(dataListHead);
 		return FALSE;
 	}
 	/* input file opened successfully */
@@ -42,6 +44,8 @@ bool secondPass(char* fileName)
 	if (!isFileExists(objFileName))/*checks if created successfully*/
 	{
 		printFileError(OPEN_FILE_ERROR, objFileName);
+		freeSymbolsList(symbolListHead);
+		freeDataList(dataListHead);
 		return FALSE;
 	}
 	printIcAndDCWeird();/* prints the IC and the DC to the object file into the first line */
@@ -68,6 +72,8 @@ bool secondPass(char* fileName)
 			if (!isFileExists(entFileName))
 			{
 				printFileError(OPEN_FILE_ERROR, entFileName);
+				freeSymbolsList(symbolListHead);
+				freeDataList(dataListHead);
 				return FALSE;
 			}
 			printToEntryFile(line);/*print the label name and its address to the entry file*/
@@ -174,6 +180,7 @@ void printToEntryFile(char* line)
 	if (LabelDeclaredButNotDefined(temp) == TRUE)
 	{
 		printWarning(LABEL_DECLARED_BUT_NOT_DEFINED, temp);
+		fclose(entFile);
 		return;
 	}
 	else

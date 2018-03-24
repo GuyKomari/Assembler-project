@@ -48,14 +48,14 @@ bool isLabel(char* src, char* dest)
 	start = temp;
 	if (!(isalpha(*temp)))/*label doesnt start with a letter*/
 	{
-		printError(LABEL_NOT_START_WITH_ALPHA);
+		/*printError("The label does not begins with an alpha letter");*/
 		return FALSE;
 	}
 	while (*temp && !isspace(*temp) && strncmp((char*)(temp), ":", 1) != 0)
 	{
 		if (*temp && !isalpha(*temp) && !isdigit(*temp))
 		{
-			printError(LABEL_CONTAINS_NON_ALPHA_OR_DIGIT);
+			/*printError("The label contains non-alpha or non-digit characters");*/
 			return FALSE;
 		}
 		temp++;
@@ -63,14 +63,17 @@ bool isLabel(char* src, char* dest)
 	}
 	if (!isExternDef && strncmp((char*)(temp++), ":", 1) != 0)
 	{
+		/*printError("A colon is missing");*/
 		return FALSE;
 	}
 	if (!isExternDef && !isspace(*temp))
 	{
 		if (ispunct(*temp) || isdigit(*temp) || isalpha(*temp))
 		{
+			/*printError("additional character after declaration of a label");*/
 			return FALSE;
 		}
+		/*printError("missing a space");*/
 		return FALSE;
 	}
 	if (dest != NULL)
@@ -174,7 +177,7 @@ bool isValidLabel(char* token)
 		return FALSE;
 	for (; i < length; i++)
 	{
-		if (trimmed[i] < 0 || trimmed[i] > 255 || trimmed[i] == '.')
+		if (trimmed[i] < 0 || trimmed[i] > 255)
 			return FALSE;
 		if (!(isalpha(trimmed[i]) || isdigit(trimmed[i])))
 			return FALSE;
@@ -184,23 +187,19 @@ bool isValidLabel(char* token)
 
 bool isNumOperand(char* token)
 {
-	int  i = 0, num;
+	int  i = 0;
 	char* trimmed;
 	trimmed = trimStr(token);
 	if (trimmed[i++] != '#')
 		return FALSE;
-	num = atoi(trimmed + i);
-	if (num == 0)
+	if (atoi(trimmed + i) == 0)
 	{
 		if (trimmed[i] == '+' || trimmed[i] == '-')
 			i++;
 		if (strcmp(trimmed + 1, "0") != 0)
 			return FALSE;
 	}
-	if (num > 127 || num < -127)
-		return FALSE;
-	else
-		return TRUE;
+	return TRUE;
 }
 
 
@@ -535,7 +534,6 @@ int getCommandSize(char* command)
 			return 0;
 		}
 	}
-	printError(INVALID_OPCODE_ERROR);
 	return 0;
 }
 
