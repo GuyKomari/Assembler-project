@@ -1,17 +1,17 @@
 /*
 Authors:
-Gil Mansharov
 Guy Komari
+Gil Mansharov
 */
 
 #ifndef DATA_LIST_H
 #define DATA_LIST_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "globalVariables.h"
 #include "errors.h"
-
 
 typedef enum {
 	positiveNumber,
