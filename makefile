@@ -1,8 +1,10 @@
+objects = main.o GlobalsFunctions.o assembler.o dataList.o errors.o firstPass.o globalVariables.o secondPass.o symbolsList.o
+
 CFLAGS = -Wall -ansi -pedantic
 CC = gcc
 
-Asembler: main.o GlobalsFunctions.o assembler.o dataList.o errors.o firstPass.o globalVariables.o secondPass.o symbolsList.o
-	$(CC) -g $(CFLAGS) main.o GlobalsFunctions.o assembler.o dataList.o errors.o firstPass.o globalVariables.o secondPass.o symbolsList.o -o Asembler
+assembler: $(objects)
+	$(CC) -g $(CFLAGS) $(objects) -o assembler
 
 main.o: main.c main.h assembler.h
 	$(CC) -c $(CFLAGS) main.c -o main.o
@@ -38,3 +40,7 @@ secondPass.o: secondPass.c secondPass.h globalVariables.h GlobalsFunctions.h
 
 symbolsList.o: symbolsList.c globalVariables.h
 	$(CC) -c $(CFLAGS) symbolsList.c -o symbolsList.o
+
+.PHONY : clean
+clean:
+		-rm $(objects)
