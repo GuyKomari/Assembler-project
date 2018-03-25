@@ -90,3 +90,4 @@ void printSymbolsList(symbolPtr *head)
 	printf(" NULL \n");
 	puts("");
 }
+
