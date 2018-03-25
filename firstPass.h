@@ -1,7 +1,7 @@
 /*
 Authors:
-Gil Mansharov
 Guy Komari
+Gil Mansharov
 */
 
 #ifndef FIRST_PASS_H
@@ -14,11 +14,11 @@ scanning line and sending it to the proper function in the "parser" module.
 
 bool firstpass(char*);
 
-bool ParseData(dataPtr*, dataPtr*, char *);
+bool ParseData(dataPtr*, dataPtr*, char *, bool, char*);
 
-bool externLabels(char *line);
+bool AddExternLabelToSymbolsList(char *line);
 
-bool parseCommand(char *line);
+bool parseCommand(char *line, bool, char *);
 
 
 #endif
