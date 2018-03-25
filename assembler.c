@@ -1,5 +1,8 @@
 #include "assembler.h"
 
+/*
+Description: This function gets a file name and assembles a single file
+*/
 void runAssembler(char* fileName)
 {
 	bool flag;
