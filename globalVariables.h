@@ -1,7 +1,7 @@
 /*
 Authors:
-Gil Mansharov
 Guy Komari
+Gil Mansharov
 */
 
 #ifndef GLOBAL_VARIABLES_H
@@ -88,7 +88,25 @@ Guy Komari
 
 #define TEN_BITS 10
 
+#define EXTERN "extern"
 
+#define ENTRY "entry"
+
+#define MIN_NUMBER -128
+
+#define MAX_NUMBER 127
+
+#define MIN_DATA_NUMBER -512
+
+#define MAX_DATA_NUMBER 511
+
+#define EXTERN_DECLERATION ".extern"
+
+#define ENTRY_DECLERATION ".entry"
+
+#define NUM_OF_DATA_TYPES 3
+
+#define NUM_OF_STRUCT_ARGUMENTS 2
 
 
 
@@ -157,5 +175,10 @@ extern char *OpcodesSecondGroup[SECOND_GROUP_SIZE];
 
 extern char *OpcodesThirdGroup[THIRD_GROUP_SIZE];
 
+extern char *DataCommand[NUM_OF_DATA_TYPES];
+
+extern int DataCommandLength[NUM_OF_DATA_TYPES];
+
+extern char *AssemblyfileName;
 
 #endif
