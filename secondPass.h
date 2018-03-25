@@ -1,14 +1,14 @@
 /*
 Authors:
-Gil Mansharov
 Guy Komari
+Gil Mansharov
 */
 
 #ifndef SECOND_PASS_H
 #define SECOND_PASS_H
+
 #include "globalVariables.h"
 #include "GlobalsFunctions.h"
-
 
 /*
 functions used for the second pass module
@@ -24,9 +24,9 @@ int getOpcodeGroup(char*);
 
 int getAddressingType(int*);
 
-void encodingCommand(char*);
+bool encodingCommand(char*);
 
-void makeBinaryCode(int, char*, char*, char *);
+bool makeBinaryCode(int, char*, char*, char *);
 
 void makeSingleOperandBinary(char *, int *);
 
@@ -40,22 +40,26 @@ void setOpcodeBinaryCode(char *, int *);
 
 void copyBinaryOpcode(int, int *);
 
-void makeOperandsWeird(int, int *, int *, char *, char *);
+bool makeOperandsWeird(int, int *, int *, char *, char *);
 
 void printRegisterWeird(char *, char *, bool, bool);
 
 void copyBinaryRegister(int *, int, char *);
 
-void printStructWithDotWeird(char *);
+bool printStructWithDotWeird(char *);
 
 void printNumberWeird(char*, char *);
 
-void printDestOperand(char *, char *, int);
+bool printDestOperand(char *, char *, int);
 
-void printWeirdDataOperand(char *);
+bool printWeirdDataOperand(char *);
 
 void printDataWeird();
 
 bool LabelDeclaredButNotDefined(char *);
+
+void resetFilesName(char *, char *, char *);
+
+void resetSingleLine(char *);
 
 #endif
