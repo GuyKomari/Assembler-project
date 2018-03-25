@@ -36,16 +36,16 @@ RegisterStructure registersBinary[NUM_OF_REGISTERS] = {
 };
 
 opcodeStructure opcodes[NUM_OF_OPCODES] = {
-{ 0	,	"mov"	,{ 0,0,0,0 }	,	FIRST_GROUP },
-{ 1	,	"cmp"	,{ 0,0,0,1 }	,	FIRST_GROUP },
-{ 2	,	"add"	,{ 0,0,1,0 }	,	FIRST_GROUP },
-{ 3	,	"sub"	,{ 0,0,1,1 }	,	FIRST_GROUP },
-{ 4	,	"not"	,{ 0,1,0,0 }	,	SECOND_GROUP },
-{ 5	,	"clr"	,{ 0,1,0,1 }	,	SECOND_GROUP },
-{ 6	,	"lea"	,{ 0,1,1,0 }	,	FIRST_GROUP },
-{ 7	,	"inc"	,{ 0,1,1,1 }	,	SECOND_GROUP },
-{ 8	,	"dec"	,{ 1,0,0,0 }	,	SECOND_GROUP },
-{ 9	,	"jmp"	,{ 1,0,0,1 }	,	SECOND_GROUP },
+{ 0		,	"mov"	,{ 0,0,0,0 }	,	FIRST_GROUP },
+{ 1		,	"cmp"	,{ 0,0,0,1 }	,	FIRST_GROUP },
+{ 2		,	"add"	,{ 0,0,1,0 }	,	FIRST_GROUP },
+{ 3		,	"sub"	,{ 0,0,1,1 }	,	FIRST_GROUP },
+{ 4		,	"not"	,{ 0,1,0,0 }	,	SECOND_GROUP },
+{ 5		,	"clr"	,{ 0,1,0,1 }	,	SECOND_GROUP },
+{ 6		,	"lea"	,{ 0,1,1,0 }	,	FIRST_GROUP },
+{ 7		,	"inc"	,{ 0,1,1,1 }	,	SECOND_GROUP },
+{ 8		,	"dec"	,{ 1,0,0,0 }	,	SECOND_GROUP },
+{ 9		,	"jmp"	,{ 1,0,0,1 }	,	SECOND_GROUP },
 { 10	,	"bne"	,{ 1,0,1,0 }	,	SECOND_GROUP },
 { 11	,	"red"	,{ 1,0,1,1 }	,	SECOND_GROUP },
 { 12	,	"prn"	,{ 1,1,0,0 }	,	SECOND_GROUP },
@@ -58,3 +58,8 @@ opcodeStructure opcodes[NUM_OF_OPCODES] = {
 char *OpcodesFirstGroup[FIRST_GROUP_SIZE] = { "mov","cmp","add","sub","lea" };
 char *OpcodesSecondGroup[SECOND_GROUP_SIZE] = { "not", "clr","inc","dec","jmp","bne","red","prn","jsr" };
 char *OpcodesThirdGroup[THIRD_GROUP_SIZE] = { "rts", "stop" };
+
+char *DataCommand[NUM_OF_DATA_TYPES] = {".string", ".data", ".struct" };
+int DataCommandLength[NUM_OF_DATA_TYPES] = { 7, 5, 7 };
+
+char* AssemblyfileName;
