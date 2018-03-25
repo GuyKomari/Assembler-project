@@ -1,19 +1,20 @@
 /*
 Authors:
-Gil Mansharov
 Guy Komari
+Gil Mansharov
 */
 
 #ifndef ERRORS_H
 #define ERRORS_H
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include "globalVariables.h"
+
 /*
 #define ERRORNAME "error description"
 */
-
 #define FILE_NAME_MEM_ALLOCATION_FAILURE "Could not allocate memory for the file name you provided"
 
 #define OPEN_FILE_ERROR "could not open the file "
@@ -24,17 +25,17 @@ Guy Komari
 
 #define ERRORS_IN_FIRST_PASS "errors found on the first pass, output files will not be created for the input file "
 
-#define ERRORS_IN_SECOND_PASS "errrors found on the second pass, output files will not be created for the input file "
+#define ERRORS_IN_SECOND_PASS "errrors found on the second pass, for the input file "
 
 #define MISSING_SPACE_AFTER_ENTRY "A space is missing after declaration of an entry"
 
 #define MISSING_SPACE_AFTER_EXTERN "A space is missing after declaration of an extern"
 
+#define INVALID_OPCODE_ERROR	"The opcode is invalid"
+
 #define LABEL_BEGINS_WITH_NUMBER  "Label should not begin with a number"
 
-#define ENTRY_MORE_THEN_ONE_LABEL "only one label can be declared in entry declaration"
-
-#define EXTERN_MORE_THEN_ONE_LABEL "only one label can be declared in extern declaration"
+#define MORE_THEN_ONE_LABEL "only one label can be declared"
 
 #define NUMBER_IS_OUT_OF_RANG "the number is out of range, the language range is -256 to 256"
 
@@ -86,6 +87,41 @@ Guy Komari
 
 #define MISSING_SPACE_AFTER_STRUCT_DECLARATION	"Missing space after .struct declaration"
 
+#define ERROR_UNKNOWN_DECLARATION "Error unknown declaration - "
+
+#define NO_LABEL_DECLARED_ERROR "no label declared after entry or extern declaration"
+
+#define LABEL_LENGTH_ERROR "label length is not valid"
+
+#define RUNTIME_ERROR_DECLARING_REGISTER_OR_LABEL "An unknown label or register where declared"
+
+#define OVERFLOW_DATA_POSITIVE_NUMBER "positive value too large to fit in 10 bits"
+
+#define OVERFLOW_DATA_NEGATIVE_NUMBER "negative value too large to fit in 10 bits"
+
+#define OVERFLOW_COMMAND_POSITIVE_NUMBER "positive immediate too large to fit in 8 bits"
+
+#define OVERFLOW_COMMAND_NEGATIVE_NUMBER "negative immediate too large to fit in 8 bits"
+
+#define SORCE_OPERAND_NOT_NUMBER_IN_STRUCT "Source opernd should be a number"
+
+#define DESTINATION_OPERAND_NOT_STRING_IN_STRUCT "Destination opernd should be a String"
+
+#define MISSING_ARGUMENTS_IN_DIRECTIVE "Missing arguments in directive"
+
+#define TOO_MUCH_WORDS_IN_STRUCT	"Too much words in the struct"
+
+#define NOT_NUMBER_IN_DATA "Invalid number in .data declaration" 
+
+#define LABEL_NAME_EQUALS_KEYWORD_NAME "A label has the same name as a keyword"
+
+#define LABEL_NAME_EQUALS_REGISTER_NAME "A label has the same name as a register"
+
+#define NOT_STRING_IN_STRING_DECLARATION "Invalid String in .string declaration" 
+
+#define INVALID_CHARACTERS "Invalid characters in .string declaration"
+
+#define INVALID_LABEL_OR_OPCODE_DECLARATION "Invalid label or opcode declaration" 
 
 void printError(char*);
 
@@ -93,6 +129,8 @@ void printFileError(char*, char*);
 
 void printWarning(char*, char *);
 
+void printRuntimeError(char* , char* );
 
+void printExtendedError(char* , char* );
 
 #endif
