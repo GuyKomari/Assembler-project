@@ -1,17 +1,17 @@
 /*
 Authors:
-Gil Mansharov
 Guy Komari
+Gil Mansharov
 */
 
 #ifndef SYMBOLS_LIST_H
 #define	SYMBOLS_LIST_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "string.h"
 #include "errors.h"
 #include "globalVariables.h"
-
 
 typedef struct symbolsTableNode* symbolPtr;
 
