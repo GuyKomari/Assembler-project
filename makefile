@@ -1,9 +1,10 @@
 objects = main.o GlobalsFunctions.o assembler.o dataList.o errors.o firstPass.o globalVariables.o secondPass.o symbolsList.o
+headers = main.h GlobalsFunctions.h assembler.h dataList.h errors.h firstPass.h globalVariables.h secondPass.h symbolsList.h
 
 CFLAGS = -Wall -ansi -pedantic
 CC = gcc
 
-assembler: $(objects)
+assembler: $(objects) $(headers)
 	$(CC) -g $(CFLAGS) $(objects) -o assembler
 
 main.o: main.c main.h assembler.h
